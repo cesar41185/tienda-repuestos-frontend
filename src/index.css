@@ -18,16 +18,71 @@ body {
 
 /* --- Estilos para el nuevo Header --- */
 .app-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid #dee2e6;
-    padding-bottom: 1rem;
+  display: flex; /* La base para alinear los elementos */
+  justify-content: space-between; /* Empuja el grupo izquierdo y derecho a los extremos */
+  align-items: center; /* Centra todo verticalmente */
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 1rem;
 }
 
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none; /* Quita el subrayado del Link que envuelve el logo */
+}
+
+.header-brand h1 {
+  color: #0056b3;
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+
 .logo {
-    height: 50px; /* Ajusta la altura de tu logo */
-    margin-right: 1.5rem;
+  height: 50px;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem; /* Espacio entre los enlaces/botones */
+}
+
+/* Estilo general para los enlaces de navegación */
+.nav-link {
+  text-decoration: none;
+  color: #495057;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #0056b3;
+}
+
+.cart-link {
+  font-weight: bold;
+}
+
+.nav-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.nav-button:hover {
+  opacity: 0.9;
+}
+
+.register-btn {
+  background-color: #007bff;
+  color: white;
 }
 
 .app-header h1 {
@@ -60,8 +115,10 @@ body {
 #searchButton:hover {
     background-color: #0056b3;
 }
+
 .results-container {
-    margin-top: 20px;
+  margin-top: 20px;
+  /* Ya no necesita nada más */
 }
 #resultsTable {
     width: 100%;
@@ -123,4 +180,581 @@ body {
 
 .input-small {
   width: 80px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-content input {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.fotos-actuales { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; }
+.fotos-actuales img { height: 60px; border-radius: 4px; border: 1px solid #ccc; }
+
+.edit-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.edit-form div {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-foto-content {
+  max-width: 90vw;
+  max-height: 90vh;
+}
+.modal-foto-content img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.modal-tabs { display: flex; border-bottom: 1px solid #ccc; margin-bottom: 1rem; }
+.modal-tabs button { background: none; border: none; padding: 1rem; cursor: pointer; }
+.modal-tabs button.active { border-bottom: 2px solid #007bff; font-weight: bold; }
+
+.grid-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.grid-form button {
+  grid-column: 1 / -1; /* Hace que el botón ocupe todo el ancho */
+}
+
+.related-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.related-list li div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-btn {
+  background-color: #ffc107; /* Amarillo/ámbar */
+  color: #212529; /* Texto oscuro para mejor contraste */
+}
+.edit-btn:hover {
+  background-color: #e0a800;
+}
+
+.tabla-foto-miniatura {
+  height: 40px;
+  width: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.tabla-foto-miniatura:hover {
+  transform: scale(1.1);
+}
+
+.foto-placeholder {
+  height: 40px;
+  width: 40px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+}
+
+#resultsTable thead th {
+  cursor: pointer;
+  user-select: none; /* Evita que el texto se seleccione al hacer clic */
+}
+
+#resultsTable thead th:hover {
+  background-color: #0056b3;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.pagination-controls button {
+  padding: 0.5rem 1rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+
+.celda-clicable {
+  cursor: pointer;
+  color: #0056b3;
+  font-weight: bold;
+  text-decoration: none; color: inherit;
+}
+.celda-clicable:hover {
+  text-decoration: underline;
+}
+
+.vista-detalle { padding: 1rem; }
+.volver-btn { margin-bottom: 2rem; }
+.detalle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+.detalle-fotos img { max-width: 100%; border-radius: 8px; margin-bottom: 1rem; }
+.detalle-specs ul, .detalle-relacionados ul { list-style: none; padding: 0; }
+.detalle-specs li, .detalle-relacionados li { padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+.acciones-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+.accion-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; /* Ancho fijo */
+  height: 38px; /* Altura fija */
+  font-size: 1.1rem; /* Tamaño del emoji/ícono */
+  border: none;
+  border-radius: 5px; /* Bordes redondeados */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: white;
+}
+
+
+.accion-btn:hover {
+  transform: translateY(-2px); /* Eleva el botón ligeramente */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Añade una sombra sutil */
+}
+
+
+.add-cart-btn {
+  background-color: #007bff; /* Azul vibrante */
+}
+
+
+
+/* --- ESTILOS MODERNOS PARA EL CARRITO DE COMPRAS --- */
+
+.carrito-container {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.carrito-container h2 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.carrito-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.carrito-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.carrito-item:last-child {
+  border-bottom: none;
+}
+
+.carrito-item-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover; /* Rellena el espacio sin deformar la imagen */
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}
+
+.carrito-item-details {
+  flex-grow: 1; /* Ocupa el espacio disponible */
+  display: flex;
+  flex-direction: column;
+}
+
+.carrito-item-modelo {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #212529;
+}
+
+.carrito-item-codigo {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.carrito-item-precio-unitario {
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.carrito-item-controles {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.carrito-cantidad-input {
+  width: 60px;
+  padding: 0.5rem;
+  text-align: center;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.carrito-item-subtotal {
+  width: 90px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.carrito-eliminar-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #adb5bd;
+  transition: color 0.2s;
+}
+
+.carrito-eliminar-btn:hover {
+  color: #dc3545;
+}
+
+.carrito-vacio {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.carrito-vacio h2 {
+  border-bottom: none;
+}
+
+.carrito-checkout {
+  /* No necesitamos flexbox aquí, lo controlaremos de otra forma */
+  text-align: right; /* Alineamos todo a la derecha */
+}
+
+.carrito-checkout strong {
+  display: block; /* <-- AÑADE ESTO: obliga al total a ocupar su propia línea */
+  text-align: right; /* <-- AÑADE ESTO: alinea el texto del total a la derecha */
+  font-size: 1.8rem; 
+  font-weight: bold;
+  color: #212529;
+  margin-bottom: 0.75rem; 
+}
+
+.finalizar-compra-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem; /* Relleno más ajustado */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem; /* Tamaño de letra reducido */
+  font-weight: bold;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+.finalizar-compra-btn:hover {
+  background-color: #218838; /* Un verde más oscuro al pasar el mouse */
+}
+
+/* Estilo para el nuevo enlace/botón de seguir comprando */
+.seguir-comprando-btn {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+  padding: 0.75rem 0; /* Solo padding vertical para que no parezca un botón */
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.seguir-comprando-btn:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.carrito-item-modelo {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.carrito-acciones {
+  display: flex;
+  justify-content: space-between; /* Empuja los elementos a los extremos */
+  align-items: center; /* Los alinea verticalmente */
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e9ecef;
+  flex-wrap: wrap; 
+  gap: 1rem;
+}
+
+.producto-detalle-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Columnas flexibles */
+  gap: 2.5rem; /* Espacio entre las columnas */
+  margin-top: 2rem;
+}
+
+/* Columna para las fotos */
+.producto-fotos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Estilo para cada imagen */
+.producto-fotos img {
+  max-width: 100%; /* La clave: la imagen nunca será más ancha que su contenedor */
+  height: auto; /* Mantiene la proporción */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Columna para la información */
+.producto-info h1 {
+  margin-top: 0;
+  font-size: 2rem;
+}
+
+.producto-info .producto-precio {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #28a745; /* Verde */
+  margin: 1rem 0;
+}
+
+.producto-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.producto-info li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.producto-acciones {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.producto-acciones input {
+  width: 70px;
+  text-align: center;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.producto-acciones button {
+  flex-grow: 1; /* El botón ocupa el espacio restante */
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.volver-tienda-btn {
+  /* Hacemos que ocupe todo el ancho de la grilla para que esté arriba */
+  grid-column: 1 / -1; 
+  margin-bottom: 1rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #007bff;
+  background-color: #e9f5ff;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start; /* Se alinea a la izquierda */
+}
+
+.volver-tienda-btn:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+#resultsTable .columna-acciones {
+  white-space: nowrap; /* Evita que el contenido se divida en varias líneas */
+  width: 1%; /* Un truco para que la columna se ajuste al ancho mínimo de su contenido */
+}
+
+.foto-container {
+  position: relative; /* Necesario para posicionar el botón 'X' encima */
+  width: 100%; /* Hacemos que cada contenedor ocupe el ancho completo */
+}
+
+/* Estilo para la imagen dentro de .foto-container */
+.foto-container img {
+  width: 100%;                  /* La imagen ocupa todo el ancho de su contenedor */
+  height: 150px;                /* Le damos una altura fija para que todas sean iguales */
+  object-fit: contain;          /* LA CLAVE: La imagen se ajusta sin deformarse */
+  background-color: #f0f2f5;    /* Un fondo gris claro por si la imagen no llena todo el espacio */
+  border-radius: 4px;
+}
+
+.delete-foto-btn {
+  position: absolute; /* Se posiciona relativo al .foto-container */
+  top: 5px;
+  right: 5px;
+  background-color: rgba(211, 47, 47, 0.8); /* Rojo semitransparente */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Lo hacemos circular */
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background-color 0.2s;
+}
+
+.delete-foto-btn:hover {
+  background-color: #d32f2f; /* Rojo sólido al pasar el mouse */
+}
+
+/* --- ESTILOS PARA FORMULARIOS DE LOGIN/REGISTRO --- */
+
+.auth-container {
+  max-width: 450px; /* Ancho máximo del formulario */
+  margin: 2rem auto; /* Centra el formulario en la página */
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.auth-container h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #343a40;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column; /* Apila los elementos verticalmente */
+  gap: 1rem; /* Espacio entre los elementos */
+}
+
+.auth-form label {
+  font-weight: 500;
+  margin-bottom: -0.5rem; /* Acerca la etiqueta al campo de abajo */
+}
+
+.auth-form input {
+  padding: 0.8rem;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.auth-form button {
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+.auth-form button:hover {
+  background-color: #0056b3;
+}
+
+.auth-links {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.auth-links a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
 }
