@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
+import API_URL from '../apiConfig';
 function DetallePedidoPage() {
   const { id } = useParams(); // Obtiene el ID del pedido de la URL
   const [pedido, setPedido] = useState(null);

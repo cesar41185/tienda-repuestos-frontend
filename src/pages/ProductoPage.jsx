@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../apiConfig';
 
 function ProductoPage() {
   const { user } = useAuth();
@@ -19,7 +20,7 @@ function ProductoPage() {
     const fetchProducto = async () => {
       try {
         setCargando(true);
-        const response = await fetch(`http://192.168.1.55:8000/api/productos/${id}/`);
+        const response = await fetch(`${API_URL}/productos/${id}/`);
         if (!response.ok) {
           throw new Error('No se encontró el producto');
         }

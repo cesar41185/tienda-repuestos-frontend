@@ -1,18 +1,18 @@
 // En src/pages/GestorMarcasPage.jsx
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import API_URL from '../apiConfig';
 
 function GestorMarcasPage() {
   const [marcas, setMarcas] = useState([]);
   const [nuevaMarca, setNuevaMarca] = useState('');
   const [cargando, setCargando] = useState(true);
 
-  const API_URL = 'http://192.168.1.55:8000/api/marcas/';
-
+  
   // Función para cargar las marcas
   const fetchMarcas = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(API_URL + '/marcas/');
       const data = await response.json();
       // La API puede devolver los datos paginados o no, nos preparamos para ambos casos
       setMarcas(data.results || data);
@@ -34,7 +34,7 @@ function GestorMarcasPage() {
     if (!nuevaMarca.trim()) return;
 
     try {
-      await fetch(API_URL, {
+      await fetch(API_URL + '/marcas/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: nuevaMarca }),
@@ -51,7 +51,7 @@ function GestorMarcasPage() {
   const handleDeleteMarca = async (marcaId) => {
     if (window.confirm('¿Seguro que quieres eliminar esta marca?')) {
       try {
-        await fetch(`${API_URL}${marcaId}/`, { method: 'DELETE' });
+        await fetch(`${API_URL}/marcas/${marcaId}/`, { method: 'DELETE' });
         toast.success('Marca eliminada.');
         fetchMarcas(); // Recargamos la lista
       } catch (error) {

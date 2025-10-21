@@ -35,7 +35,7 @@ function TiendaPage() {
     try {
       const response = await fetch(finalUrl);
       const data = await response.json();
-      setProductos(data.results);
+      setProductos(data.results || []);
       setPageInfo({ count: data.count, next: data.next, previous: data.previous });
       return data.results; // Devuelve los datos para que onRefresh funcione
     } catch (error) {

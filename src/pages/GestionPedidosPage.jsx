@@ -1,25 +1,9 @@
 // En src/pages/GestionPedidosPage.jsx
-import { useState, useEffect, useMemo } from 'react';  
+import { useState, useEffect } from 'react';  
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import ModalGestionarPago from '../components/ModalGestionarPago';
 import { Link } from 'react-router-dom';
-
-const workflow = {
-  EN_PREPARACION: {
-    siguientes: ['LISTO_PARA_RETIRO', 'CANCELADO'],
-    roles: ['Administrador', 'Almacen'],
-  },
-  LISTO_PARA_RETIRO: {
-    siguientes: ['ENTREGADO'],
-    roles: ['Administrador', 'Vendedor'],
-  },
-  ENTREGADO: {
-    siguientes: ['CERRADO'],
-    roles: ['Administrador', 'Cajero'],
-  }
-  // Nota: No definimos PENDIENTE_PAGO aquí porque se maneja con el modal de Pago.
-};
+import API_URL from '../apiConfig'; // <-- CORRECCIÓN
 
 const statusLabels = {
   PENDIENTE_PAGO: "Pendiente de Pago",
@@ -42,39 +26,13 @@ const FILTROS_STATUS = [
 function GestionPedidosPage() {
   const [pedidos, setPedidos] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [pedidoParaPago, setPedidoParaPago] = useState(null);
-  const [filtroStatus, setFiltroStatus] = useState(''); // Estado para el filtro activo
+  const [filtroStatus, setFiltroStatus] = useState('');
   const { user, token } = useAuth();
-  const API_URL = import.meta.env.VITE_API_URL;;
 
-  const esAdmin = user && user.groups.includes('Administrador');
-  const esVendedor = user && user.groups.includes('Vendedor');
-  const esCajero = user && user.groups.includes('Cajero');
   const esAlmacen = user && user.groups.includes('Almacen');
-
-  // --- 3. FUNCIÓN QUE CALCULA LAS OPCIONES DISPONIBLES ---
-  const getOpcionesDisponibles = (pedido) => {
-    if (!user) return [];
-    const regla = workflow[pedido.status];
-    if (!regla) return [];
-
-    const tienePermisoDeRol = user.groups.some(rol => regla.roles.includes(rol));
-    if (!tienePermisoDeRol) return [];
-
-    let opciones = regla.siguientes;
-
-    // REGLA NUEVA: Solo el admin puede Cancelar o Cerrar
-    if (!esAdmin) {
-      opciones = opciones.filter(opcion => opcion !== 'CANCELADO' && opcion !== 'CERRADO');
-    }
-    
-    return opciones;
-  };
-
 
   const fetchPedidos = async () => {
     if (!token) return;
-    // La URL ahora incluye el filtro de status
     const url = `${API_URL}/ventas/?status=${filtroStatus}`;
     try {
       const response = await fetch(url, { headers: { 'Authorization': `Token ${token}` } });
@@ -87,58 +45,9 @@ function GestionPedidosPage() {
     }
   };
 
-  // El useEffect ahora se ejecuta cuando cambia el token O el filtro
   useEffect(() => {
     fetchPedidos();
   }, [token, filtroStatus]);
-
-  const handleTomarPedido = async (pedidoId) => {
-    try {
-      toast.loading('Asignando pedido...');
-      const response = await fetch(`${API_URL}/ventas/${pedidoId}/asignar_vendedor/`, {
-        method: 'POST',
-        headers: { 'Authorization': `Token ${token}` },
-      });
-      toast.dismiss();
-      if (!response.ok) throw new Error('No se pudo tomar el pedido.');
-      const data = await response.json();
-      toast.success(data.status);
-      fetchPedidos(); // Recarga la lista
-    } catch (error) {
-      toast.dismiss();
-      toast.error(error.message);
-    }
-  };
-
-  const handleStatusChange = async (pedidoId, nuevoStatus) => {
-    try {
-      toast.loading('Actualizando estado...');
-      const response = await fetch(`${API_URL}/ventas/${pedidoId}/actualizar_estado/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`,
-        },
-        body: JSON.stringify({ status: nuevoStatus }),
-      });
-      
-      const data = await response.json();
-      toast.dismiss();
-
-      if (!response.ok) throw new Error(data.error || 'No se pudo actualizar el estado.');
-      
-      toast.success(data.status);
-      fetchPedidos(); // Recarga la lista de pedidos para mostrar el cambio
-    } catch (error) {
-      toast.dismiss();
-      toast.error(error.message);
-    }
-  };
-
-  const handleCloseModalPago = () => {
-    setPedidoParaPago(null);
-    fetchPedidos(); // Refresca la lista al cerrar el modal
-  };
 
   if (cargando) return <p>Cargando gestión de pedidos...</p>;
 
@@ -146,7 +55,6 @@ function GestionPedidosPage() {
     <div className="gestor-container" style={{maxWidth: '1200px'}}>
         <h2>Gestión de Pedidos</h2>
 
-        {/* --- Pestañas de Filtro --- */}
         <div className="modal-tabs" style={{marginBottom: '1rem'}}>
           {FILTROS_STATUS.map(filtro => (
             <button 

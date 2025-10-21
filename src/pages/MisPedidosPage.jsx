@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 function MisPedidosPage() {
   const [pedidos, setPedidos] = useState([]);
