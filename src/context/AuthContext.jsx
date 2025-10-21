@@ -2,6 +2,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import API_URL from '../apiConfig';
 
 const AuthContext = createContext();
 
@@ -12,82 +13,100 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); 
   const navigate = useNavigate();
 
-  const API_URL = 'http://192.168.1.55:8000/api/auth';
+  const logoutUser = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('authToken');
+    navigate('/login');
+  };
 
-  // Función para registrar un usuario
-const registerUser = async (formData) => {
+  useEffect(() => {
+      const fetchUser = async () => {
+        if (token) {
+          try {
+            // --- CORRECCIÓN AQUÍ ---
+            // La URL correcta para obtener el usuario es '/api/auth/user/'
+            const userResponse = await fetch(`${API_URL}/auth/user/`, {
+              headers: { 'Authorization': `Token ${token}` }
+            });
+            if (!userResponse.ok) {
+              throw new Error('Token inválido');
+            }
+            const userData = await userResponse.json();
+            setUser(userData);
+
+            if (userData.perfil && userData.perfil.debe_cambiar_password) {
+              toast.error('Por tu seguridad, debes cambiar tu contraseña.', { duration: 6000 });
+            }  
+          } catch (e) {
+            logoutUser();
+          }
+        } else {
+          setUser(null);
+        }
+      };
+      fetchUser();
+  }, [token]);
+  
+  const registerUser = async (formData) => {
     try {
-      const response = await fetch(`${API_URL}/registration/`, {
+      // La URL de registro también va bajo /auth/
+      const response = await fetch(`${API_URL}/auth/registration/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       
-      const data = await response.json(); // Leemos la respuesta, sea de éxito o error
-
-      if (!response.ok) {
-        // Si la respuesta no es OK, lanzamos un error con los datos del backend
-        throw data; 
-      }
+      const data = await response.json();
+      if (!response.ok) { throw data; }
 
       toast.success('¡Registro exitoso! Por favor, inicia sesión.');
       navigate('/login');
     } catch (error) {
-      console.error('Error de registro:', error);
-      
-      // Creamos un mensaje de error legible a partir de la respuesta del backend
       let errorMessage = 'Error en el registro. Revisa los datos.';
       if (error && typeof error === 'object') {
-        // Extraemos los mensajes de error de cada campo y los unimos
         const messages = Object.keys(error)
-          .map(key => `${key}: ${error[key].join(' ')}`)
+          .map(key => `${key}: ${Array.isArray(error[key]) ? error[key].join(' ') : error[key]}`)
           .join('\n');
         if (messages) {
             errorMessage = messages;
         }
       }
-      toast.error(errorMessage, { duration: 6000 }); // Mostramos el error por más tiempo
+      toast.error(errorMessage, { duration: 6000 });
     }
-};
-  // Función para iniciar sesión
+  };
+
   const loginUser = async (formData) => {
     try {
-      const response = await fetch(`${API_URL}/login/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error('Usuario o contraseña incorrectos.');
-      }
-      setToken(data.key);
-      localStorage.setItem('authToken', data.key);
-      // Aquí podrías también pedir y guardar los datos del usuario
-      // setUser(userData); 
-      toast.success('¡Bienvenido!');
-      navigate('/'); // Redirige a la tienda
+        const loginResponse = await fetch(`${API_URL}/auth/login/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+        const loginData = await loginResponse.json();
+        if (!loginResponse.ok) { throw new Error('Usuario o contraseña incorrectos.'); }
+
+        setToken(loginData.key);
+        localStorage.setItem('authToken', loginData.key);
+        
+        toast.success('¡Bienvenido!');
+        navigate('/');
     } catch (error) {
-      console.error('Error de login:', error);
       toast.error(error.message);
     }
   };
 
-  // Función para cerrar sesión
-  const logoutUser = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('authToken');
-    toast.success('Has cerrado sesión.');
-    navigate('/login');
-  };
+  const manualLogoutUser = () => {
+      logoutUser();
+      toast.success('Has cerrado sesión.');
+  }
 
   const value = {
     token,
     user,
     loginUser,
     registerUser,
-    logoutUser
+    logoutUser: manualLogoutUser
   };
 
   return (

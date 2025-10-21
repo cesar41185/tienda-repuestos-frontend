@@ -1,9 +1,8 @@
-// En src/components/Buscador.jsx
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
-// Ahora recibe la lista de marcas como un "prop"
 function Buscador({ onBuscar, marcas }) {
-  // Creamos un estado para cada filtro
+  // Estados para cada campo del filtro
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [tipo, setTipo] = useState('');
   const [marca, setMarca] = useState('');
   const [ranuras, setRanuras] = useState('');
@@ -15,9 +14,14 @@ function Buscador({ onBuscar, marcas }) {
   const [longitudMax, setLongitudMax] = useState('');
   const [busquedaGeneral, setBusquedaGeneral] = useState('');
 
+  // Variable para saber si hay algún filtro activo y mostrar la escoba
+  const isFilterActive = useMemo(() => 
+    busquedaGeneral || tipo || marca || ranuras || vastagoMin || vastagoMax || cabezaMin || cabezaMax || longitudMin || longitudMax,
+    [busquedaGeneral, tipo, marca, ranuras, vastagoMin, vastagoMax, cabezaMin, cabezaMax, longitudMin, longitudMax]
+  );
 
+  // Función para enviar los filtros a la página principal
   const handleBuscarClick = () => {
-    // Creamos un objeto con todos los filtros que tienen algún valor
     const filtros = {
       search: busquedaGeneral,
       tipo,
@@ -30,11 +34,32 @@ function Buscador({ onBuscar, marcas }) {
       longitud_total_min: longitudMin,
       longitud_total_max: longitudMax,
     };
+    // Limpiamos los filtros que estén vacíos antes de enviar
+    Object.keys(filtros).forEach(key => {
+      if (!filtros[key]) {
+        delete filtros[key];
+      }
+    });
     onBuscar(filtros);
   };
+  
+  // Función para limpiar todos los campos y mostrar todos los productos
+  const handleLimpiarFiltros = () => {
+    setTipo('');
+    setMarca('');
+    setRanuras('');
+    setVastagoMin('');
+    setVastagoMax('');
+    setCabezaMin('');
+    setCabezaMax('');
+    setLongitudMin('');
+    setLongitudMax('');
+    setBusquedaGeneral('');
+    onBuscar({}); // Envía una búsqueda sin filtros
+  };
 
+  // Permite buscar presionando "Enter" en el campo principal
   const handleKeyDown = (event) => {
-    // Si la tecla presionada es "Enter", llamamos a la misma función del botón.
     if (event.key === 'Enter') {
       handleBuscarClick();
     }
@@ -42,36 +67,47 @@ function Buscador({ onBuscar, marcas }) {
 
   return (
     <div className="filter-container">
-      {/* Fila para Tipo y Marca */}
-      <input 
+      {/* --- NUEVO CONTENEDOR PARA LA BARRA DE BÚSQUEDA --- */}
+      <div className="search-bar-container">
+        <input 
           type="text" 
           placeholder="Búsqueda general..." 
           value={busquedaGeneral} 
           onChange={(e) => setBusquedaGeneral(e.target.value)}
           onKeyDown={handleKeyDown} 
-      />
-      <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-        <option value="">-- Tipo --</option>
-        <option value="ADMISION">Admisión</option>
-        <option value="ESCAPE">Escape</option>
-      </select>
-      <select value={marca} onChange={(e) => setMarca(e.target.value)}>
-        <option value="">-- Marca Vehículo --</option>
-        {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-      </select>
-      <input type="number" placeholder="Ranuras" value={ranuras} onChange={(e) => setRanuras(e.target.value)} />
+          className="search-bar-input"
+        />
+        <button onClick={handleBuscarClick} className="search-bar-btn" title="Buscar">🔍</button>
+        
+        {/* --- 2. BOTÓN DE LIMPIAR (ahora siempre visible) --- */}
+        <button onClick={handleLimpiarFiltros} className="search-bar-btn" title="Limpiar filtros">🧹</button>
 
-      {/* Fila para Medidas */}
-      <div>
-        <input type="number" placeholder="Vástago Mín (mm)" value={vastagoMin} onChange={(e) => setVastagoMin(e.target.value)} />
-        <input type="number" placeholder="Vástago Máx (mm)" value={vastagoMax} onChange={(e) => setVastagoMax(e.target.value)} />
-        <input type="number" placeholder="Cabeza Mín (mm)" value={cabezaMin} onChange={(e) => setCabezaMin(e.target.value)} />
-        <input type="number" placeholder="Cabeza Máx (mm)" value={cabezaMax} onChange={(e) => setCabezaMax(e.target.value)} />
-        <input type="number" placeholder="Longitud Mín (mm)" value={longitudMin} onChange={(e) => setLongitudMin(e.target.value)} />
-        <input type="number" placeholder="Longitud Máx (mm)" value={longitudMax} onChange={(e) => setLongitudMax(e.target.value)} />
+        {/* --- 3. NUEVO BOTÓN para mostrar/ocultar filtros avanzados --- */}
+        <button onClick={() => setShowAdvanced(!showAdvanced)} className="search-bar-btn filter-toggle-btn" title="Más filtros">
+          ⚙️
+        </button>
       </div>
 
-      <button onClick={handleBuscarClick}>Buscar</button>
+      {showAdvanced && (
+        <div className="advanced-filters-grid">
+          <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+            <option value="">-- Tipo --</option>
+            <option value="INTAKE">Admisión</option>
+            <option value="EXHAUST">Escape</option>
+          </select>
+          <select value={marca} onChange={(e) => setMarca(e.target.value)}>
+            <option value="">-- Marca Vehículo --</option>
+            {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+          </select>
+          <input type="number" placeholder="Ranuras" value={ranuras} onChange={(e) => setRanuras(e.target.value)} />
+          <input type="number" placeholder="Vástago Mín (mm)" value={vastagoMin} onChange={(e) => setVastagoMin(e.target.value)} />
+          <input type="number" placeholder="Vástago Máx (mm)" value={vastagoMax} onChange={(e) => setVastagoMax(e.target.value)} />
+          <input type="number" placeholder="Cabeza Mín (mm)" value={cabezaMin} onChange={(e) => setCabezaMin(e.target.value)} />
+          <input type="number" placeholder="Cabeza Máx (mm)" value={cabezaMax} onChange={(e) => setCabezaMax(e.target.value)} />
+          <input type="number" placeholder="Longitud Mín (mm)" value={longitudMin} onChange={(e) => setLongitudMin(e.target.value)} />
+          <input type="number" placeholder="Longitud Máx (mm)" value={longitudMax} onChange={(e) => setLongitudMax(e.target.value)} />
+        </div>
+      )}
     </div>
   );
 }

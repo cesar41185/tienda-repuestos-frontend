@@ -5,90 +5,75 @@ import Buscador from '../components/Buscador';
 import TablaResultados from '../components/TablaResultados';
 import ModalEditarValvula from '../components/ModalEditarValvula';
 import ModalFoto from '../components/ModalFoto';
-import VistaDetalle from '../components/VistaDetalle';
-import { useCarrito } from '../context/CarritoContext'; // Importamos el hook del carrito
+import { useCarrito } from '../context/CarritoContext';
+import API_URL from '../apiConfig';
 
 function TiendaPage() {
-    // --- ESTADOS ---
-  const [valvulas, setValvulas] = useState([]);
+  // --- ESTADOS (actualizados a 'producto') ---
+  const [productos, setProductos] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [valvulaParaEditar, setValvulaParaEditar] = useState(null);
+  const [productoParaEditar, setProductoParaEditar] = useState(null);
   const [fotoParaAmpliar, setFotoParaAmpliar] = useState(null);
   const [pageInfo, setPageInfo] = useState({ count: 0, next: null, previous: null });
   const [currentFilters, setCurrentFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'codigo_interno', direction: 'ascending' });
-
-  // Estados para gestionar la vista actual
-  const [currentView, setCurrentView] = useState('lista');
-  const [selectedValveId, setSelectedValveId] = useState(null);
-
-  // Traemos la función para añadir al carrito desde el Contexto
   const { agregarAlCarrito } = useCarrito();
-
-  const valvulasUrl = 'http://192.168.1.55:8000/api/valvulas/';
-  const marcasUrl = 'http://192.168.1.55:8000/api/marcas/';
-
-  // --- FUNCIONES (buscarValvulas, handleFilterSearch, etc.) ---
-  // (Aquí van todas tus funciones como las tenías: buscarValvulas, handleFilterSearch, handleSort, etc.)
-  const buscarValvulas = async (url = null) => {
+  const [cantidades, setCantidades] = useState({});
+  
+  // --- FUNCIONES (actualizadas a 'producto') ---
+  const buscarProductos = async (url = null) => {
     setCargando(true);
     let finalUrl = url;
     if (!finalUrl) {
       const params = new URLSearchParams(currentFilters);
       const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
       params.append('ordering', ordering);
-      finalUrl = `${valvulasUrl}?${params.toString()}`;
+      finalUrl = `${API_URL}/productos/?${params.toString()}`;
     }
     try {
       const response = await fetch(finalUrl);
       const data = await response.json();
-      setValvulas(data.results);
-      setPageInfo({
-        count: data.count,
-        next: data.next,
-        previous: data.previous
-      });
+      setProductos(data.results);
+      setPageInfo({ count: data.count, next: data.next, previous: data.previous });
+      return data.results; // Devuelve los datos para que onRefresh funcione
     } catch (error) {
-      console.error("Error al buscar válvulas:", error);
-      setValvulas([]);
+      console.error("Error al buscar productos:", error);
+      setProductos([]);
     } finally {
       setCargando(false);
     }
   };
-
-  const handleRefreshInModal = async () => {
-    // 1. Nos aseguramos de que haya una válvula para editar
-    if (!valvulaParaEditar) return;
-
-    try {
-      // 2. Creamos la URL para pedir solo los datos de ESA válvula específica
-      const url = `${valvulasUrl}${valvulaParaEditar.id}/`;
-      
-      // 3. Hacemos la petición
-      const response = await fetch(url);
-      const valvulaActualizada = await response.json();
-
-      // 4. Actualizamos el estado con los datos frescos de la válvula
-      setValvulaParaEditar(valvulaActualizada);
-      
-    } catch (error) {
-      console.error("Error al refrescar la válvula:", error);
-      // Si falla, por si acaso cerramos el modal para evitar datos inconsistentes
-      handleCerrarModal();
-    }
-};
   
   const handleFilterSearch = (filtros) => {
     setCurrentFilters(filtros);
     const params = new URLSearchParams(filtros);
     const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
     params.append('ordering', ordering);
-    buscarValvulas(`${valvulasUrl}?${params.toString()}`);
+    buscarProductos(`${productosUrl}?${params.toString()}`);
   };
 
-   const handleSort = (key) => {
+  const handleDeleteProducto = async (productoId) => {
+    // Pedimos confirmación al usuario
+    if (window.confirm('¿Estás seguro de que quieres eliminar este producto permanentemente?')) {
+        try {
+            toast.loading('Eliminando producto...');
+            await fetch(`http://192.168.1.55:8000/api/productos/${productoId}/`, {
+                method: 'DELETE',
+            });
+            toast.dismiss();
+            toast.success('Producto eliminado con éxito.');
+            handleCerrarModal(); // Cierra el modal después de borrar
+            buscarProductos(); // Refresca la lista de productos
+        } catch (error) {
+            toast.dismiss();
+            toast.error('No se pudo eliminar el producto.');
+        }
+    }
+};
+
+  const handleSort = (key) => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
@@ -97,64 +82,97 @@ function TiendaPage() {
   };
  
   useEffect(() => {
-    buscarValvulas();
-  }, [sortConfig]);
+    buscarProductos();
+  }, [sortConfig, currentFilters]); // Se ejecuta al ordenar y al filtrar
 
   useEffect(() => {
     const fetchMarcas = async () => {
       try {
-        const response = await fetch(marcasUrl);
+        const response = await fetch(`${API_URL}/marcas/`);
         const data = await response.json();
-        setMarcas(data.results);
+        setMarcas(data.results || data); // Maneja respuestas paginadas y no paginadas
       } catch (error) { console.error("Error al cargar marcas:", error); }
     };
     fetchMarcas();
   }, []);
 
-  const handleAbrirModal = (valvula) => {setValvulaParaEditar(valvula); setIsModalOpen(true);};
-  const handleCerrarModal = () => {setIsModalOpen(false);setValvulaParaEditar(null);};
-  const handleGuardadoExitoso = () => {toast.success('¡Guardado con éxito!');handleCerrarModal(); buscarValvulas();};
-  const handleAbrirVisorFoto = (imageUrl) => {setFotoParaAmpliar(imageUrl);};
-  const handleCerrarVisorFoto = () => {setFotoParaAmpliar(null);};
-  const handleVerDetalle = (valvulaId) => {setSelectedValveId(valvulaId); setCurrentView('detalle');};
-  const handleVolverALista = () => {setSelectedValveId(null); setCurrentView('lista');};
+  // --- MANEJADORES DE MODALES (actualizados a 'producto') ---
+  const handleAbrirModal = (producto) => {
+    setProductoParaEditar(producto);
+    setIsModalOpen(true);
+  };
+
+  const handleCerrarModal = () => {
+    setIsModalOpen(false);
+    setProductoParaEditar(null);
+  };
+
+  const handleCantidadChange = (productoId, cantidad) => {
+  // Nos aseguramos de que la cantidad sea un número válido y al menos 1
+  const nuevaCantidad = Math.max(1, parseInt(cantidad, 10));
+  setCantidades(prevCantidades => ({
+    ...prevCantidades,
+    [productoId]: nuevaCantidad,
+  }));
+};
+
+  const handleGuardadoExitoso = () => {
+    toast.success('¡Guardado con éxito!');
+    handleCerrarModal();
+    buscarProductos(); // Vuelve a buscar para reflejar los cambios
+  };
+
+  const handleRefreshInModal = async () => {
+    if (!productoParaEditar) return;
+    try {
+      const url = `${API_URL}/productos/${productoParaEditar.id}/`;
+      const response = await fetch(url);
+      const productoActualizado = await response.json();
+      setProductoParaEditar(productoActualizado);
+    } catch (error) {
+      console.error("Error al refrescar el producto:", error);
+      handleCerrarModal();
+    }
+  };
+
+  const handleAbrirVisorFoto = (imageUrl) => setFotoParaAmpliar(imageUrl);
+  const handleCerrarVisorFoto = () => setFotoParaAmpliar(null);
+
+  const handleAddToCartWrapper = (producto) => {
+    const cantidadDeJuegos = cantidades[producto.id] || 1; // Obtiene el número de JUEGOS
+    agregarAlCarrito(producto, cantidadDeJuegos); // Pasa los JUEGOS al contexto
+  };
 
   return (
-    // Usamos un Fragment (<>) ya que el div principal está en App.jsx
     <>
-      {currentView === 'lista' ? (
-        <>
-          <Buscador onBuscar={handleFilterSearch} marcas={marcas} />
-          <TablaResultados 
-            valvulas={valvulas} 
-            cargando={cargando} 
-            onEditar={handleAbrirModal}
-            onFotoClick={handleAbrirVisorFoto}
-            onSort={handleSort}
-            sortConfig={sortConfig}
-            onVerDetalle={handleVerDetalle}
-            onAddToCart={agregarAlCarrito} // Pasamos la función del contexto
-          />
-          <div className="pagination-controls">
-            <span>Total: {pageInfo.count} válvulas</span>
-            <div>
-              <button onClick={() => buscarValvulas(pageInfo.previous)} disabled={!pageInfo.previous}>Anterior</button>
-              <button onClick={() => buscarValvulas(pageInfo.next)} disabled={!pageInfo.next}>Siguiente</button>
-            </div>
-          </div>
-        </>
-      ) : (
-        <VistaDetalle valvulaId={selectedValveId} onVolver={handleVolverALista} />
-      )}
+      <Buscador onBuscar={handleFilterSearch} marcas={marcas} />
+      <TablaResultados 
+        productos={productos} // Pasamos 'productos'
+        cargando={cargando} 
+        onEditar={handleAbrirModal}
+        onFotoClick={handleAbrirVisorFoto}
+        onSort={handleSort}
+        sortConfig={sortConfig}
+        cantidades={cantidades}
+        onCantidadChange={handleCantidadChange}
+        onAddToCart={handleAddToCartWrapper}
+      />
+      <div className="pagination-controls">
+        <span>Total: {pageInfo.count} productos</span> {/* Texto actualizado */}
+        <div>
+          <button onClick={() => buscarProductos(pageInfo.previous)} disabled={!pageInfo.previous}>Anterior</button>
+          <button onClick={() => buscarProductos(pageInfo.next)} disabled={!pageInfo.next}>Siguiente</button>
+        </div>
+      </div>
 
       {isModalOpen && (
         <ModalEditarValvula
-          valvula={valvulaParaEditar}
+          producto={productoParaEditar} // Pasamos 'producto'
           onClose={handleCerrarModal}
           onSave={handleGuardadoExitoso}
           marcas={marcas}
-            onRefresh={handleRefreshInModal}
-
+          onRefresh={handleRefreshInModal}
+          onDelete={handleDeleteProducto}
         />
       )}
       

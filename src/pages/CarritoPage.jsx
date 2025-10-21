@@ -1,16 +1,33 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../context/CarritoContext';
+import { useAuth } from '../context/AuthContext';
+import { useMemo } from 'react';
+import toast from 'react-hot-toast';
+import { JUEGO_UNIDADES } from '../apiConfig';
 
 function CarritoPage() {
-  const { carrito, eliminarDelCarrito, actualizarCantidad, finalizarCompra } = useCarrito();
+  const { carrito, clienteActivo, eliminarDelCarrito, actualizarCantidadJuegos } = useCarrito();  
+  const { user, token } = useAuth();
   const navigate = useNavigate();
+  const isStaff = user && user.groups.length > 0;
+
+  const itemsSinStock = useMemo(() =>
+    carrito.filter(item => item.cantidad > item.stock),
+    [carrito]
+  );
+  const compraEsPosible = itemsSinStock.length === 0;
 
   const handleFinalizarCompra = async () => {
-    const exito = await finalizarCompra();
+    if (!compraEsPosible) {
+      toast.error("Ajusta las cantidades antes de continuar.");
+      return;
+    }
+    const exito = await finalizarCompra(token);
     if (exito) {
       navigate('/');
     }
   };
+
 
   const calcularTotal = () => {
     return carrito.reduce((total, item) => total + (item.precio_venta * item.cantidad), 0).toFixed(2);
@@ -34,38 +51,27 @@ function CarritoPage() {
       <ul className="carrito-lista">
         {carrito.map(item => (
           <li key={item.id} className="carrito-item">
-                <img 
-                src={item.fotos?.[0]?.imagen || '/placeholder.png'} // Muestra la primera foto o una imagen por defecto
-                alt={item.codigo_interno} 
-                className="carrito-item-img"
-            />
-            
-            {/* Columna de Detalles del Producto */}
+            <img src={item.fotos?.[0]?.imagen || '/placeholder.png'} alt={item.codigo_interno} className="carrito-item-img" />
             <div className="carrito-item-details">
-                <span className="carrito-item-modelo">{item.aplicaciones?.[0]?.modelo_vehiculo || item.codigo_interno}</span>
-                <span className="carrito-item-codigo">{item.codigo_interno}</span>
-                <span className="carrito-item-precio-unitario">${item.precio_venta} c/u</span>
+              <span className="carrito-item-modelo">{item.aplicaciones?.[0]?.modelo_vehiculo || item.codigo_interno}</span>
+              <span className="carrito-item-codigo">{item.cantidad} unidades ({item.cantidad / JUEGO_UNIDADES} juego/s)</span>
+              {item.cantidad > item.stock && (
+                <span className="carrito-item-advertencia">Stock insuficiente. Disponible: {item.stock}</span>
+              )}
             </div>
-
-            {/* Columna de Controles */}
             <div className="carrito-item-controles">
-                <input 
+              <input 
                 type="number" 
                 className="carrito-cantidad-input"
-                value={item.cantidad}
-                onChange={(e) => actualizarCantidad(item.id, parseInt(e.target.value, 10))}
+                // El valor es la cantidad de JUEGOS
+                value={item.cantidad / JUEGO_UNIDADES}
+                // Al cambiar, llamamos a la nueva función
+                onChange={(e) => actualizarCantidadJuegos(item.id, parseInt(e.target.value, 10))}
                 min="1"
-                />
-                <span className="carrito-item-subtotal">
-                ${(item.precio_venta * item.cantidad).toFixed(2)}
-                </span>
-                <button 
-                className="carrito-eliminar-btn" 
-                onClick={() => eliminarDelCarrito(item.id)}
-                title="Eliminar producto"
-                >
-                🗑️
-                </button>
+              />
+              <span style={{ whiteSpace: 'nowrap' }}> juego(s)</span>
+              <span className="carrito-item-subtotal">${(item.precio_venta * item.cantidad).toFixed(2)}</span>
+              <button className="carrito-eliminar-btn" onClick={() => eliminarDelCarrito(item.id)}>🗑️</button>
             </div>
           </li>
         ))}
@@ -76,6 +82,11 @@ function CarritoPage() {
         </Link>
         <div className="carrito-checkout">
           <strong>Total: ${calcularTotal()}</strong>
+          {!compraEsPosible && (
+            <p className="carrito-advertencia-general">
+              Por favor, ajusta las cantidades de los productos marcados.
+            </p>
+          )}
           <button onClick={handleFinalizarCompra} className="finalizar-compra-btn">
             Finalizar Compra
           </button>
