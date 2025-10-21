@@ -1,11 +1,12 @@
+// En src/pages/PerfilPage.jsx
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
+import API_URL from '../apiConfig'; // <-- 1. IMPORTAMOS LA CONFIGURACIÓN CENTRAL
 
 function PerfilPage() {
-  const { user } = useAuth();
-  const { token, logoutUser } = useAuth();
+  const { user, token, logoutUser, fetchUser } = useAuth(); // Asumimos que fetchUser está disponible en el contexto para refrescar
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState(null);
@@ -13,43 +14,26 @@ function PerfilPage() {
   const [passwordData, setPasswordData] = useState({ old_password: '', new_password1: '', new_password2: '' });
   const fileInputRef = useRef(null);
 
-  const API_URL = 'http://192.168.1.55:8000/api/';
-
-  const fetchPerfil = async () => {
-    if (!token) {
-        setCargando(false);
-        return;
-    }
-    try {
-        const response = await fetch(`${API_URL}auth/user/`, {
-            headers: { 'Authorization': `Token ${token}` }
-        });
-        const data = await response.json();
-
-        // --- CAMBIO CLAVE: Construimos la URL completa de la imagen ---
-        if (data.perfil && data.perfil.foto_perfil) {
-            const serverUrl = 'http://192.168.1.55:8000';
-            const cacheBuster = `?t=${new Date().getTime()}`;
-            // Unimos el servidor + la ruta de la imagen + el anti-caché
-            data.perfil.foto_perfil = `${serverUrl}${data.perfil.foto_perfil}${cacheBuster}`;
-        }
-        
-        setFormData(data);
-    } catch (error) {
-        toast.error("No se pudo cargar tu perfil.");
-    } finally {
-        setCargando(false);
-    }
-};
+  // --- 2. BORRAMOS LA CONSTANTE API_URL LOCAL ---
 
   useEffect(() => {
-    fetchPerfil();
-  }, [token]);
+    // Usamos el 'user' que ya está cargado en el AuthContext
+    if (user) {
+      setFormData({
+        ...user,
+        perfil: { ...user.perfil }
+      });
+      setCargando(false);
+    } else if (!token) {
+      // Si no hay token, no hay nada que cargar
+      setCargando(false);
+    }
+    // Si hay token pero no usuario, el useEffect principal de AuthContext lo está cargando.
+  }, [user, token]);
 
-  // Manejadores de cambios
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (['telefono', 'direccion'].includes(name)) {
+    if (['telefono', 'direccion', 'estado', 'ciudad'].includes(name)) {
         setFormData(prev => ({ ...prev, perfil: { ...prev.perfil, [name]: value } }));
     } else {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -61,17 +45,21 @@ function PerfilPage() {
     setPasswordData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Manejadores de envío de formularios
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
         toast.loading('Actualizando perfil...');
-        const response = await fetch(`${API_URL}auth/user/`, {
+        // --- 3. USAMOS LA VARIABLE IMPORTADA ---
+        const response = await fetch(`${API_URL}/auth/user/`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
             body: JSON.stringify(formData)
         });
         if (!response.ok) throw new Error('Error al actualizar el perfil.');
+        
+        // Refrescamos el usuario global
+        if (fetchUser) await fetchUser();
+
         toast.dismiss();
         toast.success('¡Perfil actualizado!');
     } catch (error) {
@@ -87,7 +75,7 @@ function PerfilPage() {
     }
     try {
       toast.loading('Cambiando contraseña...');
-      const response = await fetch(`${API_URL}auth/password/change/`, {
+      const response = await fetch(`${API_URL}/auth/password/change/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
         body: JSON.stringify(passwordData)
@@ -98,7 +86,7 @@ function PerfilPage() {
       }
       toast.dismiss();
       toast.success('Contraseña cambiada. Inicia sesión de nuevo.');
-      setTimeout(() => { logoutUser(); navigate('/login'); }, 2000);
+      setTimeout(() => { logoutUser(); }, 2000);
     } catch (error) {
       toast.dismiss();
       toast.error(error.message);
@@ -112,14 +100,17 @@ function PerfilPage() {
     dataFoto.append('foto_perfil', file);
     try {
       toast.loading('Subiendo foto...');
-      await fetch(`${API_URL}perfil/foto/`, {
+      await fetch(`${API_URL}/perfil/foto/`, {
         method: 'PATCH',
         headers: { 'Authorization': `Token ${token}` },
         body: dataFoto,
       });
       toast.dismiss();
       toast.success('¡Foto de perfil actualizada!');
-      fetchPerfil();
+      
+      // Refrescamos el usuario global para ver la nueva foto
+      if (fetchUser) await fetchUser();
+
     } catch (error) {
       toast.dismiss();
       toast.error('No se pudo subir la foto.');
