@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCarrito } from '../context/CarritoContext';
 import { JUEGO_UNIDADES } from '../apiConfig';
+import { SERVER_BASE_URL } from '../apiConfig';
 
 function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, sortConfig, onAddToCart, cantidades, onCantidadChange }) {
   const { user } = useAuth();
@@ -57,11 +58,12 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
               <tr key={producto.id}>
                 <td className="col-foto">
                   {producto.fotos && producto.fotos.length > 0 ? (
-                    <img 
-                      src={producto.fotos[0].imagen} 
+                   <img 
+                      // Construye la URL absoluta: Base del Servidor + Ruta Relativa de la Imagen
+                      src={`${SERVER_BASE_URL}${producto.fotos[0].imagen}`} 
                       alt="Miniatura" 
                       className="tabla-foto-miniatura"
-                      onClick={() => onFotoClick(producto.fotos[0].imagen)}
+                      onClick={() => onFotoClick(`${SERVER_BASE_URL}${producto.fotos[0].imagen}`)} // También al ampliar
                     />
                   ) : (
                     <div className="foto-placeholder"></div>

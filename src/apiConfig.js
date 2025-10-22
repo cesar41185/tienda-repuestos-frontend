@@ -3,6 +3,8 @@
 // 1. Lee la variable de entorno del archivo .env.local
 const API_URL = import.meta.env.VITE_API_URL;
 
+export const SERVER_BASE_URL = API_URL.replace('/api', '');
+
 // 2. Exporta la variable para que otros archivos puedan usarla.
 export default API_URL;
 

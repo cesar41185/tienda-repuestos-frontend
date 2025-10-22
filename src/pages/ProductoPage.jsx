@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
+import { SERVER_BASE_URL } from '../apiConfig';
 
 function ProductoPage() {
   const { user } = useAuth();
@@ -49,7 +50,12 @@ function ProductoPage() {
       <div className="producto-detalle-container">
         <div className="producto-fotos">
           {producto.fotos.map(foto => (
-            <img key={foto.id} src={foto.imagen} alt={`Foto de ${producto.codigo_interno}`} />
+            <img 
+              key={foto.id} 
+              // Construye la URL absoluta
+              src={`${SERVER_BASE_URL}${foto.imagen}`} 
+              alt={`Foto de ${producto.codigo_interno}`} 
+            />
           ))}
         </div>
         <div className="producto-info">

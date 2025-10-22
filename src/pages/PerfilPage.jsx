@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import API_URL from '../apiConfig'; // <-- 1. IMPORTAMOS LA CONFIGURACIÓN CENTRAL
+import { SERVER_BASE_URL } from '../apiConfig';
 
 function PerfilPage() {
   const { user, token, logoutUser, fetchUser } = useAuth(); // Asumimos que fetchUser está disponible en el contexto para refrescar
@@ -132,10 +133,11 @@ function PerfilPage() {
 
         <div className="perfil-foto-container">
           <img 
-            src={formData.perfil?.foto_perfil || '/placeholder-avatar.png'} 
+            // Construye la URL absoluta si existe la foto, si no usa el placeholder
+            src={formData.perfil?.foto_perfil ? `${SERVER_BASE_URL}${formData.perfil.foto_perfil}` : '/placeholder-avatar.png'} 
             alt="Foto de perfil" 
             className="perfil-foto"
-            onClick={() => fileInputRef.current.click()} // 3. Al hacer clic en la foto, se abre el selector de archivos
+            onClick={() => fileInputRef.current.click()}
           />
           <input 
             type="file" 
