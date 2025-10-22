@@ -60,7 +60,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                   {producto.fotos && producto.fotos.length > 0 ? (
                    <img 
                       // Construye la URL absoluta: Base del Servidor + Ruta Relativa de la Imagen
-                      src={`${SERVER_BASE_URL}${producto.fotos[0].imagen}`} 
+                      src={producto.fotos[0].imagen} 
                       alt="Miniatura" 
                       className="tabla-foto-miniatura"
                       onClick={() => onFotoClick(`${SERVER_BASE_URL}${producto.fotos[0].imagen}`)} // También al ampliar

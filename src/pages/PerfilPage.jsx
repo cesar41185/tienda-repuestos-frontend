@@ -134,8 +134,7 @@ function PerfilPage() {
         <div className="perfil-foto-container">
           <img 
             // Construye la URL absoluta si existe la foto, si no usa el placeholder
-            src={formData.perfil?.foto_perfil ? `${SERVER_BASE_URL}${formData.perfil.foto_perfil}` : '/placeholder-avatar.png'} 
-            alt="Foto de perfil" 
+            src={formData.perfil?.foto_perfil || '/placeholder-avatar.png'}            alt="Foto de perfil" 
             className="perfil-foto"
             onClick={() => fileInputRef.current.click()}
           />

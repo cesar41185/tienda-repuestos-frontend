@@ -53,7 +53,7 @@ function ProductoPage() {
             <img 
               key={foto.id} 
               // Construye la URL absoluta
-              src={`${SERVER_BASE_URL}${foto.imagen}`} 
+              src={foto.imagen} 
               alt={`Foto de ${producto.codigo_interno}`} 
             />
           ))}
