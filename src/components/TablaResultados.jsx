@@ -63,7 +63,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                       src={producto.fotos[0].imagen} 
                       alt="Miniatura" 
                       className="tabla-foto-miniatura"
-                      onClick={() => onFotoClick(`${SERVER_BASE_URL}${producto.fotos[0].imagen}`)} // También al ampliar
+                      onClick={() => onFotoClick(producto.fotos[0].imagen)}
                     />
                   ) : (
                     <div className="foto-placeholder"></div>
