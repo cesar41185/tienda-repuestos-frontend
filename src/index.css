@@ -740,20 +740,19 @@ body {
 }
 
 .gestor-container .tabla-clientes {
-  min-width: 960px;
-  max-width: 100%;
   width: 100%;
+  min-width: auto;
 }
 
 /* Anchura de columnas para tabla de clientes */
-.tabla-clientes .col-cliente-codigo { width: 80px; }
-.tabla-clientes .col-cliente-nombre { width: 200px; }
-.tabla-clientes .col-cliente-categoria { width: 120px; }
-.tabla-clientes .col-cliente-telefono { width: 120px; }
-.tabla-clientes .col-cliente-vendedor { width: 130px; }
-.tabla-clientes .col-cliente-ciudad { width: 100px; }
-.tabla-clientes .col-cliente-estado { width: 100px; }
-.tabla-clientes .col-cliente-accion { width: 110px; }
+.tabla-clientes .col-cliente-codigo { width: 8%; }
+.tabla-clientes .col-cliente-nombre { width: 20%; }
+.tabla-clientes .col-cliente-categoria { width: 12%; }
+.tabla-clientes .col-cliente-telefono { width: 12%; }
+.tabla-clientes .col-cliente-vendedor { width: 15%; }
+.tabla-clientes .col-cliente-ciudad { width: 10%; }
+.tabla-clientes .col-cliente-estado { width: 10%; }
+.tabla-clientes .col-cliente-accion { width: 13%; }
 
 .gestor-container h2 {
   text-align: center;
