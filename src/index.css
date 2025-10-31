@@ -1322,6 +1322,59 @@ body {
     color: #666;
     font-weight: 500;
   }
+
+  /* Estilos para carrito en móvil */
+  .carrito-item {
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .carrito-item-img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .carrito-item-controles {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .carrito-item-subtotal {
+    width: auto;
+    text-align: left;
+  }
+
+  .carrito-cantidad-input {
+    width: 50px;
+  }
+
+  .carrito-acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .seguir-comprando-btn {
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+  }
+
+  .carrito-checkout {
+    text-align: center;
+  }
+
+  .carrito-checkout strong {
+    font-size: 1.5rem;
+  }
+
+  .finalizar-compra-btn {
+    width: 100%;
+    padding: 0.75rem;
+  }
 }
 
 /* En desktop mostramos la tabla y ocultamos las tarjetas */
