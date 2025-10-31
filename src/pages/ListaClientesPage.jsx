@@ -95,34 +95,34 @@ function ListaClientesPage() {
         </div>
 
         {/* Vista de tabla para desktop */}
-        <table id="resultsTable">
+        <table id="resultsTable" className="tabla-clientes">
           <thead>
             <tr>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th>Categoría</th>
-              <th>Teléfono</th>
-              <th>Vendedor Asignado</th>
-              <th>Ciudad</th>
-              <th>Estado</th>
-              <th>Acción</th>
+              <th className="col-cliente-codigo">Código</th>
+              <th className="col-cliente-nombre">Nombre</th>
+              <th className="col-cliente-categoria">Categoría</th>
+              <th className="col-cliente-telefono">Teléfono</th>
+              <th className="col-cliente-vendedor">Vendedor Asignado</th>
+              <th className="col-cliente-ciudad">Ciudad</th>
+              <th className="col-cliente-estado">Estado</th>
+              <th className="col-cliente-accion">Acción</th>
             </tr>
           </thead>
           <tbody>
             {clientes.map(cliente => (
               <tr key={cliente.pk}>
-                <td className="celda-clicable">
+                <td className="celda-clicable col-cliente-codigo">
                   <a onClick={() => setClienteSeleccionadoId(cliente.pk)}>
                     {cliente.perfil.codigo_cliente}
                   </a>
                 </td>
-                <td>{cliente.perfil.nombre_completo || cliente.username}</td>
-                <td>{cliente.perfil.categoria?.nombre || '---'}</td>
-                <td>{cliente.perfil.telefono}</td>
-                <td>{cliente.perfil.vendedor_asignado_nombre || '---'}</td>
-                <td>{cliente.perfil.ciudad}</td>
-                <td>{cliente.perfil.estado}</td>
-                <td>
+                <td className="col-cliente-nombre">{cliente.perfil.nombre_completo || cliente.username}</td>
+                <td className="col-cliente-categoria">{cliente.perfil.categoria?.nombre || '---'}</td>
+                <td className="col-cliente-telefono">{cliente.perfil.telefono}</td>
+                <td className="col-cliente-vendedor">{cliente.perfil.vendedor_asignado_nombre || '---'}</td>
+                <td className="col-cliente-ciudad">{cliente.perfil.ciudad}</td>
+                <td className="col-cliente-estado">{cliente.perfil.estado}</td>
+                <td className="col-cliente-accion">
                   <button 
                     className="btn btn-primary" 
                     style={{padding: '0.3rem 0.6rem', fontSize: '0.8rem'}}

@@ -739,6 +739,22 @@ body {
   min-width: 800px; /* Ancho mínimo para tablas de gestión */
 }
 
+.gestor-container .tabla-clientes {
+  min-width: 960px;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Anchura de columnas para tabla de clientes */
+.tabla-clientes .col-cliente-codigo { width: 80px; }
+.tabla-clientes .col-cliente-nombre { width: 200px; }
+.tabla-clientes .col-cliente-categoria { width: 120px; }
+.tabla-clientes .col-cliente-telefono { width: 120px; }
+.tabla-clientes .col-cliente-vendedor { width: 130px; }
+.tabla-clientes .col-cliente-ciudad { width: 100px; }
+.tabla-clientes .col-cliente-estado { width: 100px; }
+.tabla-clientes .col-cliente-accion { width: 110px; }
+
 .gestor-container h2 {
   text-align: center;
   margin-bottom: 2rem;
