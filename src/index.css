@@ -281,10 +281,9 @@ body {
 }
 
 #resultsTable {
-  width: 100%;
   border-collapse: collapse;
   table-layout: fixed; 
-  min-width: 1000px; /* Ancho mínimo para que la tabla no se comprima demasiado */
+  width: 1000px; /* Forzamos un ancho específico para provocar overflow */
 }
 
 #resultsTable th, #resultsTable td {
