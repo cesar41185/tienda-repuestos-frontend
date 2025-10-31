@@ -38,6 +38,10 @@ function Header() {
         {user && (
           <span className="welcome-message">Bienvenido, {nombreUsuario}</span>
         )}
+        {/* Carrito solo para Clientes y Admin/Cajero en POS - visible en desktop */}
+        {(esCliente || (esPersonal && clienteActivo) || !token) && (
+          <Link to="/carrito" className="nav-link cart-link desktop-cart">🛒 ({totalItems})</Link>
+        )}
         <button className="menu-hamburger" onClick={() => setMenuAbierto(!menuAbierto)} aria-label="Menu">
           {menuAbierto ? '✕' : '☰'}
         </button>
