@@ -1326,10 +1326,6 @@ body {
 
 /* En desktop mostramos la tabla y ocultamos las tarjetas */
 @media screen and (min-width: 769px) {
-  .menu-hamburger {
-    display: none;
-  }
-  
   .productos-cards-mobile {
     display: none;
   }
