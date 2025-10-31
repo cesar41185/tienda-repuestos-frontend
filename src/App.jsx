@@ -8,6 +8,7 @@ import PasswordChangeBanner from './components/PasswordChangeBanner';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Importación de Páginas
+import HomePage from './pages/HomePage';
 import TiendaPage from './pages/TiendaPage';
 import CarritoPage from './pages/CarritoPage';
 import ProductoPage from './pages/ProductoPage';
@@ -30,7 +31,8 @@ function App() {
       <main>
         <Routes>
           {/* --- Rutas Públicas --- */}
-          <Route path="/" element={<TiendaPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/tienda" element={<TiendaPage />} />
           <Route path="/carrito" element={<CarritoPage />} />
           <Route path="/producto/:id" element={<ProductoPage />} />
           <Route path="/login" element={<LoginPage />} />
