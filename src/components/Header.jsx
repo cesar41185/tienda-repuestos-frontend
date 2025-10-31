@@ -55,33 +55,37 @@ function Header() {
 
       <div className="header-user-section">
         {user && (
-          <span className="welcome-message">Bienvenido, {nombreUsuario}</span>
-        )}
-        {user && (
-          <div className="menu-usuario-container" ref={menuUsuarioRef}>
-            <button 
-              className="menu-usuario-btn" 
-              onClick={() => setMenuUsuarioAbierto(!menuUsuarioAbierto)}
-              aria-label="Menu usuario"
-            >
-              ☰
-            </button>
-            {menuUsuarioAbierto && (
-              <div className="menu-usuario-dropdown">
-                <Link to="/mi-perfil" className="menu-usuario-item" onClick={() => setMenuUsuarioAbierto(false)}>
-                  Mi Perfil
-                </Link>
-                {esCliente && (
-                  <Link to="/mis-pedidos" className="menu-usuario-item" onClick={() => setMenuUsuarioAbierto(false)}>
-                    Mis Pedidos
+          <>
+            <span className="welcome-message">Bienvenido, {nombreUsuario}</span>
+            <div className="menu-usuario-container" ref={menuUsuarioRef}>
+              <button 
+                className="menu-usuario-btn" 
+                onClick={() => setMenuUsuarioAbierto(!menuUsuarioAbierto)}
+                aria-label="Menu usuario"
+              >
+                ☰
+              </button>
+              {menuUsuarioAbierto && (
+                <div className="menu-usuario-dropdown">
+                  <Link to="/mi-perfil" className="menu-usuario-item" onClick={() => setMenuUsuarioAbierto(false)}>
+                    Mi Perfil
                   </Link>
-                )}
-                <button onClick={logoutUser} className="menu-usuario-item menu-usuario-logout">
-                  Cerrar Sesión
-                </button>
-              </div>
-            )}
-          </div>
+                  {esCliente && (
+                    <Link to="/mis-pedidos" className="menu-usuario-item" onClick={() => setMenuUsuarioAbierto(false)}>
+                      Mis Pedidos
+                    </Link>
+                  )}
+                  <button onClick={logoutUser} className="menu-usuario-item menu-usuario-logout">
+                    Cerrar Sesión
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+        {/* Carrito solo para Clientes y Admin/Cajero en POS */}
+        {(esCliente || (esPersonal && clienteActivo) || !token) && (
+          <Link to="/carrito" className="nav-link cart-link">🛒 ({totalItems})</Link>
         )}
       </div>
 
@@ -93,7 +97,6 @@ function Header() {
         {/* --- VISTA PARA VISITANTES --- */}
         {!token && (
           <>
-            <Link to="/carrito" className="nav-link cart-link">🛒 Carrito ({totalItems})</Link>
             <Link to="/login" className="nav-link">Iniciar Sesión</Link>
             <Link to="/registro" className="nav-button register-btn">Registrarse</Link>
           </>
@@ -101,10 +104,6 @@ function Header() {
         {/* --- VISTA PARA USUARIOS LOGUEADOS --- */}
         {user && (
           <>
-            {/* Carrito solo para Clientes y Admin/Cajero en POS */}
-           {(esCliente || (esPersonal && clienteActivo)) && (
-                  <Link to="/carrito" className="nav-link cart-link">🛒 Carrito ({totalItems})</Link>
-           )}
             {/* Enlaces de Personal */}
             {esPersonal && (
                 <Link to="/gestion-pedidos" className="nav-link">Gestionar Pedidos</Link>
