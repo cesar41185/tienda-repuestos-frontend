@@ -97,6 +97,7 @@ function Header() {
         {/* --- VISTA PARA VISITANTES --- */}
         {!token && (
           <>
+            <Link to="/carrito" className="nav-link cart-link">🛒 ({totalItems})</Link>
             <Link to="/login" className="nav-link">Iniciar Sesión</Link>
             <Link to="/registro" className="nav-button register-btn">Registrarse</Link>
           </>
@@ -104,6 +105,15 @@ function Header() {
         {/* --- VISTA PARA USUARIOS LOGUEADOS --- */}
         {user && (
           <>
+            {/* Carrito solo para Clientes y Admin/Cajero en POS */}
+            {(esCliente || (esPersonal && clienteActivo)) && (
+              <Link to="/carrito" className="nav-link cart-link">🛒 ({totalItems})</Link>
+            )}
+            <Link to="/mi-perfil" className="nav-link">Mi Perfil</Link>
+            {/* Mis Pedidos solo para Clientes */}
+            {esCliente && (
+              <Link to="/mis-pedidos" className="nav-link">Mis Pedidos</Link>
+            )}
             {/* Enlaces de Personal */}
             {esPersonal && (
                 <Link to="/gestion-pedidos" className="nav-link">Gestionar Pedidos</Link>
@@ -114,6 +124,7 @@ function Header() {
             {user.groups.includes('Administrador') && (
               <Link to="/gestor-marcas" className="nav-link">Gestionar Marcas</Link>
             )}
+            <button onClick={logoutUser} className="nav-button">Cerrar Sesión</button>
           </>
         )}
       </nav>

@@ -1187,6 +1187,10 @@ body {
     height: 40px;
   }
 
+  .header-user-section {
+    display: none;
+  }
+
   .menu-hamburger {
     display: block;
     background: none;
