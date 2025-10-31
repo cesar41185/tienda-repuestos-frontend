@@ -105,11 +105,6 @@ function Header() {
            {(esCliente || (esPersonal && clienteActivo)) && (
                   <Link to="/carrito" className="nav-link cart-link">🛒 Carrito ({totalItems})</Link>
            )}
-            <Link to="/mi-perfil" className="nav-link">Mi Perfil</Link>
-            {/* Mis Pedidos solo para Clientes */}
-            {esCliente && (
-              <Link to="/mis-pedidos" className="nav-link">Mis Pedidos</Link>
-            )}
             {/* Enlaces de Personal */}
             {esPersonal && (
                 <Link to="/gestion-pedidos" className="nav-link">Gestionar Pedidos</Link>
@@ -120,7 +115,6 @@ function Header() {
             {user.groups.includes('Administrador') && (
               <Link to="/gestor-marcas" className="nav-link">Gestionar Marcas</Link>
             )}
-            <button onClick={logoutUser} className="nav-button">Cerrar Sesión</button>
           </>
         )}
       </nav>
