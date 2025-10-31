@@ -847,14 +847,14 @@ body {
 
 /* Asignamos anchos fijos o porcentuales a cada columna */
 #resultsTable .col-foto { width: 40px; } /* Simétrico con la imagen */
-#resultsTable .col-trw { width: 60px; } /* Reducido */
-#resultsTable .col-modelo { width: 180px; }
-#resultsTable .col-numerica { width: 50px; } /* Reducido */
-#resultsTable .col-stock { width: 45px; } /* Reducido */
+#resultsTable .col-trw { width: 55px; } /* Basado en "VF0010" */
+#resultsTable .col-modelo { width: 220px; } /* Ampliado con el espacio ganado */
+#resultsTable .col-numerica { width: 42px; } /* Reducido para medidas */
+#resultsTable .col-stock { width: 35px; } /* Solo para "Cant" */
 #resultsTable .col-marca { width: 100px; } /* Basado en "Mitsubishi" */
-#resultsTable .col-precio { width: 60px; } /* Reducido */
-#resultsTable .col-tipo { width: 40px; } /* Reducido */
-#resultsTable .col-acciones-tabla { width: 100px; } /* Reducido */
+#resultsTable .col-precio { width: 60px; } /* Mantenido */
+#resultsTable .col-tipo { width: 40px; } /* Mantenido */
+#resultsTable .col-acciones-tabla { width: 100px; } /* Mantenido */
 
 
 /* ==========================================================================
