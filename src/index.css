@@ -296,6 +296,15 @@ body {
   background-color: #f8f9fa;
 }
 
+#resultsTable tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+#resultsTable tbody tr:hover {
+  background-color: #e9ecef;
+  cursor: pointer;
+}
+
 .tabla-foto-miniatura {
   height: 40px;
   width: 40px;
