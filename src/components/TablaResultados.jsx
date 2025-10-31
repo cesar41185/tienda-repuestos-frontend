@@ -44,7 +44,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
           <th className="col-numerica">Vást.(mm)</th>
           <th className="col-numerica">Long.(mm)</th>
           <th className="col-numerica">Ran</th>
-          <th className="col-stock">Cant</th>
+          {isStaff && <th className="col-stock">Cant</th>}
           <th className="col-acciones-tabla">Compra</th>
         </tr>
       </thead>
@@ -84,7 +84,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                 <td className="col-numerica">{producto.especificaciones?.diametro_vastago || 'N/A'}</td>
                 <td className="col-numerica">{producto.especificaciones?.longitud_total || 'N/A'}</td>
                 <td className="col-numerica">{producto.especificaciones?.ranuras || 'N/A'}</td>
-                <td className="col-stock">{producto.stock}</td>
+                {isStaff && <td className="col-stock">{producto.stock}</td>}
                 <td className="col-acciones-tabla">
                   <div className="acciones-cell-compactas">
                     {(!isStaff || (isStaff && clienteActivo)) && (
@@ -160,7 +160,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                 <span><strong>Vástago:</strong> {producto.especificaciones?.diametro_vastago || 'N/A'} mm</span>
                 <span><strong>Long:</strong> {producto.especificaciones?.longitud_total || 'N/A'} mm</span>
                 <span><strong>Ranuras:</strong> {producto.especificaciones?.ranuras || 'N/A'}</span>
-                <span><strong>Stock:</strong> {producto.stock}</span>
+                {isStaff && <span><strong>Stock:</strong> {producto.stock}</span>}
                 {isStaff && (
                   <span><strong>TRW:</strong> {producto.numeros_de_parte?.find(part => part.marca === 'TRW')?.numero_de_parte || 'N/A'}</span>
                 )}

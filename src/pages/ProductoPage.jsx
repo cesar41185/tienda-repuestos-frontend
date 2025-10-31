@@ -80,7 +80,7 @@ function ProductoPage() {
           <ul>
             {/* Usamos 'producto.especificaciones?.' para acceder de forma segura */}
             <li><strong>Tipo:</strong> {producto.especificaciones?.tipo || 'N/D'}</li>
-            <li><strong>Stock disponible:</strong> {producto.stock}</li>
+            {isStaff && <li><strong>Stock disponible:</strong> {producto.stock}</li>}
             <li><strong>Diámetro de Cabeza:</strong> {producto.especificaciones?.diametro_cabeza || 'N/D'} mm</li>
             <li><strong>Diámetro de Vástago:</strong> {producto.especificaciones?.diametro_vastago || 'N/D'} mm</li>
             <li><strong>Longitud Total:</strong> {producto.especificaciones?.longitud_total || 'N/D'} mm</li>
