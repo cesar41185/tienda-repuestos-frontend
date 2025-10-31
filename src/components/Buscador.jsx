@@ -77,10 +77,10 @@ function Buscador({ onBuscar, marcas }) {
           onKeyDown={handleKeyDown} 
           className="search-bar-input"
         />
-        <button onClick={handleBuscarClick} className="search-bar-btn" title="Buscar">🔍</button>
+        <button onClick={handleBuscarClick} className="search-bar-btn" title="Buscar">⌕</button>
         
         {/* --- 2. BOTÓN DE LIMPIAR (ahora siempre visible) --- */}
-        <button onClick={handleLimpiarFiltros} className="search-bar-btn" title="Limpiar filtros">🚫</button>
+        <button onClick={handleLimpiarFiltros} className="search-bar-btn" title="Limpiar filtros">🧹</button>
 
         {/* --- 3. NUEVO BOTÓN para mostrar/ocultar filtros avanzados --- */}
         <button onClick={() => setShowAdvanced(!showAdvanced)} className="search-bar-btn filter-toggle-btn" title="Más filtros">
