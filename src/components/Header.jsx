@@ -1,5 +1,5 @@
 // Código completo para Header.jsx
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,8 +9,6 @@ function Header() {
   const { token, user, logoutUser } = useAuth();
   const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false);
-  const menuUsuarioRef = useRef(null);
 
   const esCliente = user && user.groups.length === 0;
   const esPersonal = user && user.groups.length > 0; // 'esPersonal' es el equivalente a 'isStaff'
@@ -19,23 +17,6 @@ function Header() {
   
   // Obtener nombre del usuario
   const nombreUsuario = user?.perfil?.nombre_completo || user?.username || '';
-
-  // Cerrar menú al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuUsuarioRef.current && !menuUsuarioRef.current.contains(event.target)) {
-        setMenuUsuarioAbierto(false);
-      }
-    };
-
-    if (menuUsuarioAbierto) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [menuUsuarioAbierto]);
 
   return (
     <>
@@ -53,45 +34,14 @@ function Header() {
         <h1>Verificador de Válvulas</h1>
       </div>
 
-      <div className="header-user-section">
+      <div className="header-right">
         {user && (
-          <>
-            <span className="welcome-message">Bienvenido, {nombreUsuario}</span>
-            <div className="menu-usuario-container" ref={menuUsuarioRef}>
-              <button 
-                className="menu-usuario-btn" 
-                onClick={() => setMenuUsuarioAbierto(!menuUsuarioAbierto)}
-                aria-label="Menu usuario"
-              >
-                ☰
-              </button>
-              {menuUsuarioAbierto && (
-                <div className="menu-usuario-dropdown">
-                  <Link to="/mi-perfil" className="menu-usuario-item" onClick={() => setMenuUsuarioAbierto(false)}>
-                    Mi Perfil
-                  </Link>
-                  {esCliente && (
-                    <Link to="/mis-pedidos" className="menu-usuario-item" onClick={() => setMenuUsuarioAbierto(false)}>
-                      Mis Pedidos
-                    </Link>
-                  )}
-                  <button onClick={logoutUser} className="menu-usuario-item menu-usuario-logout">
-                    Cerrar Sesión
-                  </button>
-                </div>
-              )}
-            </div>
-          </>
+          <span className="welcome-message">Bienvenido, {nombreUsuario}</span>
         )}
-        {/* Carrito solo para Clientes y Admin/Cajero en POS */}
-        {(esCliente || (esPersonal && clienteActivo) || !token) && (
-          <Link to="/carrito" className="nav-link cart-link">🛒 ({totalItems})</Link>
-        )}
+        <button className="menu-hamburger" onClick={() => setMenuAbierto(!menuAbierto)} aria-label="Menu">
+          {menuAbierto ? '✕' : '☰'}
+        </button>
       </div>
-
-      <button className="menu-hamburger" onClick={() => setMenuAbierto(!menuAbierto)} aria-label="Menu">
-        {menuAbierto ? '✕' : '☰'}
-      </button>
 
       <nav className={`header-nav ${menuAbierto ? 'nav-abierto' : ''}`}>
         {/* --- VISTA PARA VISITANTES --- */}

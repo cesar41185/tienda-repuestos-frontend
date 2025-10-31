@@ -81,7 +81,7 @@ body {
   height: 50px;
 }
 
-.header-user-section {
+.header-right {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -92,64 +92,8 @@ body {
   color: #495057;
 }
 
-.menu-usuario-container {
-  position: relative;
-}
-
-.menu-usuario-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #495057;
-  transition: color 0.2s;
-}
-
-.menu-usuario-btn:hover {
-  color: #ac1b1b;
-}
-
-.menu-usuario-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-top: 0.5rem;
-  min-width: 180px;
-  z-index: 1000;
-}
-
-.menu-usuario-item {
-  display: block;
-  padding: 0.75rem 1rem;
-  text-decoration: none;
-  color: #495057;
-  transition: background-color 0.2s, color 0.2s;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.menu-usuario-item:hover {
-  background-color: #f8f9fa;
-  color: #ac1b1b;
-}
-
-.menu-usuario-logout {
-  color: #dc3545 !important;
-  border-top: 1px solid #dee2e6;
-}
-
-.menu-usuario-logout:hover {
-  background-color: #dc3545 !important;
-  color: white !important;
+.menu-hamburger {
+  display: none;
 }
 
 .header-nav {
@@ -1187,7 +1131,7 @@ body {
     height: 40px;
   }
 
-  .header-user-section {
+  .header-right .welcome-message {
     display: none;
   }
 
