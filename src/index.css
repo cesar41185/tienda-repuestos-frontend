@@ -1075,8 +1075,8 @@ body {
     color: white;
   }
 
-  /* Tabla se convierte en tarjetas en móvil */
-  #resultsTable {
+  /* Tabla se convierte en tarjetas en móvil solo para productos */
+  .results-container #resultsTable {
     display: none;
   }
 
