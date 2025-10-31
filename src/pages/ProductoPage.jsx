@@ -39,12 +39,12 @@ function ProductoPage() {
 
 
   if (cargando) return <p>Cargando producto...</p>;
-  if (error) return <p>Error: {error}. <Link to="/">Volver a la tienda</Link></p>;
+  if (error) return <p>Error: {error}. <Link to="/tienda">Volver a la tienda</Link></p>;
   if (!producto) return null;
 
   return (
     <div> {/* Contenedor principal agregado */}
-      <button onClick={() => navigate('/')} className="volver-tienda-btn">
+      <button onClick={() => navigate('/tienda')} className="volver-tienda-btn">
         ← Volver a la Tienda
       </button>
       <div className="producto-detalle-container">
