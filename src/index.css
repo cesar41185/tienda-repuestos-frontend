@@ -259,6 +259,26 @@ body {
   overflow-x: auto; /* Permite scroll horizontal si es necesario */
   overflow-y: visible; /* Permite que la barra horizontal sea visible siempre */
   max-height: none; /* Sin límite de altura para que no se oculte la barra */
+  /* Hace que la barra de scroll horizontal siempre sea visible */
+  scrollbar-width: thin;
+}
+
+/* Estilos para hacer la scrollbar más visible */
+.results-container::-webkit-scrollbar {
+  height: 12px;
+}
+
+.results-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.results-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+}
+
+.results-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 #resultsTable {
@@ -848,13 +868,13 @@ body {
 /* Asignamos anchos fijos o porcentuales a cada columna */
 #resultsTable .col-foto { width: 40px; } /* Simétrico con la imagen */
 #resultsTable .col-trw { width: 55px; } /* Basado en "VF0010" */
-#resultsTable .col-modelo { width: 220px; } /* Ampliado con el espacio ganado */
-#resultsTable .col-numerica { width: 42px; } /* Reducido para medidas */
-#resultsTable .col-stock { width: 35px; } /* Solo para "Cant" */
+#resultsTable .col-modelo { width: 250px; } /* Ampliado con el espacio ganado */
+#resultsTable .col-numerica { width: 38px; } /* Reducido para medidas y Ran */
+#resultsTable .col-stock { width: 30px; } /* Solo para "Cant" */
 #resultsTable .col-marca { width: 100px; } /* Basado en "Mitsubishi" */
 #resultsTable .col-precio { width: 60px; } /* Mantenido */
 #resultsTable .col-tipo { width: 40px; } /* Mantenido */
-#resultsTable .col-acciones-tabla { width: 100px; } /* Mantenido */
+#resultsTable .col-acciones-tabla { width: 90px; } /* Reducido */
 
 
 /* ==========================================================================
@@ -1007,6 +1027,47 @@ body {
   align-items: center; /* Centra verticalmente los elementos */
   gap: 0.4rem;       /* Espacio reducido entre elementos */
   flex-wrap: wrap; /* Permite que los elementos bajen a otra línea si no hay espacio */
+}
+
+/* Nueva estructura compacta para acciones */
+.acciones-cell-compactas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: flex-start;
+}
+
+.cantidad-compacta {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.cantidad-input-compacto {
+  width: 25px;
+  text-align: center;
+  padding: 0.2rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cantidad-input-compacto:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.multiplier-compacto {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.botones-accion-inline {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
 }
 
 /* ==========================================================================

@@ -86,22 +86,25 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                 <td className="col-numerica">{producto.especificaciones?.ranuras || 'N/A'}</td>
                 <td className="col-stock">{producto.stock}</td>
                 <td className="col-acciones-tabla">
-                  <div className="acciones-cell">
+                  <div className="acciones-cell-compactas">
                     {(!isStaff || (isStaff && clienteActivo)) && (
-                      // --- NUEVO DIV CONTENEDOR AÑADIDO ---
-                      <div className="compra-grupo">
+                      <div className="cantidad-compacta">
                         <input
                           type="number"
                           min="1"
-                          className="cantidad-input"
+                          className="cantidad-input-compacto"
                           placeholder="1"
                           value={cantidades[producto.id] || ''}
                           onChange={(e) => onCantidadChange(producto.id, e.target.value)}
                           onFocus={(e) => e.target.select()}
                           style={{ borderColor: stockInsuficiente ? 'red' : '#ccc' }}
                         />
-                        {/* Texto simplificado a "x8" */}
-                        <span>x{JUEGO_UNIDADES}</span>
+                        <span className="multiplier-compacto">x{JUEGO_UNIDADES}</span>
+                      </div>
+                    )}
+                    
+                    <div className="botones-accion-inline">
+                      {(!isStaff || (isStaff && clienteActivo)) && (
                         <button 
                           className="accion-btn add-cart-btn" 
                           onClick={() => onAddToCart(producto)} 
@@ -110,12 +113,12 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                         >
                           🛒
                         </button>
-                      </div>
-                    )}
-                    
-                    {user && (user.groups.includes('Administrador') || user.groups.includes('Almacen')) && (
-                      <button className="accion-btn edit-btn" onClick={() => onEditar(producto)} title="Editar Producto">✏️</button>
-                    )}
+                      )}
+                      
+                      {user && (user.groups.includes('Administrador') || user.groups.includes('Almacen')) && (
+                        <button className="accion-btn edit-btn" onClick={() => onEditar(producto)} title="Editar Producto">✏️</button>
+                      )}
+                    </div>
                   </div>
                 </td>
               </tr>
