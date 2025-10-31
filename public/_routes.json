@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": ["/api/*", "/static/*", "/assets/*", "/favicon.ico", "/logo.png", "/placeholder-avatar.png.png", "/vite.svg"]
+}
