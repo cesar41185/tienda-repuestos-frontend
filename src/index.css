@@ -1142,6 +1142,23 @@ body {
     padding-top: 0.5rem;
     border-top: 1px solid #eee;
   }
+
+  /* Estilos específicos para tarjetas de clientes */
+  .cliente-card {
+    display: block;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .card-codigo {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+  }
 }
 
 /* En desktop mostramos la tabla y ocultamos las tarjetas */
@@ -1151,6 +1168,10 @@ body {
   }
   
   .productos-cards-mobile {
+    display: none;
+  }
+  
+  .clientes-cards-mobile {
     display: none;
   }
 }
@@ -1163,8 +1184,14 @@ body {
 
 /* Media queries específicas para tablas de gestión en móvil */
 @media screen and (max-width: 768px) {
+  /* Ocultamos las tablas de gestión en móvil */
   .gestor-container table {
-    min-width: 600px; /* Reduce el ancho mínimo en móvil */
+    display: none;
+  }
+  
+  /* Mostramos las tarjetas de clientes */
+  .clientes-cards-mobile {
+    display: block;
   }
   
   .gestor-container h2 {

@@ -94,6 +94,7 @@ function ListaClientesPage() {
           />
         </div>
 
+        {/* Vista de tabla para desktop */}
         <table id="resultsTable">
           <thead>
             <tr>
@@ -134,6 +135,40 @@ function ListaClientesPage() {
             ))}
           </tbody>
         </table>
+
+        {/* Vista de tarjetas para móvil */}
+        <div className="clientes-cards-mobile">
+          {clientes.map(cliente => (
+            <div key={cliente.pk} className="cliente-card">
+              <div className="card-header">
+                <div className="card-info-header">
+                  <a onClick={() => setClienteSeleccionadoId(cliente.pk)}>
+                    <h3>{cliente.perfil.nombre_completo || cliente.username}</h3>
+                  </a>
+                  <span className="card-codigo">Cód: {cliente.perfil.codigo_cliente}</span>
+                </div>
+              </div>
+              
+              <div className="card-specs">
+                <span><strong>Categoría:</strong> {cliente.perfil.categoria?.nombre || '---'}</span>
+                <span><strong>Teléfono:</strong> {cliente.perfil.telefono || '---'}</span>
+                <span><strong>Vendedor:</strong> {cliente.perfil.vendedor_asignado_nombre || '---'}</span>
+                <span><strong>Ciudad:</strong> {cliente.perfil.ciudad || '---'}</span>
+                <span><strong>Estado:</strong> {cliente.perfil.estado || '---'}</span>
+              </div>
+
+              <div className="card-actions">
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => handleSeleccionarParaVenta(cliente)}
+                  style={{width: '100%'}}
+                >
+                  🛒 Iniciar Venta
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <ModalRegistrarCliente 
