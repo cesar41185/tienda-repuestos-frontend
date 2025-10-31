@@ -10,8 +10,6 @@ function ModalDetalleCliente({ clienteId, isOpen, onClose, onSave, vendedores, c
   const [editMode, setEditMode] = useState(false); 
   const [formData, setFormData] = useState(null);
   const { user, token } = useAuth();
-  
-  const API_URL = import.meta.env.VITE_API_URL;;
 
   const esAdmin = user && user.groups.includes('Administrador');
 

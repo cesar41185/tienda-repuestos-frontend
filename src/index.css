@@ -256,12 +256,14 @@ body {
 
 .results-container {
   margin-top: 20px;
+  overflow-x: auto; /* Permite scroll horizontal si es necesario */
 }
 
 #resultsTable {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed; 
+  min-width: 1000px; /* Ancho mínimo para que la tabla no se comprima demasiado */
 }
 
 #resultsTable th, #resultsTable td {
@@ -628,8 +630,13 @@ body {
 /* --- ESTILOS PARA PÁGINAS DE GESTIÓN (MARCAS, ETC.) --- */
 
 .gestor-container {
-  max-width: 700px;
+  max-width: 100%;
   margin: 2rem auto;
+  overflow-x: auto; /* Permite scroll horizontal si es necesario */
+}
+
+.gestor-container table {
+  min-width: 800px; /* Ancho mínimo para tablas de gestión */
 }
 
 .gestor-container h2 {
@@ -837,15 +844,15 @@ body {
    ========================================================================== */
 
 /* Asignamos anchos fijos o porcentuales a cada columna */
-#resultsTable .col-foto { width: 40px; }
-#resultsTable .col-trw { width: 4%; }
-#resultsTable .col-modelo { width: 25%; } /* <-- Le damos más espacio */
-#resultsTable .col-numerica { width: 4%; }
-#resultsTable .col-stock { width: 4%; } 
-#resultsTable .col-marca { width: 8%; }
-#resultsTable .col-precio { width: 5%; }
-#resultsTable .col-tipo { width: 4%; }
-/*#
+#resultsTable .col-foto { width: 60px; }
+#resultsTable .col-trw { width: 80px; }
+#resultsTable .col-modelo { width: 180px; }
+#resultsTable .col-numerica { width: 60px; }
+#resultsTable .col-stock { width: 60px; } 
+#resultsTable .col-marca { width: 100px; }
+#resultsTable .col-precio { width: 70px; }
+#resultsTable .col-tipo { width: 50px; }
+#resultsTable .col-acciones-tabla { width: 180px; }
 
 
 /* ==========================================================================
@@ -1151,5 +1158,27 @@ body {
 @media screen and (max-width: 1024px) {
   .advanced-filters-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+/* Media queries específicas para tablas de gestión en móvil */
+@media screen and (max-width: 768px) {
+  .gestor-container table {
+    min-width: 600px; /* Reduce el ancho mínimo en móvil */
+  }
+  
+  .gestor-container h2 {
+    font-size: 1.25rem;
+  }
+  
+  /* Ajustamos el header de las páginas de gestión */
+  .gestor-container > div {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .gestor-container button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
   }
 }

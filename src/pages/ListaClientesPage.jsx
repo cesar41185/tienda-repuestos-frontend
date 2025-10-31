@@ -19,7 +19,6 @@ function ListaClientesPage() {
   const { seleccionarCliente } = useCarrito();
   const navigate = useNavigate();
   const { token } = useAuth();
-  const API_URL = import.meta.env.VITE_API_URL;;
 
   const fetchClientes = async () => {
     if (!token) return;
