@@ -20,31 +20,32 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  useEffect(() => {
-      const fetchUser = async () => {
-        if (token) {
-          try {
-            // --- CORRECCIÓN AQUÍ ---
-            // La URL correcta para obtener el usuario es '/api/auth/user/'
-            const userResponse = await fetch(`${API_URL}/auth/user/`, {
-              headers: { 'Authorization': `Token ${token}` }
-            });
-            if (!userResponse.ok) {
-              throw new Error('Token inválido');
-            }
-            const userData = await userResponse.json();
-            setUser(userData);
-
-            if (userData.perfil && userData.perfil.debe_cambiar_password) {
-              toast.error('Por tu seguridad, debes cambiar tu contraseña.', { duration: 6000 });
-            }  
-          } catch (e) {
-            logoutUser();
-          }
-        } else {
-          setUser(null);
+  const fetchUser = async () => {
+    if (token) {
+      try {
+        // --- CORRECCIÓN AQUÍ ---
+        // La URL correcta para obtener el usuario es '/api/auth/user/'
+        const userResponse = await fetch(`${API_URL}/auth/user/`, {
+          headers: { 'Authorization': `Token ${token}` }
+        });
+        if (!userResponse.ok) {
+          throw new Error('Token inválido');
         }
-      };
+        const userData = await userResponse.json();
+        setUser(userData);
+
+        if (userData.perfil && userData.perfil.debe_cambiar_password) {
+          toast.error('Por tu seguridad, debes cambiar tu contraseña.', { duration: 6000 });
+        }  
+      } catch (e) {
+        logoutUser();
+      }
+    } else {
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
       fetchUser();
   }, [token]);
   
@@ -106,7 +107,8 @@ export const AuthProvider = ({ children }) => {
     user,
     loginUser,
     registerUser,
-    logoutUser: manualLogoutUser
+    logoutUser: manualLogoutUser,
+    fetchUser
   };
 
   return (

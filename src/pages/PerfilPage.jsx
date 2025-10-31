@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import API_URL from '../apiConfig'; // <-- 1. IMPORTAMOS LA CONFIGURACIÓN CENTRAL
-import { SERVER_BASE_URL } from '../apiConfig';
 
 function PerfilPage() {
   const { user, token, logoutUser, fetchUser } = useAuth(); // Asumimos que fetchUser está disponible en el contexto para refrescar
@@ -50,13 +49,28 @@ function PerfilPage() {
     e.preventDefault();
     try {
         toast.loading('Actualizando perfil...');
-        // --- 3. USAMOS LA VARIABLE IMPORTADA ---
+        
+        // Construimos el payload solo con los campos que acepta el backend
+        const payload = {
+          email: formData.email,
+          perfil: {
+            telefono: formData.perfil?.telefono || '',
+            estado: formData.perfil?.estado || '',
+            ciudad: formData.perfil?.ciudad || '',
+            direccion: formData.perfil?.direccion || ''
+          }
+        };
+        
         const response = await fetch(`${API_URL}/auth/user/`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(payload)
         });
-        if (!response.ok) throw new Error('Error al actualizar el perfil.');
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(Object.values(errorData).flat().join(' ') || 'Error al actualizar el perfil.');
+        }
         
         // Refrescamos el usuario global
         if (fetchUser) await fetchUser();
@@ -133,8 +147,8 @@ function PerfilPage() {
 
         <div className="perfil-foto-container">
           <img 
-            // Construye la URL absoluta si existe la foto, si no usa el placeholder
-            src={formData.perfil?.foto_perfil ? `${SERVER_BASE_URL}${formData.perfil.foto_perfil}` : '/placeholder-avatar.png.png'}
+            // Si no hay foto usa el placeholder
+            src={formData.perfil?.foto_perfil || '/placeholder-avatar.png.png'}
             alt="Foto de perfil" 
             className="perfil-foto"
             onClick={() => fileInputRef.current.click()}
