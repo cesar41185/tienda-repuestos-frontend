@@ -80,12 +80,10 @@ function Buscador({ onBuscar, marcas }) {
         <button onClick={handleBuscarClick} className="search-bar-btn" title="Buscar">⌕</button>
         
         {/* --- 2. BOTÓN DE LIMPIAR (ahora siempre visible) --- */}
-        <button onClick={handleLimpiarFiltros} className="search-bar-btn" title="Limpiar filtros">🧹</button>
+        <button onClick={handleLimpiarFiltros} className="search-bar-btn" title="Limpiar filtros">✕</button>
 
         {/* --- 3. NUEVO BOTÓN para mostrar/ocultar filtros avanzados --- */}
-        <button onClick={() => setShowAdvanced(!showAdvanced)} className="search-bar-btn filter-toggle-btn" title="Más filtros">
-          ☰
-        </button>
+        <button onClick={() => setShowAdvanced(!showAdvanced)} className="search-bar-btn filter-toggle-btn" title="Más filtros">☰</button>
       </div>
 
       {showAdvanced && (
