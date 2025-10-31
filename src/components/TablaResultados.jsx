@@ -35,7 +35,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
       <thead>
         <tr>
           <th className="col-foto">Foto</th>
-          {isStaff && <th className="col-trw">Cod TRW</th>}
+          {isStaff && <th className="col-trw">TRW</th>}
           <th className="col-modelo">Modelo</th>
           <th className="col-marca">Marca</th>
           <th className="col-precio">Precio</th>

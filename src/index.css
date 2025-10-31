@@ -257,6 +257,8 @@ body {
 .results-container {
   margin-top: 20px;
   overflow-x: auto; /* Permite scroll horizontal si es necesario */
+  overflow-y: visible; /* Permite que la barra horizontal sea visible siempre */
+  max-height: none; /* Sin límite de altura para que no se oculte la barra */
 }
 
 #resultsTable {
@@ -844,15 +846,15 @@ body {
    ========================================================================== */
 
 /* Asignamos anchos fijos o porcentuales a cada columna */
-#resultsTable .col-foto { width: 60px; }
-#resultsTable .col-trw { width: 80px; }
+#resultsTable .col-foto { width: 40px; } /* Simétrico con la imagen */
+#resultsTable .col-trw { width: 60px; } /* Reducido */
 #resultsTable .col-modelo { width: 180px; }
-#resultsTable .col-numerica { width: 60px; }
-#resultsTable .col-stock { width: 60px; } 
-#resultsTable .col-marca { width: 100px; }
-#resultsTable .col-precio { width: 70px; }
-#resultsTable .col-tipo { width: 50px; }
-#resultsTable .col-acciones-tabla { width: 180px; }
+#resultsTable .col-numerica { width: 50px; } /* Reducido */
+#resultsTable .col-stock { width: 45px; } /* Reducido */
+#resultsTable .col-marca { width: 100px; } /* Basado en "Mitsubishi" */
+#resultsTable .col-precio { width: 60px; } /* Reducido */
+#resultsTable .col-tipo { width: 40px; } /* Reducido */
+#resultsTable .col-acciones-tabla { width: 100px; } /* Reducido */
 
 
 /* ==========================================================================
@@ -871,8 +873,8 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem; /* Aumentamos un poco el tamaño del emoji */
-  padding: 0.25rem;
+  font-size: 0.9rem; /* Reducido para ahorrar espacio */
+  padding: 0.2rem; /* Reducido */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1004,7 +1006,7 @@ body {
   display: flex;
   align-items: center; /* Centra verticalmente los elementos */
   gap: 0.4rem;       /* Espacio reducido entre elementos */
-  flex-wrap: nowrap; /* ¡Clave! Evita que los elementos bajen a otra línea */
+  flex-wrap: wrap; /* Permite que los elementos bajen a otra línea si no hay espacio */
 }
 
 /* ==========================================================================
