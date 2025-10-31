@@ -277,8 +277,8 @@ function GestionDetallePedidoPage() {
   const saldoPendiente = (pedido.total - pedido.monto_pagado).toFixed(2);
 
 return (
-    <div className="gestor-container">
-      <Link to="/gestion-pedidos" className="btn btn-secondary" style={{marginBottom: '20px'}}>
+    <div className="gestor-container" style={{maxWidth: '1200px'}}>
+      <Link to="/gestion-pedidos" className="btn btn-secondary" style={{marginBottom: '20px', display: 'inline-block'}}>
         ← Volver a la Gestión de Pedidos
       </Link>
       <h2>Detalle del Pedido #{pedido.id}</h2>
