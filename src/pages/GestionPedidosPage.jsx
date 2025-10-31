@@ -67,6 +67,7 @@ function GestionPedidosPage() {
           ))}
         </div>
 
+        {/* Vista de tabla para desktop */}
         <table id="resultsTable">
         <thead>
           <tr>
@@ -95,6 +96,30 @@ function GestionPedidosPage() {
           ))}
         </tbody>
       </table>
+
+      {/* Vista de tarjetas para móvil */}
+      <div className="pedidos-cards-mobile">
+        {pedidos.map(pedido => (
+          <div key={pedido.id} className="pedido-card">
+            <div className="card-header">
+              <div className="card-info-header">
+                <Link to={`/gestion-pedidos/${pedido.id}`}>
+                  <h3>Pedido #{pedido.id}</h3>
+                </Link>
+                <span className="card-fecha">{new Date(pedido.fecha).toLocaleDateString()}</span>
+              </div>
+            </div>
+
+            <div className="card-specs">
+              <span><strong>Cliente:</strong> {pedido.usuario?.username || 'N/A'}</span>
+              <span><strong>Vendedor:</strong> {pedido.vendedor_asignado?.username || '---'}</span>
+              {!esAlmacen && <span><strong>Total:</strong> ${pedido.total}</span>}
+              {!esAlmacen && <span><strong>Estado Pago:</strong> {pedido.status_pago.replace(/_/g, ' ')}</span>}
+              <span><strong>Estado Pedido:</strong> {statusLabels[pedido.status] || pedido.status}</span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

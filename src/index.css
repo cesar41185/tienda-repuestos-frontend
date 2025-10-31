@@ -1405,7 +1405,8 @@ body {
     display: none;
   }
   
-  .clientes-cards-mobile {
+  .clientes-cards-mobile,
+  .pedidos-cards-mobile {
     display: none;
   }
 }
@@ -1423,9 +1424,26 @@ body {
     display: none;
   }
   
-  /* Mostramos las tarjetas de clientes */
-  .clientes-cards-mobile {
+  /* Mostramos las tarjetas de clientes y pedidos */
+  .clientes-cards-mobile,
+  .pedidos-cards-mobile {
     display: block;
+  }
+  
+  /* Estilos para tarjetas de pedidos en móvil */
+  .pedido-card {
+    display: block;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .card-fecha {
+    font-size: 0.9rem;
+    color: #666;
   }
   
   .gestor-container h2 {
