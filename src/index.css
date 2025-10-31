@@ -759,6 +759,12 @@ body {
   margin-bottom: 2rem;
 }
 
+.gestor-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
 .gestor-form form {
   display: flex;
   gap: 1rem;
@@ -766,7 +772,8 @@ body {
 }
 
 .gestor-form input {
-  flex-grow: 1;
+  flex: 1;
+  min-width: 0;
   padding: 0.75rem;
   border: 1px solid #ced4da;
   border-radius: 5px;
