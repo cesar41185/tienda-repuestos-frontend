@@ -257,10 +257,9 @@ body {
 .results-container {
   margin-top: 20px;
   overflow-x: auto; /* Permite scroll horizontal si es necesario */
-  overflow-y: scroll; /* Cambiamos a scroll para que la barra horizontal sea visible siempre */
+  overflow-y: hidden; /* Ocultamos scroll vertical para permitir que la página escrollee */
   /* Hace que la barra de scroll horizontal siempre sea visible */
   scrollbar-width: thin;
-  /* Sin límite de altura explícito pero con scroll activo */
 }
 
 /* Estilos para hacer la scrollbar más visible */
@@ -1044,7 +1043,7 @@ body {
 }
 
 .cantidad-input-compacto {
-  width: 35px; /* Ampliado para coincidir con ancho de botones */
+  width: 42px; /* Ampliado aún más */
   text-align: center;
   padding: 0.2rem;
   border: 1px solid #ccc;
