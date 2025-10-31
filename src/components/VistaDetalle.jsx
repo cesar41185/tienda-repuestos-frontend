@@ -1,5 +1,6 @@
 // En src/components/VistaDetalle.jsx
 import { useState, useEffect } from 'react';
+import API_URL from '../apiConfig';
 
 // Recibe el ID de la válvula a mostrar y una función para volver a la lista
 function VistaDetalle({ valvulaId, onVolver }) {
@@ -10,7 +11,7 @@ function VistaDetalle({ valvulaId, onVolver }) {
     const fetchDetalleValvula = async () => {
       setCargando(true);
       try {
-        const response = await fetch(`http://192.168.1.55:8000/api/valvulas/${valvulaId}/`);
+        const response = await fetch(`${API_URL}/productos/${valvulaId}/`);
         const data = await response.json();
         setValvula(data);
       } catch (error) {

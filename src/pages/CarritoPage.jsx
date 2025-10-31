@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { JUEGO_UNIDADES } from '../apiConfig';
 
 function CarritoPage() {
-  const { carrito, clienteActivo, eliminarDelCarrito, actualizarCantidadJuegos } = useCarrito();  
+  const { carrito, clienteActivo, eliminarDelCarrito, actualizarCantidadJuegos, finalizarCompra } = useCarrito();  
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const isStaff = user && user.groups.length > 0;

@@ -115,15 +115,13 @@ export const CarritoProvider = ({ children }) => {
         }
         toast.success('¡Venta realizada con éxito!');
         limpiarCarrito(); // Vaciamos el carrito
+        limpiarCliente(); // Limpiamos el cliente activo después de una venta exitosa
         // Nota: ya no es necesario recargar las válvulas desde aquí.
         return true; // Indica que la compra fue exitosa
     } catch (error) {
         toast.dismiss();
         toast.error(error.message);
         return false; // Indica que la compra falló
-    }
-    if(response.ok) {
-        limpiarCliente();
     }
   };
 

@@ -6,6 +6,7 @@ import TablaResultados from '../components/TablaResultados';
 import ModalEditarValvula from '../components/ModalEditarValvula';
 import ModalFoto from '../components/ModalFoto';
 import { useCarrito } from '../context/CarritoContext';
+import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
 
 function TiendaPage() {
@@ -20,6 +21,7 @@ function TiendaPage() {
   const [currentFilters, setCurrentFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'codigo_interno', direction: 'ascending' });
   const { agregarAlCarrito } = useCarrito();
+  const { token } = useAuth();
   const [cantidades, setCantidades] = useState({});
   
   // --- FUNCIONES (actualizadas a 'producto') ---
@@ -51,7 +53,7 @@ function TiendaPage() {
     const params = new URLSearchParams(filtros);
     const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
     params.append('ordering', ordering);
-    buscarProductos(`${productosUrl}?${params.toString()}`);
+    buscarProductos(`${API_URL}/productos/?${params.toString()}`);
   };
 
   const handleDeleteProducto = async (productoId) => {
@@ -59,8 +61,9 @@ function TiendaPage() {
     if (window.confirm('¿Estás seguro de que quieres eliminar este producto permanentemente?')) {
         try {
             toast.loading('Eliminando producto...');
-            await fetch(`http://192.168.1.55:8000/api/productos/${productoId}/`, {
+            await fetch(`${API_URL}/productos/${productoId}/`, {
                 method: 'DELETE',
+                headers: { 'Authorization': `Token ${token}` }
             });
             toast.dismiss();
             toast.success('Producto eliminado con éxito.');
