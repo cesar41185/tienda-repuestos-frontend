@@ -1,4 +1,5 @@
 // Código completo para Header.jsx
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +8,7 @@ function Header() {
   const { carrito, clienteActivo, limpiarCliente } = useCarrito();
   const { token, user, logoutUser } = useAuth();
   const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   const esCliente = user && user.groups.length === 0;
   const esPersonal = user && user.groups.length > 0; // 'esPersonal' es el equivalente a 'isStaff'
@@ -29,7 +31,11 @@ function Header() {
         <h1>Verificador de Válvulas</h1>
       </div>
 
-      <nav className="header-nav">
+      <button className="menu-hamburger" onClick={() => setMenuAbierto(!menuAbierto)} aria-label="Menu">
+        {menuAbierto ? '✕' : '☰'}
+      </button>
+
+      <nav className={`header-nav ${menuAbierto ? 'nav-abierto' : ''}`}>
         {/* --- VISTA PARA VISITANTES --- */}
         {!token && (
           <>

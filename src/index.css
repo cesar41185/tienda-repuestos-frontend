@@ -990,3 +990,157 @@ body {
   gap: 0.4rem;       /* Espacio reducido entre elementos */
   flex-wrap: nowrap; /* ¡Clave! Evita que los elementos bajen a otra línea */
 }
+
+/* ==========================================================================
+   DISEÑO RESPONSIVE PARA MÓVILES
+   ========================================================================== */
+
+@media screen and (max-width: 768px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .app-container {
+    padding: 1rem;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .app-header {
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .header-brand h1 {
+    font-size: 1.25rem;
+  }
+
+  .logo {
+    height: 40px;
+  }
+
+  .menu-hamburger {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #0056b3;
+    padding: 0.5rem;
+  }
+
+  .header-nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+  }
+
+  .header-nav.nav-abierto {
+    display: flex;
+  }
+
+  .header-nav .nav-link,
+  .header-nav .nav-button {
+    width: 100%;
+    padding: 0.75rem;
+    text-align: left;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+  }
+
+  .header-nav .nav-button {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  /* Tabla se convierte en tarjetas en móvil */
+  #resultsTable {
+    display: none;
+  }
+
+  .productos-cards-mobile {
+    display: block;
+  }
+
+  .producto-card {
+    display: block;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .card-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .card-foto {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .card-info-header {
+    flex: 1;
+  }
+
+  .card-info-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #0056b3;
+  }
+
+  .card-precio {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+  }
+
+  .card-specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .card-specs span {
+    padding: 0.25rem 0;
+  }
+
+  .card-actions {
+    padding-top: 0.5rem;
+    border-top: 1px solid #eee;
+  }
+}
+
+/* En desktop mostramos la tabla y ocultamos las tarjetas */
+@media screen and (min-width: 769px) {
+  .menu-hamburger {
+    display: none;
+  }
+  
+  .productos-cards-mobile {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .advanced-filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}

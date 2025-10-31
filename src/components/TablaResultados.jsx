@@ -123,6 +123,83 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
           })}
         </tbody>
       </table>
+
+      {/* Vista de tarjetas para móvil */}
+      <div className="productos-cards-mobile">
+        {productos.map((producto) => {
+          const cantidadJuegos = cantidades[producto.id] || 1;
+          const cantidadUnidadesRequeridas = cantidadJuegos * JUEGO_UNIDADES;
+          const stockInsuficiente = producto.stock < cantidadUnidadesRequeridas;
+
+          return (
+            <div key={producto.id} className="producto-card">
+              <div className="card-header">
+                {producto.fotos && producto.fotos.length > 0 && (
+                  <img 
+                    src={producto.fotos[0].imagen} 
+                    alt="Producto" 
+                    className="card-foto"
+                    onClick={() => onFotoClick(producto.fotos[0].imagen)}
+                  />
+                )}
+                <div className="card-info-header">
+                  <Link to={`/producto/${producto.id}`}>
+                    <h3>{producto.aplicaciones?.[0]?.modelo_vehiculo || 'Uso General'}</h3>
+                  </Link>
+                  <span className="card-precio">${producto.precio_venta}</span>
+                </div>
+              </div>
+              
+              <div className="card-specs">
+                <span><strong>Marca:</strong> {producto.aplicaciones?.[0]?.marca_vehiculo_nombre || 'N/A'}</span>
+                <span><strong>Tipo:</strong> {abreviaturasTipo[producto.especificaciones?.tipo] || producto.especificaciones?.tipo || 'N/A'}</span>
+                <span><strong>Cabeza:</strong> {producto.especificaciones?.diametro_cabeza || 'N/A'} mm</span>
+                <span><strong>Vástago:</strong> {producto.especificaciones?.diametro_vastago || 'N/A'} mm</span>
+                <span><strong>Long:</strong> {producto.especificaciones?.longitud_total || 'N/A'} mm</span>
+                <span><strong>Ranuras:</strong> {producto.especificaciones?.ranuras || 'N/A'}</span>
+                <span><strong>Stock:</strong> {producto.stock}</span>
+                {isStaff && (
+                  <span><strong>TRW:</strong> {producto.numeros_de_parte?.find(part => part.marca === 'TRW')?.numero_de_parte || 'N/A'}</span>
+                )}
+              </div>
+
+              {(!isStaff || (isStaff && clienteActivo)) && (
+                <div className="card-actions">
+                  <div className="compra-grupo">
+                    <input
+                      type="number"
+                      min="1"
+                      className="cantidad-input"
+                      placeholder="1"
+                      value={cantidades[producto.id] || ''}
+                      onChange={(e) => onCantidadChange(producto.id, e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      style={{ borderColor: stockInsuficiente ? 'red' : '#ccc' }}
+                    />
+                    <span>x{JUEGO_UNIDADES}</span>
+                    <button 
+                      className="btn btn-primary" 
+                      onClick={() => onAddToCart(producto)} 
+                      disabled={stockInsuficiente}
+                      style={{flex: 1}}
+                    >
+                      🛒 Añadir
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {user && (user.groups.includes('Administrador') || user.groups.includes('Almacen')) && (
+                <div className="card-actions">
+                  <button className="btn btn-secondary" onClick={() => onEditar(producto)}>
+                    ✏️ Editar Producto
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
