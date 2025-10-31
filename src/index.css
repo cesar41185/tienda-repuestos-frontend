@@ -213,10 +213,10 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem; /* Espacio entre todos los elementos */
   align-items: stretch;  background-color: #f8f9fa;
-  padding: 1.5rem;
+  padding: 0.75rem 1rem; /* Reducido padding vertical de 1.5rem a 0.75rem */
   border-radius: 8px;
   border: 1px solid #dee2e6;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem; /* Reducido de 2rem a 1rem */
 }
 
 .filter-container .search-general {
@@ -257,9 +257,13 @@ body {
 .results-container {
   margin-top: 20px;
   overflow-x: auto; /* Permite scroll horizontal si es necesario */
-  overflow-y: hidden; /* Ocultamos scroll vertical para permitir que la página escrollee */
+  overflow-y: auto; /* Permite scroll vertical dentro del contenedor */
   /* Hace que la barra de scroll horizontal siempre sea visible */
   scrollbar-width: thin;
+  position: relative;
+  max-height: 70vh; /* Limita la altura para que la scrollbar horizontal sea más accesible */
+  border: 1px solid #dee2e6; /* Borde para delimitar el área de scroll */
+  border-radius: 4px;
 }
 
 /* Estilos para hacer la scrollbar más visible */
@@ -283,7 +287,8 @@ body {
 #resultsTable {
   border-collapse: collapse;
   table-layout: fixed; 
-  width: 1000px; /* Forzamos un ancho específico para provocar overflow */
+  width: 100%; /* Se ajusta al contenedor */
+  min-width: 1000px; /* Ancho mínimo para provocar overflow cuando el contenedor es menor */
 }
 
 #resultsTable th, #resultsTable td {
@@ -925,10 +930,11 @@ body {
   display: flex;
   align-items: center;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 0 0.5rem; /* Espacio para los botones */
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem; /* Reducido padding vertical para hacer más compacto */
   grid-column: span 2; /* Hacemos que ocupe más espacio en la grilla */
   transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: white;
 }
 
 /* Cuando el contenedor tiene foco (porque el input de adentro lo tiene), lo resaltamos */
@@ -942,25 +948,39 @@ body {
   flex-grow: 1; /* Ocupa todo el espacio disponible */
   border: none;
   outline: none;
-  padding: 0.75rem 0.5rem;
+  padding: 0.5rem 0.5rem; /* Reducido padding vertical de 0.75rem a 0.5rem */
   font-size: 1rem;
   background-color: transparent;
 }
 
 /* Estilo para los botones de íconos */
 .search-bar-btn {
-  background: none;
-  border: none;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
   cursor: pointer;
-  padding: 0.5rem;
-  font-size: 1.2rem; /* Aumenta el tamaño del emoji */
-  color: #555;
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  color: #495057;
   display: flex;
   align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 0.4rem;
+  min-width: 32px;
+  min-height: 32px;
 }
 
 .search-bar-btn:hover {
-  color: #007bff;
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.search-bar-btn:active {
+  transform: translateY(0);
 }
 
 .advanced-filters-grid {
@@ -977,9 +997,8 @@ body {
 }
 
 .filter-toggle-btn {
-  margin-left: 0.5rem;
-  border-left: 1px solid #eee;
-  padding-left: 1rem;
+  margin-left: 0.4rem;
+  /* Removido border-left para diseño más limpio */
 }
 
 /* Animación simple de aparición */
