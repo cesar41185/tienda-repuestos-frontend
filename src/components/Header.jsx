@@ -87,6 +87,7 @@ function Header() {
               <>
                 <Link to="/clientes" className="nav-link">Clientes</Link>
                 <Link to="/presupuestos" className="nav-link">Presupuestos</Link>
+                <Link to="/comisiones" className="nav-link">Comisiones</Link>
               </>
             )}
             {user.groups.includes('Administrador') && (
