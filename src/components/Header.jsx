@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 function Header() {
   const { carrito, clienteActivo, limpiarCliente } = useCarrito();
@@ -38,6 +39,7 @@ function Header() {
         {user && (
           <span className="welcome-message">Bienvenido, {nombreUsuario}</span>
         )}
+        {user && <NotificationBell />}
         {/* Carrito solo para Clientes y Admin/Cajero en POS - visible en desktop */}
         {(esCliente || (esPersonal && clienteActivo) || !token) && (
           <Link to="/carrito" className="nav-link cart-link desktop-cart">🛒 ({totalItems})</Link>
