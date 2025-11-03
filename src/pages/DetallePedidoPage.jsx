@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
+import ModalCrearDevolucion from '../components/ModalCrearDevolucion';
 
 
 function DetallePedidoPage() {
   const { id } = useParams(); // Obtiene el ID del pedido de la URL
   const [pedido, setPedido] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [modalDevolucion, setModalDevolucion] = useState(false);
   const { token } = useAuth();
   const API_URL = import.meta.env.VITE_API_URL;;
 
@@ -35,6 +37,7 @@ function DetallePedidoPage() {
   if (!pedido) return <p>No se pudo encontrar el pedido.</p>;
 
   return (
+    <>
     <div className="gestor-container">
       <h2>Detalle del Pedido #{pedido.id}</h2>
       <p><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleDateString()}</p>
@@ -53,8 +56,28 @@ function DetallePedidoPage() {
           </li>
         ))}
       </ul>
-      <Link to="/mis-pedidos" className="btn btn-primary" style={{marginTop: '20px'}}>Volver a Mis Pedidos</Link>
+      
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '20px' }}>
+        <button 
+          className="btn btn-secondary"
+          onClick={() => setModalDevolucion(true)}
+        >
+          Solicitar Devolución
+        </button>
+        <Link to="/mis-pedidos" className="btn btn-primary">Volver a Mis Pedidos</Link>
+      </div>
     </div>
+    
+    {modalDevolucion && pedido && (
+      <ModalCrearDevolucion
+        venta={pedido}
+        onClose={() => setModalDevolucion(false)}
+        onSuccess={() => {
+          setModalDevolucion(false);
+        }}
+      />
+    )}
+    </>
   );
 }
 

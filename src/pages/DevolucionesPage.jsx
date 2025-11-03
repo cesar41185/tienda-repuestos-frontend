@@ -12,6 +12,7 @@ function DevolucionesPage() {
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
 
   const esPersonal = user && user.groups.length > 0;
+  const esAdmin = user && user.groups.includes('Administrador');
 
   useEffect(() => {
     fetchDevoluciones();
@@ -122,18 +123,7 @@ function DevolucionesPage() {
   return (
     <div className="gestor-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2>Gestión de Devoluciones</h2>
-        {!esPersonal && (
-          <button 
-            className="btn btn-primary"
-            onClick={() => {
-              // Aquí necesitarías cargar las ventas disponibles del cliente
-              toast.info('Selecciona una venta de "Mis Pedidos" para crear una devolución');
-            }}
-          >
-            + Nueva Devolución
-          </button>
-        )}
+        <h2>{esAdmin ? 'Gestión de Devoluciones' : 'Mis Devoluciones'}</h2>
       </div>
 
       {devoluciones.length === 0 ? (
@@ -179,7 +169,7 @@ function DevolucionesPage() {
                 )}
               </div>
 
-              {esPersonal && devolucion.status === 'PENDIENTE' && (
+              {esAdmin && devolucion.status === 'PENDIENTE' && (
                 <div className="devolucion-actions">
                   <button 
                     className="btn btn-success btn-sm"
@@ -199,7 +189,7 @@ function DevolucionesPage() {
                 </div>
               )}
 
-              {esPersonal && devolucion.status === 'APROBADA' && (
+              {esAdmin && devolucion.status === 'APROBADA' && (
                 <div className="devolucion-actions">
                   <button 
                     className="btn btn-primary btn-sm"
