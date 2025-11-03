@@ -89,6 +89,9 @@ function Header() {
             {user.groups.includes('Administrador') && (
               <Link to="/gestor-marcas" className="nav-link">Gestionar Marcas</Link>
             )}
+            {(user.groups.includes('Administrador') || user.groups.includes('Almacen')) && (
+              <Link to="/movimientos-stock" className="nav-link">Movimientos Stock</Link>
+            )}
             <button onClick={logoutUser} className="nav-button">Cerrar Sesión</button>
           </>
         )}

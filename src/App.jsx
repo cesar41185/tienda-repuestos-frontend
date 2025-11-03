@@ -22,7 +22,8 @@ import DetallePedidoPage from './pages/DetallePedidoPage';
 import GestionPedidosPage from './pages/GestionPedidosPage';
 import GestionDetallePedidoPage from './pages/GestionDetallePedidoPage';
 import DashboardPage from './pages/DashboardPage';
-import DevolucionesPage from './pages/DevolucionesPage'; 
+import DevolucionesPage from './pages/DevolucionesPage';
+import MovimientosStockPage from './pages/MovimientosStockPage'; 
 
 function App() {
   return (
@@ -120,6 +121,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+          
+          <Route
+            path="/movimientos-stock"
+            element={
+              <ProtectedRoute roles={['Administrador', 'Almacen']}>
+                <MovimientosStockPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
     </div>
