@@ -13,8 +13,8 @@ function ModalCrearDevolucion({ venta, onClose, onSuccess }) {
     if (venta && venta.detalles) {
       // Pre-cargar productos de la venta
       const items = venta.detalles.map(detalle => ({
-        producto_id: detalle.producto,
-        producto_codigo: detalle.producto_codigo,
+        producto_id: detalle.producto?.id || detalle.producto, // Maneja objeto o ID
+        producto_codigo: detalle.producto?.codigo_interno || detalle.producto_codigo,
         cantidad_vendida: detalle.cantidad,
         cantidad_devolver: 0,
         precio_unitario: detalle.precio_unitario,
