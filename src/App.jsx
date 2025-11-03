@@ -23,7 +23,8 @@ import GestionPedidosPage from './pages/GestionPedidosPage';
 import GestionDetallePedidoPage from './pages/GestionDetallePedidoPage';
 import DashboardPage from './pages/DashboardPage';
 import DevolucionesPage from './pages/DevolucionesPage';
-import MovimientosStockPage from './pages/MovimientosStockPage'; 
+import MovimientosStockPage from './pages/MovimientosStockPage';
+import ConteoFisicoPage from './pages/ConteoFisicoPage'; 
 
 function App() {
   return (
@@ -127,6 +128,15 @@ function App() {
             element={
               <ProtectedRoute roles={['Administrador', 'Almacen']}>
                 <MovimientosStockPage />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/conteos-fisicos"
+            element={
+              <ProtectedRoute roles={['Administrador', 'Almacen']}>
+                <ConteoFisicoPage />
               </ProtectedRoute>
             }
           />
