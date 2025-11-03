@@ -24,7 +24,8 @@ import GestionDetallePedidoPage from './pages/GestionDetallePedidoPage';
 import DashboardPage from './pages/DashboardPage';
 import DevolucionesPage from './pages/DevolucionesPage';
 import MovimientosStockPage from './pages/MovimientosStockPage';
-import ConteoFisicoPage from './pages/ConteoFisicoPage'; 
+import ConteoFisicoPage from './pages/ConteoFisicoPage';
+import PresupuestosPage from './pages/PresupuestosPage'; 
 
 function App() {
   return (
@@ -93,6 +94,15 @@ function App() {
             element={
               <ProtectedRoute roles={['Administrador', 'Vendedor']}>
                 <ListaClientesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/presupuestos"
+            element={
+              <ProtectedRoute roles={['Administrador', 'Vendedor']}>
+                <PresupuestosPage />
               </ProtectedRoute>
             }
           />
