@@ -1461,3 +1461,251 @@ body {
     padding: 0.5rem 1rem;
   }
 }
+
+/* ==========================================================================
+   DASHBOARD STYLES
+   ========================================================================== */
+
+.dashboard-container {
+  padding: 2rem;
+}
+
+.dashboard-titulo {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #212529;
+  text-align: center;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card-icon {
+  font-size: 3rem;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  flex-shrink: 0;
+}
+
+.dashboard-card-content {
+  flex: 1;
+}
+
+.dashboard-card-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.dashboard-card-number {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #212529;
+}
+
+.dashboard-ventas-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.dashboard-venta-card {
+  background: linear-gradient(135deg, #ac1b1b 0%, #d32f2f 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(172, 27, 27, 0.3);
+  text-align: center;
+}
+
+.dashboard-venta-card h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.dashboard-venta-total {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.dashboard-venta-cantidad {
+  margin: 0.5rem 0 0 0;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.dashboard-grafico-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 3rem;
+}
+
+.dashboard-grafico-container h2 {
+  margin: 0 0 2rem 0;
+  font-size: 1.5rem;
+  color: #212529;
+  text-align: center;
+}
+
+.dashboard-grafico {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 250px;
+  padding: 1rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.dashboard-barra-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  margin: 0 0.5rem;
+}
+
+.dashboard-barra {
+  width: 100%;
+  max-width: 60px;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.dashboard-barra:hover {
+  opacity: 0.8;
+}
+
+.dashboard-barra-valor {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #ac1b1b;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.dashboard-barra:hover .dashboard-barra-valor {
+  opacity: 1;
+}
+
+.dashboard-barra-label {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-align: center;
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+}
+
+.dashboard-top-productos {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.dashboard-top-productos h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: #212529;
+  text-align: center;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.dashboard-table thead {
+  background-color: #f8f9fa;
+}
+
+.dashboard-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.dashboard-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.dashboard-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.dashboard-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Responsive para Dashboard */
+@media screen and (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-ventas-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-grafico {
+    height: 200px;
+    overflow-x: auto;
+    padding: 0.5rem;
+  }
+  
+  .dashboard-barra-container {
+    min-width: 50px;
+  }
+  
+  .dashboard-table {
+    font-size: 0.85rem;
+  }
+  
+  .dashboard-table th,
+  .dashboard-table td {
+    padding: 0.5rem;
+  }
+}

@@ -72,6 +72,9 @@ function Header() {
             {esPersonal && (
                 <Link to="/gestion-pedidos" className="nav-link">Gestionar Pedidos</Link>
             )}
+            {user.groups.includes('Administrador') && (
+              <Link to="/dashboard" className="nav-link">Dashboard</Link>
+            )}
             {(user.groups.includes('Administrador') || user.groups.includes('Vendedor')) && (
               <Link to="/clientes" className="nav-link">Clientes</Link>
             )}

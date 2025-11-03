@@ -55,6 +55,9 @@ function HomePage() {
             {user.groups.length === 0 && (
               <Link to="/mis-pedidos" style={{ textDecoration: 'none', color: '#007bff' }}>Mis Pedidos</Link>
             )}
+            {user.groups.includes('Administrador') && (
+              <Link to="/dashboard" style={{ textDecoration: 'none', color: '#007bff' }}>Dashboard</Link>
+            )}
             {(user.groups.includes('Administrador') || user.groups.includes('Vendedor')) && (
               <>
                 <Link to="/gestion-pedidos" style={{ textDecoration: 'none', color: '#007bff' }}>Gestionar Pedidos</Link>

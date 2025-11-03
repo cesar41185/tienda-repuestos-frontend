@@ -20,7 +20,8 @@ import GestorMarcasPage from './pages/GestorMarcasPage';
 import ListaClientesPage from './pages/ListaClientesPage';
 import DetallePedidoPage from './pages/DetallePedidoPage';
 import GestionPedidosPage from './pages/GestionPedidosPage';
-import GestionDetallePedidoPage from './pages/GestionDetallePedidoPage'; 
+import GestionDetallePedidoPage from './pages/GestionDetallePedidoPage';
+import DashboardPage from './pages/DashboardPage'; 
 
 function App() {
   return (
@@ -66,6 +67,15 @@ function App() {
           />
 
           {/* --- Rutas Específicas por Rol --- */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute roles={['Administrador']}>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          
           <Route
             path="/clientes"
             element={
