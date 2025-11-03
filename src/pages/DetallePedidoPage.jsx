@@ -12,7 +12,6 @@ function DetallePedidoPage() {
   const [cargando, setCargando] = useState(true);
   const [modalDevolucion, setModalDevolucion] = useState(false);
   const { token } = useAuth();
-  const API_URL = import.meta.env.VITE_API_URL;;
 
   useEffect(() => {
     const fetchPedido = async () => {
@@ -32,6 +31,30 @@ function DetallePedidoPage() {
     };
     fetchPedido();
   }, [id, token]);
+
+  const handleGenerarPDF = async () => {
+    try {
+      const response = await fetch(`${API_URL}/ventas/${id}/generar_pdf/`, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      
+      if (!response.ok) {
+        throw new Error('No se pudo generar el PDF.');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `venta_${pedido.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (cargando) return <p>Cargando detalle del pedido...</p>;
   if (!pedido) return <p>No se pudo encontrar el pedido.</p>;
@@ -58,6 +81,12 @@ function DetallePedidoPage() {
       </ul>
       
       <div style={{ display: 'flex', gap: '1rem', marginTop: '20px' }}>
+        <button 
+          className="btn btn-info"
+          onClick={handleGenerarPDF}
+        >
+          📄 Generar PDF
+        </button>
         <button 
           className="btn btn-secondary"
           onClick={() => setModalDevolucion(true)}

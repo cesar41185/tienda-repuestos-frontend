@@ -244,6 +244,38 @@ function GestionDetallePedidoPage() {
     }
   };
 
+  const handleGenerarPDF = async () => {
+    try {
+      toast.loading('Generando PDF...');
+      const response = await fetch(`${API_URL}/ventas/${id}/generar_pdf/`, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      toast.dismiss();
+      
+      if (!response.ok) {
+        throw new Error('No se pudo generar el PDF.');
+      }
+      
+      // Obtener el PDF como blob
+      const blob = await response.blob();
+      
+      // Crear un enlace temporal y hacer click para descargar
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `venta_${pedido.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('PDF generado con éxito.');
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error.message);
+    }
+  };
+
   const handleCancelarPedido = async () => {
     const motivo = window.prompt('Por favor, introduce el motivo de la cancelación:');
     
@@ -323,6 +355,11 @@ return (
       <hr/>
       <h4>Panel de Acciones</h4>
       <div className="acciones-panel" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Botón para generar PDF - disponible para todos los usuarios autenticados */}
+          <button className="btn btn-info" onClick={handleGenerarPDF} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            📄 Generar PDF
+          </button>
+          
           {/* Acción para Vendedor/Admin: Tomar un pedido sin asignar */}
           {(esVendedor || esAdmin) && pedido.status === 'POR_ASIGNAR' && (
               <button className="btn btn-primary" onClick={handleTomarPedido}>Asignarme este Pedido</button>
