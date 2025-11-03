@@ -62,7 +62,7 @@ function ModalCrearDevolucion({ venta, onClose, onSuccess }) {
         body: JSON.stringify({
           venta: venta.id,
           motivo: motivo,
-          detalles: itemsADevolver.map(item => ({
+          detalles_write: itemsADevolver.map(item => ({
             producto: item.producto_id,
             cantidad: item.cantidad_devolver,
             precio_unitario: item.precio_unitario,
