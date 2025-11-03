@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import Buscador from '../components/Buscador';
 import TablaResultados from '../components/TablaResultados';
-import ModalEditarValvula from '../components/ModalEditarValvula';
+import ModalEditarProducto from '../components/ModalEditarProducto';
 import ModalFoto from '../components/ModalFoto';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +21,7 @@ function TiendaPage() {
   const [currentFilters, setCurrentFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'codigo_interno', direction: 'ascending' });
   const { agregarAlCarrito } = useCarrito();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [cantidades, setCantidades] = useState({});
   
   // --- FUNCIONES (actualizadas a 'producto') ---
@@ -100,7 +100,7 @@ function TiendaPage() {
   }, []);
 
   // --- MANEJADORES DE MODALES (actualizados a 'producto') ---
-  const handleAbrirModal = (producto) => {
+  const handleAbrirModal = (producto = null) => {
     setProductoParaEditar(producto);
     setIsModalOpen(true);
   };
@@ -148,6 +148,17 @@ function TiendaPage() {
 
   return (
     <>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2>Productos</h2>
+        {token && user && user.groups.includes('Administrador') && (
+          <button 
+            className="btn btn-primary"
+            onClick={() => handleAbrirModal()}
+          >
+            + Crear Producto
+          </button>
+        )}
+      </div>
       <Buscador onBuscar={handleFilterSearch} marcas={marcas} />
       <TablaResultados 
         productos={productos} // Pasamos 'productos'
@@ -169,7 +180,7 @@ function TiendaPage() {
       </div>
 
       {isModalOpen && (
-        <ModalEditarValvula
+        <ModalEditarProducto
           producto={productoParaEditar} // Pasamos 'producto'
           onClose={handleCerrarModal}
           onSave={handleGuardadoExitoso}
