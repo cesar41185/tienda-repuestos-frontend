@@ -26,7 +26,8 @@ import DevolucionesPage from './pages/DevolucionesPage';
 import MovimientosStockPage from './pages/MovimientosStockPage';
 import ConteoFisicoPage from './pages/ConteoFisicoPage';
 import PresupuestosPage from './pages/PresupuestosPage';
-import ComisionesPage from './pages/ComisionesPage'; 
+import ComisionesPage from './pages/ComisionesPage';
+import InteraccionesCRMPage from './pages/InteraccionesCRMPage'; 
 
 function App() {
   return (
@@ -113,6 +114,15 @@ function App() {
             element={
               <ProtectedRoute roles={['Administrador', 'Vendedor']}>
                 <ComisionesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/interacciones-crm"
+            element={
+              <ProtectedRoute roles={['Administrador', 'Vendedor']}>
+                <InteraccionesCRMPage />
               </ProtectedRoute>
             }
           />
