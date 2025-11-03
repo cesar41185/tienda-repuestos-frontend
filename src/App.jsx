@@ -21,7 +21,8 @@ import ListaClientesPage from './pages/ListaClientesPage';
 import DetallePedidoPage from './pages/DetallePedidoPage';
 import GestionPedidosPage from './pages/GestionPedidosPage';
 import GestionDetallePedidoPage from './pages/GestionDetallePedidoPage';
-import DashboardPage from './pages/DashboardPage'; 
+import DashboardPage from './pages/DashboardPage';
+import DevolucionesPage from './pages/DevolucionesPage'; 
 
 function App() {
   return (
@@ -62,6 +63,15 @@ function App() {
             element={
               <ProtectedRoute> {/* <-- Quita la propiedad 'roles' de aquí */}
                 <DetallePedidoPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/devoluciones"
+            element={
+              <ProtectedRoute>
+                <DevolucionesPage />
               </ProtectedRoute>
             }
           />

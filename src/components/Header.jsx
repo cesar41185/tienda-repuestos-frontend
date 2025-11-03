@@ -68,11 +68,17 @@ function Header() {
             <Link to="/mi-perfil" className="nav-link">Mi Perfil</Link>
             {/* Mis Pedidos solo para Clientes */}
             {esCliente && (
-              <Link to="/mis-pedidos" className="nav-link">Mis Pedidos</Link>
+              <>
+                <Link to="/mis-pedidos" className="nav-link">Mis Pedidos</Link>
+                <Link to="/devoluciones" className="nav-link">Mis Devoluciones</Link>
+              </>
             )}
             {/* Enlaces de Personal */}
             {esPersonal && (
+              <>
                 <Link to="/gestion-pedidos" className="nav-link">Gestionar Pedidos</Link>
+                <Link to="/devoluciones" className="nav-link">Devoluciones</Link>
+              </>
             )}
             {user.groups.includes('Administrador') && (
               <Link to="/dashboard" className="nav-link">Dashboard</Link>

@@ -1861,3 +1861,206 @@ body {
     right: -50px;
   }
 }
+
+/* ==========================================================================
+   DEVOLUCIONES STYLES
+   ========================================================================== */
+
+.devolucion-productos {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.devolucion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.2s;
+}
+
+.devolucion-item:hover {
+  background-color: #f8f9fa;
+}
+
+.devolucion-item:last-child {
+  border-bottom: none;
+}
+
+.devolucion-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.devolucion-item-info strong {
+  font-size: 1.1rem;
+  color: #212529;
+}
+
+.devolucion-item-info span {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.devolucion-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.devolucion-item-controls label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.devolucion-item-controls input {
+  width: 80px;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.devolucion-subtotal {
+  font-weight: bold;
+  color: #ac1b1b;
+  font-size: 1.1rem;
+  min-width: 100px;
+  text-align: right;
+}
+
+.devolucion-total {
+  background-color: #f8f9fa;
+  border: 2px solid #ac1b1b;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1.3rem;
+  color: #ac1b1b;
+  margin-bottom: 1.5rem;
+}
+
+.devoluciones-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.devolucion-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.devolucion-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.devolucion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.devolucion-header strong {
+  font-size: 1.2rem;
+  color: #212529;
+}
+
+.devolucion-info p {
+  margin: 0.5rem 0;
+  color: #495057;
+}
+
+.devolucion-info ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: #6c757d;
+}
+
+.devolucion-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.badge-info {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+/* Responsive para Devoluciones */
+@media screen and (max-width: 768px) {
+  .devolucion-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .devolucion-item-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .devolucion-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .devolucion-actions {
+    flex-direction: column;
+  }
+}
