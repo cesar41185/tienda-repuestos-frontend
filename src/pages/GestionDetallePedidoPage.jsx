@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import API_URL from '../apiConfig';
+import ModalCrearDevolucion from '../components/ModalCrearDevolucion';
 
 function GestionDetallePedidoPage() {
   const { id } = useParams();
@@ -11,6 +12,7 @@ function GestionDetallePedidoPage() {
   const [cargando, setCargando] = useState(true);
   const [archivoComprobante, setArchivoComprobante] = useState(null);
   const [montoComprobante, setMontoComprobante] = useState('');
+  const [modalDevolucion, setModalDevolucion] = useState(false);
   const { token, user } = useAuth();
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -277,6 +279,7 @@ function GestionDetallePedidoPage() {
   const saldoPendiente = (pedido.total - pedido.monto_pagado).toFixed(2);
 
 return (
+    <>
     <div className="gestor-container" style={{maxWidth: '1200px'}}>
       <Link to="/gestion-pedidos" className="btn btn-secondary" style={{marginBottom: '20px', display: 'inline-block'}}>
         ← Volver a la Gestión de Pedidos
@@ -423,7 +426,28 @@ return (
           </button>
         </div>
       )}
+      
+      <hr/>
+      <div style={{ marginTop: '1rem' }}>
+        <button 
+          className="btn btn-secondary"
+          onClick={() => setModalDevolucion(true)}
+        >
+          Solicitar Devolución para Cliente
+        </button>
+      </div>
     </div>
+    
+    {modalDevolucion && pedido && (
+      <ModalCrearDevolucion
+        venta={pedido}
+        onClose={() => setModalDevolucion(false)}
+        onSuccess={() => {
+          setModalDevolucion(false);
+        }}
+      />
+    )}
+    </>
   );
 }
 
