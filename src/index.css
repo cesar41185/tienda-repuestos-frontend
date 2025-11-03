@@ -970,9 +970,9 @@ body {
 #resultsTable .col-trw { width: 55px; } /* Basado en "VF0010" */
 #resultsTable .col-modelo { width: 250px; } /* Ampliado con el espacio ganado */
 #resultsTable .col-numerica { width: 38px; } /* Reducido para medidas y Ran */
-#resultsTable .col-stock { width: 30px; } /* Solo para "Cant" */
+#resultsTable .col-stock { width: 40px; } /* Aumentado */
 #resultsTable .col-marca { width: 100px; } /* Basado en "Mitsubishi" */
-#resultsTable .col-precio { width: 60px; } /* Mantenido */
+#resultsTable .col-precio { width: 50px; } /* Reducido */
 #resultsTable .col-tipo { width: 40px; } /* Mantenido */
 #resultsTable .col-acciones-tabla { width: 90px; } /* Reducido */
 

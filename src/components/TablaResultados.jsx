@@ -17,8 +17,8 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
   const isStaff = user && user.groups.length > 0;
 
   const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return ' ↕️';
-    return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
+    // No mostrar iconos visuales, solo dejar funcional el ordenamiento
+    return '';
   };
   
   const esAlmacen = user && user.groups.includes('Almacen');
