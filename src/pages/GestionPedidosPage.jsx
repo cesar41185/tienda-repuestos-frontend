@@ -15,6 +15,14 @@ const statusLabels = {
   POR_ASIGNAR: "Por Asignar"
 };
 
+const getStatusDisplay = (pedido) => {
+  const status = statusLabels[pedido.status] || pedido.status;
+  if (pedido.tiene_devoluciones && pedido.status === 'CERRADO') {
+    return `${status} y Devuelto`;
+  }
+  return status;
+};
+
 const FILTROS_STATUS = [
   { key: '', label: 'Todos' },
   { key: 'POR_ASIGNAR', label: 'Por Asignar' },
@@ -91,7 +99,7 @@ function GestionPedidosPage() {
               <td>{new Date(pedido.fecha).toLocaleDateString()}</td>
               {!esAlmacen && <td>${pedido.total}</td>}
               {!esAlmacen && <td style={{fontWeight: 'bold'}}>{pedido.status_pago.replace(/_/g, ' ')}</td>}
-              <td>{statusLabels[pedido.status] || pedido.status}</td>
+              <td>{getStatusDisplay(pedido)}</td>
             </tr>
           ))}
         </tbody>
@@ -115,7 +123,7 @@ function GestionPedidosPage() {
               <span><strong>Vendedor:</strong> {pedido.vendedor_asignado?.username || '---'}</span>
               {!esAlmacen && <span><strong>Total:</strong> ${pedido.total}</span>}
               {!esAlmacen && <span><strong>Estado Pago:</strong> {pedido.status_pago.replace(/_/g, ' ')}</span>}
-              <span><strong>Estado Pedido:</strong> {statusLabels[pedido.status] || pedido.status}</span>
+              <span><strong>Estado Pedido:</strong> {getStatusDisplay(pedido)}</span>
             </div>
           </div>
         ))}
