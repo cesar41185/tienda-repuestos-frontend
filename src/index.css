@@ -969,7 +969,8 @@ body {
 #resultsTable .col-foto { width: 40px; } /* Simétrico con la imagen */
 #resultsTable .col-trw { width: 55px; } /* Basado en "VF0010" */
 #resultsTable .col-modelo { width: 250px; } /* Ampliado con el espacio ganado */
-#resultsTable .col-numerica { width: 38px; } /* Reducido para medidas y Ran */
+#resultsTable .col-numerica { width: 30px; } /* Reducido para Ran */
+#resultsTable .col-long { width: 50px; } /* Aumentado para Long */
 #resultsTable .col-stock { width: 40px; } /* Aumentado */
 #resultsTable .col-marca { width: 100px; } /* Basado en "Mitsubishi" */
 #resultsTable .col-precio { width: 50px; } /* Reducido */
