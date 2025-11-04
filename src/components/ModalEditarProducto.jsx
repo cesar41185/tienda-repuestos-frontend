@@ -293,14 +293,14 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     // Preparar datos - convertir strings vacíos a null/undefined
     const data = {
       producto: producto.id,
-      marca_vehiculo: marca || null,
+      marca_vehiculo: marca && marca !== '' ? parseInt(marca) : null,
       modelo_vehiculo: modelo || '',
-      cilindrada: nuevaAplicacion.cilindrada || null,
-      cantidad_cilindros: nuevaAplicacion.cantidad_cilindros || null,
+      cilindrada: nuevaAplicacion.cilindrada && nuevaAplicacion.cilindrada !== '' ? parseFloat(nuevaAplicacion.cilindrada) : null,
+      cantidad_cilindros: nuevaAplicacion.cantidad_cilindros && nuevaAplicacion.cantidad_cilindros !== '' ? parseInt(nuevaAplicacion.cantidad_cilindros) : null,
       detalle_motor: nuevaAplicacion.detalle_motor || '',
       ano_desde: anoDesde || null,
       ano_hasta: anoHasta || null,
-      cantidad_valvulas: nuevaAplicacion.cantidad_valvulas || 1
+      cantidad_valvulas: nuevaAplicacion.cantidad_valvulas && nuevaAplicacion.cantidad_valvulas !== '' ? parseInt(nuevaAplicacion.cantidad_valvulas) : 1
     };
     
     try {
