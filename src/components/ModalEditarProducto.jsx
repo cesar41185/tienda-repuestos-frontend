@@ -272,12 +272,17 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     }
     e.preventDefault();
     
-    // Validación básica en el frontend
+    // Validación básica en el frontend - ambos campos son requeridos
     const marca = nuevaAplicacion.marca_vehiculo || '';
     const modelo = (nuevaAplicacion.modelo_vehiculo || '').trim();
     
-    if (!marca && !modelo) {
-      toast.error('Debe proporcionar al menos una marca o un modelo de vehículo.');
+    if (!marca) {
+      toast.error('La marca del vehículo es requerida.');
+      return;
+    }
+    
+    if (!modelo) {
+      toast.error('El modelo del vehículo es requerido.');
       return;
     }
     
@@ -502,13 +507,13 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
             </ul><hr />
             <h4>Añadir Nueva Aplicación</h4>
             <form onSubmit={handleAddAplicacion} className="add-form">
-              <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange}>
-                <option value="">-- Marca (Opcional) --</option>
+              <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange} required>
+                <option value="">-- Marca * --</option>
                 {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
               </select>
-              <input name="modelo_vehiculo" type="text" placeholder="Modelo Vehículo (Opcional)" value={nuevaAplicacion.modelo_vehiculo} onChange={handleNuevaAplicacionChange} />
+              <input name="modelo_vehiculo" type="text" placeholder="Modelo Vehículo *" value={nuevaAplicacion.modelo_vehiculo} onChange={handleNuevaAplicacionChange} required />
               <small style={{gridColumn: '1 / -1', color: '#666', fontSize: '0.85em'}}>
-                ⚠️ Debe proporcionar al menos una marca o un modelo.
+                * Marca y Modelo son campos requeridos. Los demás campos son opcionales.
               </small>
               <input name="detalle_motor" type="text" placeholder="Detalle Motor (ej: Zetec)" value={nuevaAplicacion.detalle_motor} onChange={handleNuevaAplicacionChange} />
               <input name="cilindrada" type="number" step="0.1" placeholder="Cilindrada (ej: 1.6)" value={nuevaAplicacion.cilindrada} onChange={handleNuevaAplicacionChange} />
