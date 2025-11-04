@@ -146,17 +146,87 @@ function TiendaPage() {
     agregarAlCarrito(producto, cantidadDeJuegos); // Pasa los JUEGOS al contexto
   };
 
+  const handleImprimirListado = async () => {
+    if (!token) {
+      toast.error('Debes iniciar sesión para generar el listado.');
+      return;
+    }
+
+    try {
+      toast.loading('Generando PDF del listado de productos...');
+      const response = await fetch(`${API_URL}/productos/imprimir_listado/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          toast.error('No tienes permisos para generar el listado. Solo administradores.');
+        } else {
+          toast.error('Error al generar el PDF.');
+        }
+        return;
+      }
+
+      // Obtener el blob del PDF
+      const blob = await response.blob();
+      
+      // Crear un enlace temporal para descargar el archivo
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      // Obtener el nombre del archivo del header Content-Disposition o usar uno por defecto
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'listado_productos.pdf';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      } else {
+        // Si no hay header, usar fecha actual
+        const fecha = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        filename = `listado_productos_${fecha}.pdf`;
+      }
+      
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast.dismiss();
+      toast.success('PDF generado y descargado exitosamente');
+    } catch (error) {
+      toast.dismiss();
+      console.error('Error al generar PDF:', error);
+      toast.error('Error al generar el PDF del listado.');
+    }
+  };
+
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h2>Productos</h2>
         {token && user && user.groups.includes('Administrador') && (
-          <button 
-            className="btn btn-primary"
-            onClick={() => handleAbrirModal()}
-          >
-            + Crear Producto
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button 
+              className="btn btn-secondary"
+              onClick={handleImprimirListado}
+              title="Generar PDF del listado completo de productos para auditoría"
+            >
+              📄 Imprimir Listado
+            </button>
+            <button 
+              className="btn btn-primary"
+              onClick={() => handleAbrirModal()}
+            >
+              + Crear Producto
+            </button>
+          </div>
         )}
       </div>
       <Buscador onBuscar={handleFilterSearch} marcas={marcas} />
