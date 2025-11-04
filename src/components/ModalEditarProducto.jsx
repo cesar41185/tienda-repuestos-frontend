@@ -218,7 +218,12 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.detail || errorData.message || `Error al subir ${file.name}`);
           }
-          return response.json();
+          const fotoData = await response.json();
+          // Verificar que la foto tenga URL
+          if (!fotoData.imagen || fotoData.imagen.trim() === '') {
+            console.warn('Foto creada pero sin URL:', fotoData);
+          }
+          return fotoData;
         });
       });
 
