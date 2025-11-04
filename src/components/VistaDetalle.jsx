@@ -15,6 +15,11 @@ function VistaDetalle({ valvulaId, onVolver }) {
         const response = await fetch(`${API_URL}/productos/${valvulaId}/`);
         const data = await response.json();
         setValvula(data);
+        // Iniciar en la foto principal si existe
+        if (data.fotos && data.fotos.length > 0) {
+          const principalIndex = data.fotos.findIndex(f => f.es_principal);
+          setFotoActual(principalIndex >= 0 ? principalIndex : 0);
+        }
       } catch (error) {
         console.error("Error al cargar el detalle de la válvula:", error);
       }
