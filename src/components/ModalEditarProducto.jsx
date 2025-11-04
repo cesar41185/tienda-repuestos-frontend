@@ -271,17 +271,80 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       return;
     }
     e.preventDefault();
-    const data = { ...nuevaAplicacion, producto: producto.id };
-    await fetch(`${API_URL}/aplicaciones/`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${token}`
-      },
-      body: JSON.stringify(data),
-    });
-    setNuevaAplicacion({ marca_vehiculo: '', modelo_vehiculo: '', cilindrada: '', cantidad_cilindros: '', detalle_motor: '', ano_desde: '', ano_hasta: '', cantidad_valvulas: '' });
-    onRefresh();
+    
+    // Validación básica en el frontend
+    const marca = nuevaAplicacion.marca_vehiculo || '';
+    const modelo = (nuevaAplicacion.modelo_vehiculo || '').trim();
+    
+    if (!marca && !modelo) {
+      toast.error('Debe proporcionar al menos una marca o un modelo de vehículo.');
+      return;
+    }
+    
+    // Validar años
+    const anoDesde = nuevaAplicacion.ano_desde ? parseInt(nuevaAplicacion.ano_desde) : null;
+    const anoHasta = nuevaAplicacion.ano_hasta ? parseInt(nuevaAplicacion.ano_hasta) : null;
+    
+    if (anoDesde && anoHasta && anoDesde > anoHasta) {
+      toast.error('El año "Desde" no puede ser mayor que el año "Hasta".');
+      return;
+    }
+    
+    // Preparar datos - convertir strings vacíos a null/undefined
+    const data = {
+      producto: producto.id,
+      marca_vehiculo: marca || null,
+      modelo_vehiculo: modelo || '',
+      cilindrada: nuevaAplicacion.cilindrada || null,
+      cantidad_cilindros: nuevaAplicacion.cantidad_cilindros || null,
+      detalle_motor: nuevaAplicacion.detalle_motor || '',
+      ano_desde: anoDesde || null,
+      ano_hasta: anoHasta || null,
+      cantidad_valvulas: nuevaAplicacion.cantidad_valvulas || 1
+    };
+    
+    try {
+      const response = await fetch(`${API_URL}/aplicaciones/`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        // Extraer mensajes de error del backend
+        let errorMessage = 'Error al agregar la aplicación.';
+        if (errorData.non_field_errors) {
+          errorMessage = errorData.non_field_errors[0];
+        } else if (errorData.marca_vehiculo) {
+          errorMessage = `Marca: ${errorData.marca_vehiculo[0]}`;
+        } else if (errorData.modelo_vehiculo) {
+          errorMessage = `Modelo: ${errorData.modelo_vehiculo[0]}`;
+        } else if (errorData.ano_desde) {
+          errorMessage = `Año Desde: ${errorData.ano_desde[0]}`;
+        } else {
+          // Mostrar el primer error que encuentre
+          const firstError = Object.values(errorData)[0];
+          if (Array.isArray(firstError)) {
+            errorMessage = firstError[0];
+          } else {
+            errorMessage = JSON.stringify(errorData);
+          }
+        }
+        toast.error(errorMessage);
+        return;
+      }
+      
+      toast.success('Aplicación agregada exitosamente.');
+      setNuevaAplicacion({ marca_vehiculo: '', modelo_vehiculo: '', cilindrada: '', cantidad_cilindros: '', detalle_motor: '', ano_desde: '', ano_hasta: '', cantidad_valvulas: '' });
+      onRefresh();
+    } catch (error) {
+      console.error('Error al agregar aplicación:', error);
+      toast.error('Error al agregar la aplicación. Por favor, intente nuevamente.');
+    }
   };
 
   const handleDeleteAplicacion = async (id) => {
@@ -439,11 +502,14 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
             </ul><hr />
             <h4>Añadir Nueva Aplicación</h4>
             <form onSubmit={handleAddAplicacion} className="add-form">
-              <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange} required>
-                <option value="">-- Marca --</option>
+              <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange}>
+                <option value="">-- Marca (Opcional) --</option>
                 {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
               </select>
-              <input name="modelo_vehiculo" type="text" placeholder="Modelo Vehículo" value={nuevaAplicacion.modelo_vehiculo} onChange={handleNuevaAplicacionChange} required />
+              <input name="modelo_vehiculo" type="text" placeholder="Modelo Vehículo (Opcional)" value={nuevaAplicacion.modelo_vehiculo} onChange={handleNuevaAplicacionChange} />
+              <small style={{gridColumn: '1 / -1', color: '#666', fontSize: '0.85em'}}>
+                ⚠️ Debe proporcionar al menos una marca o un modelo.
+              </small>
               <input name="detalle_motor" type="text" placeholder="Detalle Motor (ej: Zetec)" value={nuevaAplicacion.detalle_motor} onChange={handleNuevaAplicacionChange} />
               <input name="cilindrada" type="number" step="0.1" placeholder="Cilindrada (ej: 1.6)" value={nuevaAplicacion.cilindrada} onChange={handleNuevaAplicacionChange} />
               <input name="cantidad_cilindros" type="number" placeholder="N° Cilindros" value={nuevaAplicacion.cantidad_cilindros} onChange={handleNuevaAplicacionChange} />
