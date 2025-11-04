@@ -240,6 +240,109 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     onRefresh();
   };
 
+  const handleMarcarPrincipal = async (fotoId) => {
+    try {
+      const response = await fetch(`${API_URL}/fotos/${fotoId}/marcar_principal/`, {
+        method: 'POST',
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (response.ok) {
+        toast.success('Foto marcada como principal.');
+        onRefresh();
+      } else {
+        toast.error('Error al marcar foto como principal.');
+      }
+    } catch (error) {
+      toast.error('Error al marcar foto como principal.');
+    }
+  };
+
+  const handlePasteImage = async (e) => {
+    e.preventDefault();
+    const items = e.clipboardData?.items;
+    if (!items || !producto) return;
+
+    const imageFiles = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const blob = items[i].getAsFile();
+        if (blob) {
+          imageFiles.push(blob);
+        }
+      }
+    }
+
+    if (imageFiles.length === 0) return;
+
+    toast.loading('Subiendo fotos pegadas...');
+
+    const uploadPromises = imageFiles.map(file => {
+      const dataFoto = new FormData();
+      dataFoto.append('producto', producto.id);
+      dataFoto.append('imagen', file);
+      
+      return fetch(`${API_URL}/fotos/`, {
+        method: 'POST',
+        headers: { 'Authorization': `Token ${token}` },
+        body: dataFoto,
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error(`Error al subir imagen`);
+        }
+        return response.json();
+      });
+    });
+
+    try {
+      await Promise.all(uploadPromises);
+      toast.dismiss();
+      toast.success('¡Imágenes pegadas con éxito!');
+      onRefresh();
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Error al subir las imágenes pegadas.');
+    }
+  };
+
+  const handleDropImage = async (e) => {
+    e.preventDefault();
+    const files = e.dataTransfer?.files;
+    if (!files || files.length === 0 || !producto) return;
+
+    const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+
+    if (imageFiles.length === 0) return;
+
+    toast.loading('Subiendo imágenes...');
+
+    const uploadPromises = imageFiles.map(file => {
+      const dataFoto = new FormData();
+      dataFoto.append('producto', producto.id);
+      dataFoto.append('imagen', file);
+      
+      return fetch(`${API_URL}/fotos/`, {
+        method: 'POST',
+        headers: { 'Authorization': `Token ${token}` },
+        body: dataFoto,
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error(`Error al subir ${file.name}`);
+        }
+        return response.json();
+      });
+    });
+
+    try {
+      await Promise.all(uploadPromises);
+      toast.dismiss();
+      toast.success('¡Imágenes subidas con éxito!');
+      onRefresh();
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Error al subir las imágenes.');
+    }
+  };
+
   const handleAddReferencia = async (e) => {
     if (!producto) {
       toast.error('Debe crear el producto primero para agregar referencias');
@@ -461,13 +564,69 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                   <h4>Fotos</h4>
                   <div className="fotos-actuales">
                     {formData.fotos && formData.fotos.map(foto => (
-                      <div key={foto.id} className="foto-container">
+                      <div key={foto.id} className="foto-container" style={{position: 'relative'}}>
                         <img src={foto.imagen} alt="Miniatura" />
-                        <button type="button" className="delete-foto-btn" onClick={() => handleDeleteFoto(foto.id)}>X</button>
+                        <div style={{position: 'absolute', top: '5px', right: '5px', display: 'flex', gap: '5px'}}>
+                          {foto.es_principal && (
+                            <span style={{
+                              background: '#4CAF50',
+                              color: 'white',
+                              padding: '2px 6px',
+                              borderRadius: '3px',
+                              fontSize: '10px',
+                              fontWeight: 'bold'
+                            }}>PRINCIPAL</span>
+                          )}
+                          {!foto.es_principal && (
+                            <button 
+                              type="button" 
+                              className="set-principal-btn"
+                              onClick={() => handleMarcarPrincipal(foto.id)}
+                              style={{
+                                background: '#2196F3',
+                                color: 'white',
+                                border: 'none',
+                                padding: '2px 6px',
+                                borderRadius: '3px',
+                                fontSize: '10px',
+                                cursor: 'pointer'
+                              }}
+                              title="Marcar como principal"
+                            >
+                              ⭐ Principal
+                            </button>
+                          )}
+                          <button type="button" className="delete-foto-btn" onClick={() => handleDeleteFoto(foto.id)}>X</button>
+                        </div>
                       </div>
                     ))}
                   </div>
-                  <input name="fotos" type="file" multiple onChange={handleFileChange} />
+                  <div 
+                    style={{
+                      border: '2px dashed #ccc',
+                      borderRadius: '8px',
+                      padding: '20px',
+                      textAlign: 'center',
+                      backgroundColor: '#f9f9f9',
+                      cursor: 'pointer'
+                    }}
+                    onPaste={handlePasteImage}
+                    onDrop={handleDropImage}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDragEnter={(e) => e.preventDefault()}
+                  >
+                    <p style={{margin: '0 0 10px 0', color: '#666'}}>
+                      📋 Pega imágenes aquí (Ctrl+V) o arrastra archivos
+                    </p>
+                    <input 
+                      name="fotos" 
+                      type="file" 
+                      multiple 
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{marginTop: '10px'}}
+                    />
+                  </div>
                 </>
               )}
             </form>

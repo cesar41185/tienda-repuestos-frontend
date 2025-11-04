@@ -59,11 +59,14 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                 <td className="col-foto">
                   {producto.fotos && producto.fotos.length > 0 ? (
                    <img 
-                      // Construye la URL absoluta: Base del Servidor + Ruta Relativa de la Imagen
-                      src={producto.fotos[0].imagen} 
+                      // Usar foto principal si existe, sino la primera
+                      src={producto.fotos.find(f => f.es_principal)?.imagen || producto.fotos[0].imagen} 
                       alt="Miniatura" 
                       className="tabla-foto-miniatura"
-                      onClick={() => onFotoClick(producto.fotos[0].imagen)}
+                      onClick={() => {
+                        const fotoPrincipal = producto.fotos.find(f => f.es_principal) || producto.fotos[0];
+                        onFotoClick(fotoPrincipal.imagen);
+                      }}
                     />
                   ) : (
                     <div className="foto-placeholder"></div>
