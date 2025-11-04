@@ -234,11 +234,15 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       
       if (response.ok) {
         const productoActualizado = await response.json();
-        // Verificar que las fotos tengan URLs válidas
-        const fotosValidas = productoActualizado.fotos.map(foto => ({
-          ...foto,
-          imagen: foto.imagen || null // Asegurar que imagen existe
-        }));
+        // Verificar que las fotos tengan URLs válidas y no estén vacías
+        const fotosValidas = productoActualizado.fotos
+          .filter(foto => foto.imagen && foto.imagen.trim() !== '')
+          .map(foto => ({
+            ...foto,
+            imagen: foto.imagen || null
+          }));
+        
+        console.log('Fotos recargadas:', fotosValidas);
         setFormData(prev => ({ ...prev, fotos: fotosValidas }));
         toast.dismiss();
         toast.success('¡Todas las fotos se subieron con éxito!');
@@ -365,10 +369,13 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       
       if (response.ok) {
         const productoActualizado = await response.json();
-        const fotosValidas = productoActualizado.fotos.map(foto => ({
-          ...foto,
-          imagen: foto.imagen || null
-        }));
+        const fotosValidas = productoActualizado.fotos
+          .filter(foto => foto.imagen && foto.imagen.trim() !== '')
+          .map(foto => ({
+            ...foto,
+            imagen: foto.imagen || null
+          }));
+        console.log('Fotos recargadas (pegar):', fotosValidas);
         setFormData(prev => ({ ...prev, fotos: fotosValidas }));
         toast.dismiss();
         toast.success('¡Imágenes pegadas con éxito!');
@@ -426,10 +433,13 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       
       if (response.ok) {
         const productoActualizado = await response.json();
-        const fotosValidas = productoActualizado.fotos.map(foto => ({
-          ...foto,
-          imagen: foto.imagen || null
-        }));
+        const fotosValidas = productoActualizado.fotos
+          .filter(foto => foto.imagen && foto.imagen.trim() !== '')
+          .map(foto => ({
+            ...foto,
+            imagen: foto.imagen || null
+          }));
+        console.log('Fotos recargadas (drag):', fotosValidas);
         setFormData(prev => ({ ...prev, fotos: fotosValidas }));
         toast.dismiss();
         toast.success('¡Imágenes subidas con éxito!');
@@ -666,19 +676,29 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                   <hr />
                   <h4>Fotos</h4>
                   <div className="fotos-actuales">
-                    {formData.fotos && formData.fotos.map(foto => (
-                      <div key={foto.id} className="foto-container" style={{position: 'relative'}}>
-                        {foto.imagen ? (
-                          <img src={foto.imagen} alt="Miniatura" onError={(e) => {
-                            console.error('Error cargando imagen:', foto.imagen);
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'block';
-                          }} />
-                        ) : null}
-                        <div style={{display: 'none', padding: '20px', textAlign: 'center', color: '#999'}}>
-                          Imagen no disponible
-                        </div>
-                        <div style={{position: 'absolute', top: '5px', right: '5px', display: 'flex', gap: '5px'}}>
+                    {formData.fotos && formData.fotos.length > 0 ? (
+                      formData.fotos.map(foto => (
+                        <div key={foto.id} className="foto-container">
+                          {foto.imagen && foto.imagen.trim() !== '' ? (
+                            <img 
+                              src={foto.imagen} 
+                              alt="Miniatura" 
+                              onError={(e) => {
+                                console.error('Error cargando imagen:', foto.imagen, foto);
+                                e.target.style.display = 'none';
+                                const errorDiv = e.target.parentElement.querySelector('.error-message');
+                                if (errorDiv) errorDiv.style.display = 'block';
+                              }} 
+                            />
+                          ) : (
+                            <div className="error-message" style={{padding: '20px', textAlign: 'center', color: '#999'}}>
+                              Sin imagen
+                            </div>
+                          )}
+                          <div className="error-message" style={{display: 'none', padding: '20px', textAlign: 'center', color: '#999', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
+                            Error al cargar
+                          </div>
+                          <div style={{position: 'absolute', top: '5px', right: '5px', display: 'flex', gap: '5px', zIndex: 10}}>
                           {foto.es_principal && (
                             <span style={{
                               background: '#4CAF50',
@@ -709,9 +729,14 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                             </button>
                           )}
                           <button type="button" className="delete-foto-btn" onClick={() => handleDeleteFoto(foto.id)}>X</button>
+                          </div>
                         </div>
+                      ))
+                    ) : (
+                      <div style={{gridColumn: '1 / -1', textAlign: 'center', color: '#999', padding: '20px'}}>
+                        No hay fotos cargadas
                       </div>
-                    ))}
+                    )}
                   </div>
                   <div 
                     style={{
