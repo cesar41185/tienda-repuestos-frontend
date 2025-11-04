@@ -154,7 +154,25 @@ function TiendaPage() {
 
     try {
       toast.loading('Generando PDF del listado de productos...');
-      const response = await fetch(`${API_URL}/productos/imprimir_listado/`, {
+      
+      // Construir URL con filtros y ordenamiento activos
+      const params = new URLSearchParams();
+      
+      // Agregar todos los filtros activos
+      Object.keys(currentFilters).forEach(key => {
+        if (currentFilters[key]) {
+          params.append(key, currentFilters[key]);
+        }
+      });
+      
+      // Agregar ordenamiento
+      const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
+      params.append('ordering', ordering);
+      
+      // Construir URL completa
+      const url = `${API_URL}/productos/imprimir_listado/?${params.toString()}`;
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Token ${token}`
