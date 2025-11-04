@@ -214,14 +214,25 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
           headers: { 'Authorization': `Token ${token}` },
           body: dataFoto,
         }).then(async response => {
+          console.log(`Respuesta de subir foto ${file.name}:`, response.status, response.statusText);
+          
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
+            console.error('Error al subir foto:', errorData);
             throw new Error(errorData.detail || errorData.message || `Error al subir ${file.name}`);
           }
+          
           const fotoData = await response.json();
+          console.log('Foto creada - Datos completos:', fotoData);
+          console.log('Foto creada - URL de imagen:', fotoData.imagen);
+          
           // Verificar que la foto tenga URL
           if (!fotoData.imagen || fotoData.imagen.trim() === '') {
-            console.warn('Foto creada pero sin URL:', fotoData);
+            console.error('⚠️ Foto creada pero sin URL:', fotoData);
+            console.error('⚠️ ID de foto:', fotoData.id);
+            console.error('⚠️ Producto ID:', fotoData.producto);
+          } else {
+            console.log('✅ Foto creada con URL válida:', fotoData.imagen);
           }
           return fotoData;
         });
@@ -239,19 +250,35 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       
       if (response.ok) {
         const productoActualizado = await response.json();
+        console.log('Producto actualizado - Todas las fotos:', productoActualizado.fotos);
+        
         // Verificar que las fotos tengan URLs válidas y no estén vacías
         const fotosValidas = productoActualizado.fotos
-          .filter(foto => foto.imagen && foto.imagen.trim() !== '')
+          .filter(foto => {
+            const tieneUrl = foto.imagen && foto.imagen.trim() !== '';
+            if (!tieneUrl) {
+              console.warn('⚠️ Foto sin URL filtrada:', foto);
+            }
+            return tieneUrl;
+          })
           .map(foto => ({
             ...foto,
             imagen: foto.imagen || null
           }));
         
-        console.log('Fotos recargadas:', fotosValidas);
+        console.log(`Fotos válidas después de filtrar: ${fotosValidas.length} de ${productoActualizado.fotos.length}`);
+        console.log('Fotos recargadas (válidas):', fotosValidas);
+        
+        if (fotosValidas.length < productoActualizado.fotos.length) {
+          console.error(`⚠️ Se filtraron ${productoActualizado.fotos.length - fotosValidas.length} fotos sin URL`);
+        }
+        
         setFormData(prev => ({ ...prev, fotos: fotosValidas }));
         toast.dismiss();
         toast.success('¡Todas las fotos se subieron con éxito!');
       } else {
+        const errorText = await response.text();
+        console.error('Error al recargar producto:', response.status, errorText);
         toast.dismiss();
         toast.error('Error al recargar las fotos. Por favor, recarga la página.');
       }
