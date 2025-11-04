@@ -203,41 +203,77 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
 
     toast.loading('Subiendo fotos...');
 
-    const uploadPromises = Array.from(files).map(file => {
-      const dataFoto = new FormData();
-      dataFoto.append('producto', producto.id);
-      dataFoto.append('imagen', file);
-      
-      return fetch(`${API_URL}/fotos/`, {
-        method: 'POST',
-        headers: { 'Authorization': `Token ${token}` },
-        body: dataFoto,
-      }).then(response => {
-        if (!response.ok) {
-          throw new Error(`Error al subir ${file.name}`);
-        }
-        return response.json();
-      });
-    });
-
     try {
-      await Promise.all(uploadPromises);
+      const uploadPromises = Array.from(files).map(file => {
+        const dataFoto = new FormData();
+        dataFoto.append('producto', producto.id);
+        dataFoto.append('imagen', file);
+        
+        return fetch(`${API_URL}/fotos/`, {
+          method: 'POST',
+          headers: { 'Authorization': `Token ${token}` },
+          body: dataFoto,
+        }).then(async response => {
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || errorData.message || `Error al subir ${file.name}`);
+          }
+          return response.json();
+        });
+      });
+
+      const nuevasFotos = await Promise.all(uploadPromises);
       toast.dismiss();
       toast.success('¡Todas las fotos se subieron con éxito!');
+      
+      // Recargar el producto para obtener las fotos actualizadas
+      const response = await fetch(`${API_URL}/productos/${producto.id}/`, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (response.ok) {
+        const productoActualizado = await response.json();
+        setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+      }
+      
+      // También llamar a onRefresh para actualizar la lista si es necesario
       onRefresh();
+      
+      // Limpiar el input de archivo
+      e.target.value = '';
     } catch (error) {
       toast.dismiss();
       toast.error(error.message || 'Algunas fotos no se pudieron subir.');
+      console.error('Error al subir fotos:', error);
     }
   };
 
   const handleDeleteFoto = async (fotoId) => {
-    await fetch(`${API_URL}/fotos/${fotoId}/`, { 
-      method: 'DELETE',
-      headers: { 'Authorization': `Token ${token}` }
-    });
-    toast.success('Foto eliminada.');
-    onRefresh();
+    try {
+      const response = await fetch(`${API_URL}/fotos/${fotoId}/`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      
+      if (response.ok) {
+        toast.success('Foto eliminada.');
+        
+        // Recargar el producto para obtener las fotos actualizadas
+        const productoResponse = await fetch(`${API_URL}/productos/${producto.id}/`, {
+          headers: { 'Authorization': `Token ${token}` }
+        });
+        if (productoResponse.ok) {
+          const productoActualizado = await productoResponse.json();
+          setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+        }
+        
+        onRefresh();
+      } else {
+        toast.error('Error al eliminar la foto.');
+      }
+    } catch (error) {
+      toast.error('Error al eliminar la foto.');
+      console.error('Error al eliminar foto:', error);
+    }
   };
 
   const handleMarcarPrincipal = async (fotoId) => {
@@ -248,12 +284,23 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       });
       if (response.ok) {
         toast.success('Foto marcada como principal.');
+        
+        // Recargar el producto para obtener las fotos actualizadas
+        const productoResponse = await fetch(`${API_URL}/productos/${producto.id}/`, {
+          headers: { 'Authorization': `Token ${token}` }
+        });
+        if (productoResponse.ok) {
+          const productoActualizado = await productoResponse.json();
+          setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+        }
+        
         onRefresh();
       } else {
         toast.error('Error al marcar foto como principal.');
       }
     } catch (error) {
       toast.error('Error al marcar foto como principal.');
+      console.error('Error al marcar foto principal:', error);
     }
   };
 
@@ -294,13 +341,24 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     });
 
     try {
-      await Promise.all(uploadPromises);
+      const nuevasFotos = await Promise.all(uploadPromises);
       toast.dismiss();
       toast.success('¡Imágenes pegadas con éxito!');
+      
+      // Recargar el producto para obtener las fotos actualizadas
+      const response = await fetch(`${API_URL}/productos/${producto.id}/`, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (response.ok) {
+        const productoActualizado = await response.json();
+        setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+      }
+      
       onRefresh();
     } catch (error) {
       toast.dismiss();
       toast.error('Error al subir las imágenes pegadas.');
+      console.error('Error al pegar imágenes:', error);
     }
   };
 
@@ -333,13 +391,24 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     });
 
     try {
-      await Promise.all(uploadPromises);
+      const nuevasFotos = await Promise.all(uploadPromises);
       toast.dismiss();
       toast.success('¡Imágenes subidas con éxito!');
+      
+      // Recargar el producto para obtener las fotos actualizadas
+      const response = await fetch(`${API_URL}/productos/${producto.id}/`, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (response.ok) {
+        const productoActualizado = await response.json();
+        setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+      }
+      
       onRefresh();
     } catch (error) {
       toast.dismiss();
       toast.error('Error al subir las imágenes.');
+      console.error('Error al subir imágenes:', error);
     }
   };
 
