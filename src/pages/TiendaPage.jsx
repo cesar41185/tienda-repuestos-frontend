@@ -170,9 +170,9 @@ function TiendaPage() {
       params.append('ordering', ordering);
       
       // Construir URL completa
-      const url = `${API_URL}/productos/imprimir_listado/?${params.toString()}`;
+      const apiUrl = `${API_URL}/productos/imprimir_listado/?${params.toString()}`;
       
-      const response = await fetch(url, {
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Token ${token}`
@@ -192,9 +192,9 @@ function TiendaPage() {
       const blob = await response.blob();
       
       // Crear un enlace temporal para descargar el archivo
-      const url = window.URL.createObjectURL(blob);
+      const blobUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = blobUrl;
       
       // Obtener el nombre del archivo del header Content-Disposition o usar uno por defecto
       const contentDisposition = response.headers.get('Content-Disposition');
@@ -214,7 +214,7 @@ function TiendaPage() {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(blobUrl);
       
       toast.dismiss();
       toast.success('PDF generado y descargado exitosamente');
