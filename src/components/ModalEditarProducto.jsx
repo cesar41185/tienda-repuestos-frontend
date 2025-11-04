@@ -223,16 +223,28 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       });
 
       const nuevasFotos = await Promise.all(uploadPromises);
-      toast.dismiss();
-      toast.success('¡Todas las fotos se subieron con éxito!');
       
-      // Recargar el producto para obtener las fotos actualizadas
+      // Esperar un momento para que el servidor procese las imágenes
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Recargar el producto para obtener las fotos actualizadas con URLs correctas
       const response = await fetch(`${API_URL}/productos/${producto.id}/`, {
         headers: { 'Authorization': `Token ${token}` }
       });
+      
       if (response.ok) {
         const productoActualizado = await response.json();
-        setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+        // Verificar que las fotos tengan URLs válidas
+        const fotosValidas = productoActualizado.fotos.map(foto => ({
+          ...foto,
+          imagen: foto.imagen || null // Asegurar que imagen existe
+        }));
+        setFormData(prev => ({ ...prev, fotos: fotosValidas }));
+        toast.dismiss();
+        toast.success('¡Todas las fotos se subieron con éxito!');
+      } else {
+        toast.dismiss();
+        toast.error('Error al recargar las fotos. Por favor, recarga la página.');
       }
       
       // También llamar a onRefresh para actualizar la lista si es necesario
@@ -341,17 +353,28 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     });
 
     try {
-      const nuevasFotos = await Promise.all(uploadPromises);
-      toast.dismiss();
-      toast.success('¡Imágenes pegadas con éxito!');
+      await Promise.all(uploadPromises);
       
-      // Recargar el producto para obtener las fotos actualizadas
+      // Esperar un momento para que el servidor procese las imágenes
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Recargar el producto para obtener las fotos actualizadas con URLs correctas
       const response = await fetch(`${API_URL}/productos/${producto.id}/`, {
         headers: { 'Authorization': `Token ${token}` }
       });
+      
       if (response.ok) {
         const productoActualizado = await response.json();
-        setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+        const fotosValidas = productoActualizado.fotos.map(foto => ({
+          ...foto,
+          imagen: foto.imagen || null
+        }));
+        setFormData(prev => ({ ...prev, fotos: fotosValidas }));
+        toast.dismiss();
+        toast.success('¡Imágenes pegadas con éxito!');
+      } else {
+        toast.dismiss();
+        toast.error('Error al recargar las fotos.');
       }
       
       onRefresh();
@@ -391,17 +414,28 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     });
 
     try {
-      const nuevasFotos = await Promise.all(uploadPromises);
-      toast.dismiss();
-      toast.success('¡Imágenes subidas con éxito!');
+      await Promise.all(uploadPromises);
       
-      // Recargar el producto para obtener las fotos actualizadas
+      // Esperar un momento para que el servidor procese las imágenes
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Recargar el producto para obtener las fotos actualizadas con URLs correctas
       const response = await fetch(`${API_URL}/productos/${producto.id}/`, {
         headers: { 'Authorization': `Token ${token}` }
       });
+      
       if (response.ok) {
         const productoActualizado = await response.json();
-        setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+        const fotosValidas = productoActualizado.fotos.map(foto => ({
+          ...foto,
+          imagen: foto.imagen || null
+        }));
+        setFormData(prev => ({ ...prev, fotos: fotosValidas }));
+        toast.dismiss();
+        toast.success('¡Imágenes subidas con éxito!');
+      } else {
+        toast.dismiss();
+        toast.error('Error al recargar las fotos.');
       }
       
       onRefresh();
@@ -634,7 +668,16 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                   <div className="fotos-actuales">
                     {formData.fotos && formData.fotos.map(foto => (
                       <div key={foto.id} className="foto-container" style={{position: 'relative'}}>
-                        <img src={foto.imagen} alt="Miniatura" />
+                        {foto.imagen ? (
+                          <img src={foto.imagen} alt="Miniatura" onError={(e) => {
+                            console.error('Error cargando imagen:', foto.imagen);
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }} />
+                        ) : null}
+                        <div style={{display: 'none', padding: '20px', textAlign: 'center', color: '#999'}}>
+                          Imagen no disponible
+                        </div>
                         <div style={{position: 'absolute', top: '5px', right: '5px', display: 'flex', gap: '5px'}}>
                           {foto.es_principal && (
                             <span style={{
