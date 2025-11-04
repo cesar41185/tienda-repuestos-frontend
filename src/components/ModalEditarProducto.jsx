@@ -325,28 +325,49 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
   };
 
   const handleMarcarPrincipal = async (fotoId) => {
+    if (!producto) return;
+    
+    toast.loading('Marcando foto como principal...');
+    
     try {
       const response = await fetch(`${API_URL}/fotos/${fotoId}/marcar_principal/`, {
         method: 'POST',
         headers: { 'Authorization': `Token ${token}` }
       });
+      
       if (response.ok) {
-        toast.success('Foto marcada como principal.');
+        // Esperar un momento para que el servidor procese
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         // Recargar el producto para obtener las fotos actualizadas
         const productoResponse = await fetch(`${API_URL}/productos/${producto.id}/`, {
           headers: { 'Authorization': `Token ${token}` }
         });
+        
         if (productoResponse.ok) {
           const productoActualizado = await productoResponse.json();
-          setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
+          const fotosValidas = productoActualizado.fotos
+            .filter(foto => foto.imagen && foto.imagen.trim() !== '')
+            .map(foto => ({
+              ...foto,
+              imagen: foto.imagen || null
+            }));
+          setFormData(prev => ({ ...prev, fotos: fotosValidas }));
+          toast.dismiss();
+          toast.success('✅ Foto marcada como principal');
+        } else {
+          toast.dismiss();
+          toast.error('Error al recargar las fotos.');
         }
         
         onRefresh();
       } else {
-        toast.error('Error al marcar foto como principal.');
+        const errorData = await response.json().catch(() => ({}));
+        toast.dismiss();
+        toast.error(errorData.detail || 'Error al marcar foto como principal.');
       }
     } catch (error) {
+      toast.dismiss();
       toast.error('Error al marcar foto como principal.');
       console.error('Error al marcar foto principal:', error);
     }
