@@ -23,6 +23,10 @@ function TiendaPage() {
   const { agregarAlCarrito } = useCarrito();
   const { token, user } = useAuth();
   const [cantidades, setCantidades] = useState({});
+
+  // --- NUEVO: estado de vista (grilla de tipos o lista) ---
+  const [vistaTienda, setVistaTienda] = useState('grid'); // 'grid' | 'list'
+  const [tipoSeleccionado, setTipoSeleccionado] = useState(null); // p.ej. 'VALVULA'
   
   // --- FUNCIONES (actualizadas a 'producto') ---
   const buscarProductos = async (url = null) => {
@@ -54,6 +58,26 @@ function TiendaPage() {
     const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
     params.append('ordering', ordering);
     buscarProductos(`${API_URL}/productos/?${params.toString()}`);
+  };
+
+  // NUEVO: seleccionar tipo desde grilla
+  const handleSeleccionarTipo = (tipo) => {
+    setTipoSeleccionado(tipo);
+    setVistaTienda('list');
+    const nuevosFiltros = { ...currentFilters, tipo_producto: tipo };
+    setCurrentFilters(nuevosFiltros);
+    const params = new URLSearchParams(nuevosFiltros);
+    const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
+    params.append('ordering', ordering);
+    buscarProductos(`${API_URL}/productos/?${params.toString()}`);
+  };
+
+  // NUEVO: volver a grilla de tipos
+  const handleVolverATipos = () => {
+    setVistaTienda('grid');
+    setTipoSeleccionado(null);
+    setProductos([]);
+    setPageInfo({ count: 0, next: null, previous: null });
   };
 
   const handleDeleteProducto = async (productoId) => {
@@ -109,7 +133,10 @@ function TiendaPage() {
   }, []); // Solo se ejecuta una vez al montar
 
   useEffect(() => {
-    buscarProductos();
+    // Solo buscar cuando estamos en vista de lista
+    if (vistaTienda === 'list') {
+      buscarProductos();
+    }
   }, [sortConfig, currentFilters]); // Se ejecuta al ordenar y al filtrar
 
   // Guardar filtros en localStorage cuando cambian
@@ -270,27 +297,51 @@ function TiendaPage() {
     }
   };
 
+  // --- RENDER ---
+  if (vistaTienda === 'grid') {
+    return (
+      <>
+        <h2>Productos</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+          <div 
+            onClick={() => handleSeleccionarTipo('VALVULA')} 
+            style={{ cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', background: '#f8f8f8' }}
+            title="Ver Válvulas"
+          >
+            <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>⚙️</div>
+            <div style={{ fontWeight: 'bold' }}>Válvulas</div>
+          </div>
+          {/* Aquí luego añadiremos más tipos (FILTRO, BUJIA, etc.) */}
+        </div>
+      </>
+    );
+  }
+
+  // Vista de lista (tabla)
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2>Productos</h2>
-        {token && user && user.groups.includes('Administrador') && (
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button 
-              className="btn btn-secondary"
-              onClick={handleImprimirListado}
-              title="Generar PDF del listado completo de productos para auditoría"
-            >
-              📄 Imprimir Listado
-            </button>
-            <button 
-              className="btn btn-primary"
-              onClick={() => handleAbrirModal()}
-            >
-              + Crear Producto
-            </button>
-          </div>
-        )}
+        <h2>{tipoSeleccionado === 'VALVULA' ? 'Válvulas' : 'Productos'}</h2>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button className="btn" onClick={handleVolverATipos}>← Volver a tipos</button>
+          {token && user && user.groups.includes('Administrador') && (
+            <>
+              <button 
+                className="btn btn-secondary"
+                onClick={handleImprimirListado}
+                title="Generar PDF del listado completo de productos para auditoría"
+              >
+                📄 Imprimir Listado
+              </button>
+              <button 
+                className="btn btn-primary"
+                onClick={() => handleAbrirModal()}
+              >
+                + Crear Producto
+              </button>
+            </>
+          )}
+        </div>
       </div>
       <Buscador onBuscar={handleFilterSearch} marcas={marcas} />
       <TablaResultados 
@@ -305,7 +356,7 @@ function TiendaPage() {
         onAddToCart={handleAddToCartWrapper}
       />
       <div className="pagination-controls">
-        <span>Total: {pageInfo.count} productos</span> {/* Texto actualizado */}
+        <span>Total: {pageInfo.count} productos</span>
         <div>
           <button onClick={() => buscarProductos(pageInfo.previous)} disabled={!pageInfo.previous}>Anterior</button>
           <button onClick={() => buscarProductos(pageInfo.next)} disabled={!pageInfo.next}>Siguiente</button>
