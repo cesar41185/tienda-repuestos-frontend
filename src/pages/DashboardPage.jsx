@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
+import toast from 'react-hot-toast';
 
 function DashboardPage() {
   const { token } = useAuth();
@@ -65,6 +66,69 @@ function DashboardPage() {
     }).format(valor);
   };
 
+  // Función para generar PDF de productos bajo stock
+  const handleImprimirBajoStock = async () => {
+    if (!token) {
+      toast.error('Debes iniciar sesión para generar el PDF.');
+      return;
+    }
+
+    try {
+      toast.loading('Generando PDF de productos bajo stock...');
+      
+      const response = await fetch(`${API_URL}/productos/imprimir_bajo_stock/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          toast.error('No tienes permisos para generar el PDF. Solo administradores.');
+        } else {
+          toast.error('Error al generar el PDF.');
+        }
+        return;
+      }
+
+      // Obtener el blob del PDF
+      const blob = await response.blob();
+      
+      // Crear un enlace temporal para descargar el archivo
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      
+      // Obtener el nombre del archivo del header Content-Disposition o usar uno por defecto
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'productos_bajo_stock.pdf';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      } else {
+        // Si no hay header, usar fecha actual
+        const fecha = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        filename = `productos_bajo_stock_${fecha}.pdf`;
+      }
+      
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(blobUrl);
+      
+      toast.dismiss();
+      toast.success('PDF generado y descargado exitosamente');
+    } catch (error) {
+      toast.dismiss();
+      console.error('Error al generar PDF:', error);
+      toast.error('Error al generar el PDF de productos bajo stock.');
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-titulo">Dashboard</h1>
@@ -111,7 +175,12 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="dashboard-card">
+        <div 
+          className="dashboard-card" 
+          style={{ cursor: 'pointer' }}
+          onClick={handleImprimirBajoStock}
+          title="Click para generar PDF de productos bajo stock"
+        >
           <div className="dashboard-card-icon" style={{ backgroundColor: '#ac1b1b' }}>
             ⚠️
           </div>
