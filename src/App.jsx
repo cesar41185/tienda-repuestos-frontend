@@ -40,6 +40,7 @@ function App() {
           {/* --- Rutas Públicas --- */}
           <Route path="/" element={<HomePage />} />
           <Route path="/tienda" element={<TiendaPage />} />
+          <Route path="/tienda/:tipo" element={<TiendaPage />} />
           <Route path="/carrito" element={<CarritoPage />} />
           <Route path="/producto/:id" element={<ProductoPage />} />
           <Route path="/login" element={<LoginPage />} />

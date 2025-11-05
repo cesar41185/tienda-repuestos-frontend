@@ -42,9 +42,27 @@ function ProductoPage() {
   if (error) return <p>Error: {error}. <Link to="/tienda">Volver a la tienda</Link></p>;
   if (!producto) return null;
 
+  const handleVolver = () => {
+    // Preferir último tipo visitado en tienda si existe
+    const savedFilters = localStorage.getItem('tienda_filters');
+    let ultimoTipo = null;
+    if (savedFilters) {
+      try {
+        const filters = JSON.parse(savedFilters);
+        if (filters && filters.tipo_producto) ultimoTipo = String(filters.tipo_producto).toLowerCase();
+      } catch {}
+    }
+    const tipoProd = (producto.tipo_producto || ultimoTipo || '').toString().toLowerCase();
+    if (tipoProd) {
+      navigate(`/tienda/${tipoProd}`);
+    } else {
+      navigate('/tienda');
+    }
+  };
+
   return (
     <div> {/* Contenedor principal agregado */}
-      <button onClick={() => navigate('/tienda')} className="volver-tienda-btn">
+      <button onClick={handleVolver} className="volver-tienda-btn">
         ← Volver a la Tienda
       </button>
       <div className="producto-detalle-container">

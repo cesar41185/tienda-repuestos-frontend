@@ -1,5 +1,6 @@
 // En src/pages/TiendaPage.jsx
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Buscador from '../components/Buscador';
 import TablaResultados from '../components/TablaResultados';
@@ -24,9 +25,13 @@ function TiendaPage() {
   const { token, user } = useAuth();
   const [cantidades, setCantidades] = useState({});
 
+  // Router helpers
+  const { tipo } = useParams();
+  const navigate = useNavigate();
+
   // --- NUEVO: estado de vista (grilla de tipos o lista) ---
-  const [vistaTienda, setVistaTienda] = useState('grid'); // 'grid' | 'list'
-  const [tipoSeleccionado, setTipoSeleccionado] = useState(null); // p.ej. 'VALVULA'
+  const [vistaTienda, setVistaTienda] = useState(tipo ? 'list' : 'grid'); // 'grid' | 'list'
+  const [tipoSeleccionado, setTipoSeleccionado] = useState(tipo ? tipo.toUpperCase() : null); // p.ej. 'VALVULA'
   
   // --- FUNCIONES (actualizadas a 'producto') ---
   const buscarProductos = async (url = null) => {
@@ -70,6 +75,7 @@ function TiendaPage() {
     const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
     params.append('ordering', ordering);
     buscarProductos(`${API_URL}/productos/?${params.toString()}`);
+    navigate(`/tienda/${tipo.toLowerCase()}`);
   };
 
   // NUEVO: volver a grilla de tipos
@@ -78,6 +84,7 @@ function TiendaPage() {
     setTipoSeleccionado(null);
     setProductos([]);
     setPageInfo({ count: 0, next: null, previous: null });
+    navigate('/tienda');
   };
 
   const handleDeleteProducto = async (productoId) => {
@@ -159,6 +166,23 @@ function TiendaPage() {
     };
     fetchMarcas();
   }, []);
+
+  // Si la URL cambia (p.ej. navegación directa), sincronizar vista/filtros
+  useEffect(() => {
+    if (tipo) {
+      const t = tipo.toUpperCase();
+      if (tipoSeleccionado !== t) {
+        setTipoSeleccionado(t);
+      }
+      if (vistaTienda !== 'list') setVistaTienda('list');
+      const nuevosFiltros = { ...currentFilters, tipo_producto: t };
+      setCurrentFilters(nuevosFiltros);
+    } else {
+      setVistaTienda('grid');
+      setTipoSeleccionado(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipo]);
 
   // --- MANEJADORES DE MODALES (actualizados a 'producto') ---
   const handleAbrirModal = (producto = null) => {
