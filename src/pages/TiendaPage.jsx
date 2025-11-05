@@ -153,10 +153,21 @@ function TiendaPage() {
   }));
 };
 
-  const handleGuardadoExitoso = () => {
+  const handleGuardadoExitoso = (productoActualizado) => {
     toast.success('¡Guardado con éxito!');
     handleCerrarModal();
-    buscarProductos(); // Vuelve a buscar para reflejar los cambios
+
+    if (productoActualizado && productoActualizado.id) {
+      setProductos(prev => {
+        const existe = prev.some(p => p.id === productoActualizado.id);
+        if (existe) {
+          return prev.map(p => (p.id === productoActualizado.id ? { ...p, ...productoActualizado } : p));
+        }
+        // Si no existe en la página actual (p.ej. creado nuevo), no forzamos refresh para no romper vista
+        return prev;
+      });
+    }
+    // No llamar buscarProductos() para preservar filtros, paginación y scroll
   };
 
   const handleRefreshInModal = async () => {

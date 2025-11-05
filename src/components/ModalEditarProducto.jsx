@@ -202,10 +202,12 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Error al guardar');
       }
+
+      const productoActualizado = await response.json();
       
       toast.dismiss();
       toast.success(modoCrear ? 'Producto creado exitosamente' : 'Producto actualizado');
-      onSave();
+      onSave(productoActualizado);
     } catch (error) {
       toast.dismiss();
       toast.error(error.message || 'Hubo un error al guardar los datos.');
