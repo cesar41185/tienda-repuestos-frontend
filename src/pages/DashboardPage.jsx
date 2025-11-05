@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
 import toast from 'react-hot-toast';
+import ModalBajoStock from '../components/ModalBajoStock';
 
 function DashboardPage() {
   const { token } = useAuth();
   const [stats, setStats] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [modalBajoStockAbierto, setModalBajoStockAbierto] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -66,8 +68,13 @@ function DashboardPage() {
     }).format(valor);
   };
 
-  // Función para generar PDF de productos bajo stock
-  const handleImprimirBajoStock = async () => {
+  // Función para abrir modal de bajo stock
+  const handleAbrirModalBajoStock = () => {
+    setModalBajoStockAbierto(true);
+  };
+
+  // Función para generar PDF de productos bajo stock por tipo
+  const handleGenerarPDFBajoStock = async (tipoProducto = null) => {
     if (!token) {
       toast.error('Debes iniciar sesión para generar el PDF.');
       return;
@@ -76,7 +83,13 @@ function DashboardPage() {
     try {
       toast.loading('Generando PDF de productos bajo stock...');
       
-      const response = await fetch(`${API_URL}/productos/imprimir_bajo_stock/`, {
+      // Construir URL con parámetro de tipo si se especifica
+      let url = `${API_URL}/productos/imprimir_bajo_stock/`;
+      if (tipoProducto) {
+        url += `?tipo_producto=${tipoProducto}`;
+      }
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Token ${token}`
@@ -111,7 +124,8 @@ function DashboardPage() {
       } else {
         // Si no hay header, usar fecha actual
         const fecha = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-        filename = `productos_bajo_stock_${fecha}.pdf`;
+        const tipoNombre = tipoProducto ? `_${tipoProducto}` : '';
+        filename = `productos_bajo_stock${tipoNombre}_${fecha}.pdf`;
       }
       
       a.download = filename;
@@ -178,8 +192,8 @@ function DashboardPage() {
         <div 
           className="dashboard-card" 
           style={{ cursor: 'pointer' }}
-          onClick={handleImprimirBajoStock}
-          title="Click para generar PDF de productos bajo stock"
+          onClick={handleAbrirModalBajoStock}
+          title="Click para ver productos bajo stock por tipo"
         >
           <div className="dashboard-card-icon" style={{ backgroundColor: '#ac1b1b' }}>
             ⚠️
@@ -275,6 +289,15 @@ function DashboardPage() {
           </p>
         )}
       </div>
+
+      {/* Modal de Bajo Stock */}
+      <ModalBajoStock
+        isOpen={modalBajoStockAbierto}
+        onClose={() => setModalBajoStockAbierto(false)}
+        tiposProductos={stats.bajo_stock_por_tipo || {}}
+        token={token}
+        onGenerarPDF={handleGenerarPDFBajoStock}
+      />
     </div>
   );
 }
