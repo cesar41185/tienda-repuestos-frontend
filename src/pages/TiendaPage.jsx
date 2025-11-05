@@ -84,9 +84,43 @@ function TiendaPage() {
     setSortConfig({ key, direction });
   };
  
+  // Restaurar filtros desde localStorage al montar el componente
+  useEffect(() => {
+    const savedFilters = localStorage.getItem('tienda_filters');
+    const savedSortConfig = localStorage.getItem('tienda_sortConfig');
+    
+    if (savedFilters) {
+      try {
+        const filters = JSON.parse(savedFilters);
+        setCurrentFilters(filters);
+      } catch (e) {
+        console.error('Error al restaurar filtros:', e);
+      }
+    }
+    
+    if (savedSortConfig) {
+      try {
+        const sort = JSON.parse(savedSortConfig);
+        setSortConfig(sort);
+      } catch (e) {
+        console.error('Error al restaurar ordenamiento:', e);
+      }
+    }
+  }, []); // Solo se ejecuta una vez al montar
+
   useEffect(() => {
     buscarProductos();
   }, [sortConfig, currentFilters]); // Se ejecuta al ordenar y al filtrar
+
+  // Guardar filtros en localStorage cuando cambian
+  useEffect(() => {
+    localStorage.setItem('tienda_filters', JSON.stringify(currentFilters));
+  }, [currentFilters]);
+
+  // Guardar ordenamiento en localStorage cuando cambia
+  useEffect(() => {
+    localStorage.setItem('tienda_sortConfig', JSON.stringify(sortConfig));
+  }, [sortConfig]);
 
   useEffect(() => {
     const fetchMarcas = async () => {

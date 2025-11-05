@@ -1,18 +1,32 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 function Buscador({ onBuscar, marcas }) {
+  // Restaurar filtros desde localStorage al montar
+  const getInitialValue = (key, defaultValue = '') => {
+    try {
+      const savedFilters = localStorage.getItem('tienda_filters');
+      if (savedFilters) {
+        const filters = JSON.parse(savedFilters);
+        return filters[key] || defaultValue;
+      }
+    } catch (e) {
+      console.error('Error al restaurar filtros:', e);
+    }
+    return defaultValue;
+  };
+
   // Estados para cada campo del filtro
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [tipo, setTipo] = useState('');
-  const [marca, setMarca] = useState('');
-  const [ranuras, setRanuras] = useState('');
-  const [vastagoMin, setVastagoMin] = useState('');
-  const [vastagoMax, setVastagoMax] = useState('');
-  const [cabezaMin, setCabezaMin] = useState('');
-  const [cabezaMax, setCabezaMax] = useState('');
-  const [longitudMin, setLongitudMin] = useState('');
-  const [longitudMax, setLongitudMax] = useState('');
-  const [busquedaGeneral, setBusquedaGeneral] = useState('');
+  const [tipo, setTipo] = useState(() => getInitialValue('tipo'));
+  const [marca, setMarca] = useState(() => getInitialValue('marca_vehiculo'));
+  const [ranuras, setRanuras] = useState(() => getInitialValue('ranuras'));
+  const [vastagoMin, setVastagoMin] = useState(() => getInitialValue('diametro_vastago_min'));
+  const [vastagoMax, setVastagoMax] = useState(() => getInitialValue('diametro_vastago_max'));
+  const [cabezaMin, setCabezaMin] = useState(() => getInitialValue('diametro_cabeza_min'));
+  const [cabezaMax, setCabezaMax] = useState(() => getInitialValue('diametro_cabeza_max'));
+  const [longitudMin, setLongitudMin] = useState(() => getInitialValue('longitud_total_min'));
+  const [longitudMax, setLongitudMax] = useState(() => getInitialValue('longitud_total_max'));
+  const [busquedaGeneral, setBusquedaGeneral] = useState(() => getInitialValue('search'));
 
   // Variable para saber si hay algún filtro activo y mostrar la escoba
   const isFilterActive = useMemo(() => 
