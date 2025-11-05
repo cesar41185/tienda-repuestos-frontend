@@ -1,5 +1,5 @@
 // Código completo para Header.jsx
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,8 @@ function Header() {
   const { token, user, logoutUser } = useAuth();
   const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const menuRef = useRef(null);
+  const hamburgerRef = useRef(null);
 
   const esCliente = user && user.groups.length === 0;
   const esPersonal = user && user.groups.length > 0; // 'esPersonal' es el equivalente a 'isStaff'
@@ -18,6 +20,30 @@ function Header() {
   
   // Obtener nombre del usuario
   const nombreUsuario = user?.perfil?.nombre_completo || user?.username || '';
+
+  // Cerrar menú al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Si el menú está abierto y el click no fue dentro del menú ni en el botón hamburguesa
+      if (menuAbierto && 
+          menuRef.current && 
+          !menuRef.current.contains(event.target) &&
+          hamburgerRef.current &&
+          !hamburgerRef.current.contains(event.target)) {
+        setMenuAbierto(false);
+      }
+    };
+
+    // Agregar listener cuando el menú está abierto
+    if (menuAbierto) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    // Limpiar listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuAbierto]);
 
   return (
     <>
@@ -44,12 +70,17 @@ function Header() {
         {(esCliente || (esPersonal && clienteActivo) || !token) && (
           <Link to="/carrito" className="nav-link cart-link desktop-cart">🛒 ({totalItems})</Link>
         )}
-        <button className="menu-hamburger" onClick={() => setMenuAbierto(!menuAbierto)} aria-label="Menu">
+        <button 
+          ref={hamburgerRef}
+          className="menu-hamburger" 
+          onClick={() => setMenuAbierto(!menuAbierto)} 
+          aria-label="Menu"
+        >
           {menuAbierto ? '✕' : '☰'}
         </button>
       </div>
 
-      <nav className={`header-nav ${menuAbierto ? 'nav-abierto' : ''}`}>
+      <nav ref={menuRef} className={`header-nav ${menuAbierto ? 'nav-abierto' : ''}`}>
         {/* --- VISTA PARA VISITANTES --- */}
         {!token && (
           <>
