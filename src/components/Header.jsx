@@ -84,9 +84,9 @@ function Header() {
         {/* --- VISTA PARA VISITANTES --- */}
         {!token && (
           <>
-            <Link to="/carrito" className="nav-link cart-link">🛒 ({totalItems})</Link>
-            <Link to="/login" className="nav-link">Iniciar Sesión</Link>
-            <Link to="/registro" className="nav-button register-btn">Registrarse</Link>
+            <Link to="/carrito" className="nav-link cart-link" onClick={() => setMenuAbierto(false)}>🛒 ({totalItems})</Link>
+            <Link to="/login" className="nav-link" onClick={() => setMenuAbierto(false)}>Iniciar Sesión</Link>
+            <Link to="/registro" className="nav-button register-btn" onClick={() => setMenuAbierto(false)}>Registrarse</Link>
           </>
         )}
         {/* --- VISTA PARA USUARIOS LOGUEADOS --- */}
@@ -94,44 +94,44 @@ function Header() {
           <>
             {/* Carrito solo para Clientes y Admin/Cajero en POS */}
             {(esCliente || (esPersonal && clienteActivo)) && (
-              <Link to="/carrito" className="nav-link cart-link">🛒 ({totalItems})</Link>
+              <Link to="/carrito" className="nav-link cart-link" onClick={() => setMenuAbierto(false)}>🛒 ({totalItems})</Link>
             )}
-            <Link to="/mi-perfil" className="nav-link">Mi Perfil</Link>
+            <Link to="/mi-perfil" className="nav-link" onClick={() => setMenuAbierto(false)}>Mi Perfil</Link>
             {/* Mis Pedidos solo para Clientes */}
             {esCliente && (
               <>
-                <Link to="/mis-pedidos" className="nav-link">Mis Pedidos</Link>
-                <Link to="/devoluciones" className="nav-link">Mis Devoluciones</Link>
+                <Link to="/mis-pedidos" className="nav-link" onClick={() => setMenuAbierto(false)}>Mis Pedidos</Link>
+                <Link to="/devoluciones" className="nav-link" onClick={() => setMenuAbierto(false)}>Mis Devoluciones</Link>
               </>
             )}
             {/* Enlaces de Personal */}
             {esPersonal && (
               <>
-                <Link to="/gestion-pedidos" className="nav-link">Gestionar Pedidos</Link>
-                <Link to="/devoluciones" className="nav-link">Devoluciones</Link>
+                <Link to="/gestion-pedidos" className="nav-link" onClick={() => setMenuAbierto(false)}>Gestionar Pedidos</Link>
+                <Link to="/devoluciones" className="nav-link" onClick={() => setMenuAbierto(false)}>Devoluciones</Link>
               </>
             )}
             {user.groups.includes('Administrador') && (
-              <Link to="/dashboard" className="nav-link">Dashboard</Link>
+              <Link to="/dashboard" className="nav-link" onClick={() => setMenuAbierto(false)}>Dashboard</Link>
             )}
             {(user.groups.includes('Administrador') || user.groups.includes('Vendedor')) && (
               <>
-                <Link to="/clientes" className="nav-link">Clientes</Link>
-                <Link to="/presupuestos" className="nav-link">Presupuestos</Link>
-                <Link to="/comisiones" className="nav-link">Comisiones</Link>
-                <Link to="/interacciones-crm" className="nav-link">Interacciones</Link>
+                <Link to="/clientes" className="nav-link" onClick={() => setMenuAbierto(false)}>Clientes</Link>
+                <Link to="/presupuestos" className="nav-link" onClick={() => setMenuAbierto(false)}>Presupuestos</Link>
+                <Link to="/comisiones" className="nav-link" onClick={() => setMenuAbierto(false)}>Comisiones</Link>
+                <Link to="/interacciones-crm" className="nav-link" onClick={() => setMenuAbierto(false)}>Interacciones</Link>
               </>
             )}
             {user.groups.includes('Administrador') && (
-              <Link to="/gestor-marcas" className="nav-link">Gestionar Marcas</Link>
+              <Link to="/gestor-marcas" className="nav-link" onClick={() => setMenuAbierto(false)}>Gestionar Marcas</Link>
             )}
             {(user.groups.includes('Administrador') || user.groups.includes('Almacen')) && (
               <>
-                <Link to="/movimientos-stock" className="nav-link">Movimientos Stock</Link>
-                <Link to="/conteos-fisicos" className="nav-link">Conteos Físicos</Link>
+                <Link to="/movimientos-stock" className="nav-link" onClick={() => setMenuAbierto(false)}>Movimientos Stock</Link>
+                <Link to="/conteos-fisicos" className="nav-link" onClick={() => setMenuAbierto(false)}>Conteos Físicos</Link>
               </>
             )}
-            <button onClick={logoutUser} className="nav-button">Cerrar Sesión</button>
+            <button onClick={() => { setMenuAbierto(false); logoutUser(); }} className="nav-button">Cerrar Sesión</button>
           </>
         )}
       </nav>

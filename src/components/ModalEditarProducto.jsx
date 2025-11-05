@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
@@ -72,6 +72,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
   const { user, token } = useAuth(); 
   const [activeTab, setActiveTab] = useState('datos');
   const [modoCrear, setModoCrear] = useState(false);
+  const modalRef = useRef(null);
   
   // Estado inicial genérico
   const initialState = {
@@ -101,6 +102,20 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     ano_hasta: '',
     cantidad_valvulas: ''
   });
+
+  // Cerrar modal al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     if (producto) {
@@ -674,7 +689,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content large">
+      <div ref={modalRef} className="modal-content large">
         <h2>{titulo}</h2>
         
         {!modoCrear && (
