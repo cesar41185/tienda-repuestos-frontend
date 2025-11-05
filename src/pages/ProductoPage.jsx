@@ -43,18 +43,28 @@ function ProductoPage() {
   if (!producto) return null;
 
   const handleVolver = () => {
+    // Mapeo de tipo a URL
+    const tipoToUrl = (tipo) => {
+      const map = {
+        'VALVULA': 'valvula',
+        'GUIA_VALVULA': 'guia-valvula',
+      };
+      return map[tipo] || tipo?.toLowerCase();
+    };
+
     // Preferir último tipo visitado en tienda si existe
     const savedFilters = localStorage.getItem('tienda_filters');
     let ultimoTipo = null;
     if (savedFilters) {
       try {
         const filters = JSON.parse(savedFilters);
-        if (filters && filters.tipo_producto) ultimoTipo = String(filters.tipo_producto).toLowerCase();
+        if (filters && filters.tipo_producto) ultimoTipo = filters.tipo_producto;
       } catch {}
     }
-    const tipoProd = (producto.tipo_producto || ultimoTipo || '').toString().toLowerCase();
+    const tipoProd = producto.tipo_producto || ultimoTipo;
     if (tipoProd) {
-      navigate(`/tienda/${tipoProd}`);
+      const urlTipo = tipoToUrl(tipoProd);
+      navigate(`/tienda/${urlTipo}`);
     } else {
       navigate('/tienda');
     }

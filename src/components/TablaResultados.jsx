@@ -5,7 +5,7 @@ import { useCarrito } from '../context/CarritoContext';
 import { JUEGO_UNIDADES } from '../apiConfig';
 import { SERVER_BASE_URL } from '../apiConfig';
 
-function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, sortConfig, onAddToCart, cantidades, onCantidadChange }) {
+function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, sortConfig, onAddToCart, cantidades, onCantidadChange, tipoProducto }) {
   const { user } = useAuth();
   const { clienteActivo } = useCarrito();
 
@@ -29,9 +29,13 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
     return <p>Cargando productos...</p>;
   }
 
-  return (
-  <div className="results-container">
-    <table id="resultsTable">
+  // Determinar qué columnas mostrar según el tipo de producto
+  const esValvula = tipoProducto === 'VALVULA';
+  const esGuiaValvula = tipoProducto === 'GUIA_VALVULA';
+
+  // Renderizar encabezados según el tipo
+  const renderEncabezados = () => {
+    return (
       <thead>
         <tr>
           <th className="col-foto">Foto</th>
@@ -39,15 +43,23 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
           <th className="col-modelo" onClick={() => onSort('aplicaciones__modelo_vehiculo')} style={{cursor: 'pointer'}}>Modelo{getSortIcon('aplicaciones__modelo_vehiculo')}</th>
           <th className="col-marca" onClick={() => onSort('aplicaciones__marca_vehiculo__nombre')} style={{cursor: 'pointer'}}>Marca{getSortIcon('aplicaciones__marca_vehiculo__nombre')}</th>
           <th className="col-precio" onClick={() => onSort('precio_venta')} style={{cursor: 'pointer'}}>Precio{getSortIcon('precio_venta')}</th>
-          <th className="col-tipo" onClick={() => onSort('especificaciones__tipo')} style={{cursor: 'pointer'}}>Tipo{getSortIcon('especificaciones__tipo')}</th>
-          <th className="col-numerica" onClick={() => onSort('especificaciones__diametro_cabeza')} style={{cursor: 'pointer'}}>Cabe.(mm){getSortIcon('especificaciones__diametro_cabeza')}</th>
-          <th className="col-numerica" onClick={() => onSort('especificaciones__diametro_vastago')} style={{cursor: 'pointer'}}>Vást.(mm){getSortIcon('especificaciones__diametro_vastago')}</th>
-          <th className="col-long" onClick={() => onSort('especificaciones__longitud_total')} style={{cursor: 'pointer'}}>Long.(mm){getSortIcon('especificaciones__longitud_total')}</th>
-          <th className="col-numerica" onClick={() => onSort('especificaciones__ranuras')} style={{cursor: 'pointer'}}>Ran{getSortIcon('especificaciones__ranuras')}</th>
+          {esValvula && <th className="col-tipo" onClick={() => onSort('especificaciones__tipo')} style={{cursor: 'pointer'}}>Tipo{getSortIcon('especificaciones__tipo')}</th>}
+          {esValvula && <th className="col-numerica" onClick={() => onSort('especificaciones__diametro_cabeza')} style={{cursor: 'pointer'}}>Cabe.(mm){getSortIcon('especificaciones__diametro_cabeza')}</th>}
+          {esValvula && <th className="col-numerica" onClick={() => onSort('especificaciones__diametro_vastago')} style={{cursor: 'pointer'}}>Vást.(mm){getSortIcon('especificaciones__diametro_vastago')}</th>}
+          {esValvula && <th className="col-long" onClick={() => onSort('especificaciones__longitud_total')} style={{cursor: 'pointer'}}>Long.(mm){getSortIcon('especificaciones__longitud_total')}</th>}
+          {esValvula && <th className="col-numerica" onClick={() => onSort('especificaciones__ranuras')} style={{cursor: 'pointer'}}>Ran{getSortIcon('especificaciones__ranuras')}</th>}
+          {/* Columnas específicas para guías de válvulas - agregar cuando se definan */}
           {isStaff && <th className="col-stock" onClick={() => onSort('stock')} style={{cursor: 'pointer'}}>Cant{getSortIcon('stock')}</th>}
           <th className="col-acciones-tabla">Compra</th>
         </tr>
       </thead>
+    );
+  };
+
+  return (
+  <div className="results-container">
+    <table id="resultsTable">
+      {renderEncabezados()}
       <tbody>
           {productos.map((producto) => {
             const cantidadJuegos = cantidades[producto.id] || 1;
@@ -80,13 +92,17 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                 </td>
                 <td className="col-marca">{producto.aplicaciones?.[0]?.marca_vehiculo_nombre || 'N/A'}</td>
                 <td className="col-precio">${producto.precio_venta}</td>
-                <td className="col-tipo">
-                  {abreviaturasTipo[producto.especificaciones?.tipo] || producto.especificaciones?.tipo || 'N/A'}
-                </td>
-                <td className="col-numerica">{producto.especificaciones?.diametro_cabeza || 'N/A'}</td>
-                <td className="col-numerica">{producto.especificaciones?.diametro_vastago || 'N/A'}</td>
-                <td className="col-long">{producto.especificaciones?.longitud_total || 'N/A'}</td>
-                <td className="col-numerica">{producto.especificaciones?.ranuras || 'N/A'}</td>
+                {esValvula && (
+                  <>
+                    <td className="col-tipo">
+                      {abreviaturasTipo[producto.especificaciones?.tipo] || producto.especificaciones?.tipo || 'N/A'}
+                    </td>
+                    <td className="col-numerica">{producto.especificaciones?.diametro_cabeza || 'N/A'}</td>
+                    <td className="col-numerica">{producto.especificaciones?.diametro_vastago || 'N/A'}</td>
+                    <td className="col-long">{producto.especificaciones?.longitud_total || 'N/A'}</td>
+                    <td className="col-numerica">{producto.especificaciones?.ranuras || 'N/A'}</td>
+                  </>
+                )}
                 {isStaff && <td className="col-stock">{producto.stock}</td>}
                 <td className="col-acciones-tabla">
                   <div className="acciones-cell-compactas">

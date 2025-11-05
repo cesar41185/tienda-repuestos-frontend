@@ -65,7 +65,23 @@ function TiendaPage() {
     buscarProductos(`${API_URL}/productos/?${params.toString()}`);
   };
 
-  // NUEVO: seleccionar tipo desde grilla
+  // Mapeo de URL a tipo de producto (helpers)
+  const urlToTipo = (urlTipo) => {
+    const map = {
+      'valvula': 'VALVULA',
+      'guia-valvula': 'GUIA_VALVULA',
+    };
+    return map[urlTipo?.toLowerCase()] || urlTipo?.toUpperCase();
+  };
+
+  const tipoToUrl = (tipo) => {
+    const map = {
+      'VALVULA': 'valvula',
+      'GUIA_VALVULA': 'guia-valvula',
+    };
+    return map[tipo] || tipo?.toLowerCase();
+  };
+
   const handleSeleccionarTipo = (tipo) => {
     setTipoSeleccionado(tipo);
     setVistaTienda('list');
@@ -75,7 +91,7 @@ function TiendaPage() {
     const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
     params.append('ordering', ordering);
     buscarProductos(`${API_URL}/productos/?${params.toString()}`);
-    navigate(`/tienda/${tipo.toLowerCase()}`);
+    navigate(`/tienda/${tipoToUrl(tipo)}`);
   };
 
   // NUEVO: volver a grilla de tipos
@@ -170,7 +186,7 @@ function TiendaPage() {
   // Si la URL cambia (p.ej. navegación directa), sincronizar vista/filtros
   useEffect(() => {
     if (tipo) {
-      const t = tipo.toUpperCase();
+      const t = urlToTipo(tipo);
       if (tipoSeleccionado !== t) {
         setTipoSeleccionado(t);
       }
@@ -335,6 +351,14 @@ function TiendaPage() {
             <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>⚙️</div>
             <div style={{ fontWeight: 'bold' }}>Válvulas</div>
           </div>
+          <div 
+            onClick={() => handleSeleccionarTipo('GUIA_VALVULA')} 
+            style={{ cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', background: '#f8f8f8' }}
+            title="Ver Guías de Válvulas"
+          >
+            <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>🔧</div>
+            <div style={{ fontWeight: 'bold' }}>Guías de Válvulas</div>
+          </div>
           {/* Aquí luego añadiremos más tipos (FILTRO, BUJIA, etc.) */}
         </div>
       </>
@@ -345,7 +369,7 @@ function TiendaPage() {
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2>{tipoSeleccionado === 'VALVULA' ? 'Válvulas' : 'Productos'}</h2>
+        <h2>{tipoSeleccionado === 'VALVULA' ? 'Válvulas' : tipoSeleccionado === 'GUIA_VALVULA' ? 'Guías de Válvulas' : 'Productos'}</h2>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button className="btn" onClick={handleVolverATipos}>← Volver a tipos</button>
           {token && user && user.groups.includes('Administrador') && (
@@ -378,6 +402,7 @@ function TiendaPage() {
         cantidades={cantidades}
         onCantidadChange={handleCantidadChange}
         onAddToCart={handleAddToCartWrapper}
+        tipoProducto={tipoSeleccionado}
       />
       <div className="pagination-controls">
         <span>Total: {pageInfo.count} productos</span>
