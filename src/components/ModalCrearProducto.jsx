@@ -71,7 +71,9 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       if (tipoProducto !== 'VALVULA' || !marcaId) { setCodigoInterno(''); return; }
       try {
         const url = `${API_URL}/productos/sugerir_codigo/?tipo=${encodeURIComponent(tipoProducto)}&marca_id=${encodeURIComponent(marcaId)}`;
-        const res = await fetch(url, { headers: token ? { 'Authorization': `Token ${token}` } : undefined, credentials: 'include' });
+        const res = await fetch(url, { 
+          headers: token ? { 'Authorization': `Token ${token}` } : undefined
+        });
         if (!res.ok) return; // si 403 u otro, no bloquear la UI
         const data = await res.json();
         if (data?.codigo_sugerido) setCodigoInterno(data.codigo_sugerido);
@@ -128,7 +130,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
 
     try {
       const res = await fetch(API_URL + '/productos/', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) }, body: JSON.stringify(payload), credentials: 'include'
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) }, body: JSON.stringify(payload)
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -140,7 +142,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       if (aplicacionSeleccionada) {
         try {
           await fetch(API_URL + '/aplicaciones/', {
-            method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) }, credentials: 'include',
+            method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) },
             body: JSON.stringify({
               producto: nuevo.id,
               marca_vehiculo: aplicacionSeleccionada.marca_vehiculo,
@@ -161,7 +163,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       for (const p of partesValidas) {
         try {
           await fetch(API_URL + '/numeros-parte/', {
-            method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) }, credentials: 'include',
+            method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) },
             body: JSON.stringify({ producto: nuevo.id, marca: p.marca || 'OEM', numero_de_parte: p.numero.trim() })
           });
         } catch {}
