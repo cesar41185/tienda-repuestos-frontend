@@ -155,17 +155,15 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
   if (!abierto) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal" ref={modalRef} style={{ maxWidth: 900, width: '95%' }}>
-        <div className="modal-header">
-          <h3>Crear Producto</h3>
-          <button onClick={onClose}>✕</button>
-        </div>
+    <div className="modal-overlay">
+      <div className="modal-content large" ref={modalRef}>
+        <h2>Crear Nuevo Producto</h2>
 
-        <div className="modal-body">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-            <label>
-              <div>Tipo</div>
+        <div className="tab-content">
+          <h4>Datos Generales</h4>
+          <div className="form-grid">
+            <div>
+              <label>Tipo de Producto:</label>
               <select value={tipoProducto} onChange={(e) => setTipoProducto(e.target.value)}>
                 <option value="VALVULA">Válvula</option>
                 <option value="GUIA_VALVULA">Guía de Válvula</option>
@@ -174,39 +172,35 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
                 <option value="CABLE">Cable</option>
                 <option value="OTRO">Otro</option>
               </select>
-            </label>
-
-            <label>
-              <div>Código Interno (auto)</div>
+            </div>
+            <div>
+              <label>Código Interno:</label>
               <input value={codigoInterno} onChange={(e) => setCodigoInterno(e.target.value)} readOnly placeholder="Se sugerirá automáticamente" />
-            </label>
-
-            <label>
-              <div>Stock</div>
-              <input value={stock} onChange={(e) => setStock(e.target.value)} />
-            </label>
-            <label>
-              <div>Precio Costo</div>
-              <input value={precioCosto} onChange={(e) => setPrecioCosto(e.target.value)} />
-            </label>
-            <label>
-              <div>Precio Venta</div>
-              <input value={precioVenta} onChange={(e) => setPrecioVenta(e.target.value)} />
-            </label>
-            <label style={{ gridColumn: '1/-1' }}>
-              <div>Observaciones</div>
+            </div>
+            <div><label>Stock:</label><input value={stock} onChange={(e) => setStock(e.target.value)} /></div>
+            <div><label>Precio Costo:</label><input value={precioCosto} onChange={(e) => setPrecioCosto(e.target.value)} /></div>
+            <div><label>Precio Venta:</label><input value={precioVenta} onChange={(e) => setPrecioVenta(e.target.value)} /></div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label>Observaciones:</label>
               <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} />
-            </label>
+            </div>
           </div>
 
-          {/* Especificaciones Válvula */}
           {tipoProducto === 'VALVULA' && (
-            <fieldset style={{ marginTop: 12 }}>
-              <legend>Especificaciones (obligatorias)</legend>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+            <>
+              <hr />
+              <h4>Especificaciones de Válvula</h4>
+              <div className="form-grid">
+                <div>
+                  <label>Marca (para generar código):</label>
+                  <select value={marcaId} onChange={(e) => setMarcaId(e.target.value)}>
+                    <option value="">-- Seleccione --</option>
+                    {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                  </select>
+                </div>
                 {CAMPOS_VALVULA.map(c => (
-                  <label key={c.name}>
-                    <div>{c.label}</div>
+                  <div key={c.name}>
+                    <label>{c.label}:</label>
                     {c.type === 'select' ? (
                       <select value={esp[c.name]} onChange={(e) => setEspField(c.name, e.target.value)}>
                         {c.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -214,61 +208,48 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
                     ) : (
                       <input type={c.type} value={esp[c.name]} onChange={(e) => setEspField(c.name, e.target.value)} />
                     )}
-                  </label>
+                  </div>
                 ))}
               </div>
-            </fieldset>
+            </>
           )}
 
-          {/* Selector de Marca y Aplicación (opcional) */}
-          <fieldset style={{ marginTop: 12 }}>
-            <legend>Aplicación (opcional)</legend>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
-              <label>
-                <div>Marca</div>
-                <select value={marcaId} onChange={(e) => setMarcaId(e.target.value)}>
-                  <option value="">Seleccione</option>
-                  {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-                </select>
-              </label>
-              <label>
-                <div>Modelo</div>
-                <input value={appModelo} onChange={(e) => setAppModelo(e.target.value)} placeholder="Vitara, Corsa 1.6, etc." />
-              </label>
-              <label>
-                <div>Cilindrada</div>
-                <input value={appCilindrada} onChange={(e) => setAppCilindrada(e.target.value)} placeholder="1.6" />
-              </label>
-              <label>
-                <div>Cilindros</div>
-                <input value={appCilindros} onChange={(e) => setAppCilindros(e.target.value)} placeholder="4" />
-              </label>
+          <hr />
+          <h4>Aplicación (opcional)</h4>
+          <div className="form-grid">
+            <div>
+              <label>Marca</label>
+              <select value={marcaId} onChange={(e) => setMarcaId(e.target.value)}>
+                <option value="">Seleccione</option>
+                {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+              </select>
             </div>
-          </fieldset>
+            <div><label>Modelo</label><input value={appModelo} onChange={(e) => setAppModelo(e.target.value)} placeholder="Vitara, Corsa 1.6, etc." /></div>
+            <div><label>Cilindrada</label><input value={appCilindrada} onChange={(e) => setAppCilindrada(e.target.value)} placeholder="1.6" /></div>
+            <div><label>Cilindros</label><input value={appCilindros} onChange={(e) => setAppCilindros(e.target.value)} placeholder="4" /></div>
+          </div>
 
-          {/* Números de Parte (opcional) */}
-          <fieldset style={{ marginTop: 12 }}>
-            <legend>Números de Parte (opcional)</legend>
-            {partes.map((p, idx) => (
-              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '140px 1fr auto', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-                <select value={p.marca} onChange={(e) => setParte(idx, 'marca', e.target.value)}>
-                  <option value="OEM">OEM</option>
-                  <option value="TRW">TRW</option>
-                  <option value="OSVAT">OSVAT</option>
-                  <option value="SKU ML">SKU ML</option>
-                  <option value="OTRO">OTRO</option>
-                </select>
-                <input value={p.numero} onChange={(e) => setParte(idx, 'numero', e.target.value)} placeholder="Número de parte" />
-                <button onClick={() => removeParte(idx)} type="button">Eliminar</button>
-              </div>
-            ))}
-            <button onClick={addParte} type="button">Añadir número de parte</button>
-          </fieldset>
+          <hr />
+          <h4>Números de Parte (opcional)</h4>
+          {partes.map((p, idx) => (
+            <div key={idx} className="form-row" style={{ display: 'grid', gridTemplateColumns: '140px 1fr auto', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+              <select value={p.marca} onChange={(e) => setParte(idx, 'marca', e.target.value)}>
+                <option value="OEM">OEM</option>
+                <option value="TRW">TRW</option>
+                <option value="OSVAT">OSVAT</option>
+                <option value="SKU ML">SKU ML</option>
+                <option value="OTRO">OTRO</option>
+              </select>
+              <input value={p.numero} onChange={(e) => setParte(idx, 'numero', e.target.value)} placeholder="Número de parte" />
+              <button onClick={() => removeParte(idx)} type="button">Eliminar</button>
+            </div>
+          ))}
+          <button onClick={addParte} type="button">Añadir número de parte</button>
         </div>
 
-        <div className="modal-footer">
-          <button onClick={handleCrear} className="btn-edit">Crear</button>
-          <button onClick={onClose} className="btn-delete">Cancelar</button>
+        <div className="modal-actions">
+          <button onClick={onClose} className="btn btn-secondary">Cancelar</button>
+          <button onClick={handleCrear} className="btn btn-primary">Crear Producto</button>
         </div>
       </div>
     </div>
