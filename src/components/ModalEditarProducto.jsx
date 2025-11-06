@@ -103,6 +103,9 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     cantidad_valvulas: ''
   });
 
+  // Marca para sugerir código (solo en creación de válvulas)
+  const [marcaIdParaCodigo, setMarcaIdParaCodigo] = useState('');
+
   // Cerrar modal al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -160,6 +163,24 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
+
+  // Sugerir código cuando estamos creando y es válvula y hay marca seleccionada
+  useEffect(() => {
+    const sugerir = async () => {
+      if (!modoCrear) return;
+      if (formData.tipo_producto !== 'VALVULA') return;
+      if (!marcaIdParaCodigo) return;
+      try {
+        const url = `${API_URL}/productos/sugerir_codigo/?tipo=${encodeURIComponent(formData.tipo_producto)}&marca_id=${encodeURIComponent(marcaIdParaCodigo)}`;
+        const res = await fetch(url, { credentials: 'include' });
+        const data = await res.json();
+        if (data?.codigo_sugerido) {
+          setFormData(prev => ({ ...prev, codigo_interno: data.codigo_sugerido }));
+        }
+      } catch (e) {}
+    };
+    sugerir();
+  }, [modoCrear, formData.tipo_producto, marcaIdParaCodigo]);
 
   const handleSpecChange = (e) => {
     const { name, value } = e.target;
@@ -717,7 +738,22 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                     <option value="OTRO">Otro</option>
                   </select>
                 </div>
-                {modoCrear && (
+                {modoCrear && formData.tipo_producto === 'VALVULA' && (
+                  <>
+                    <div>
+                      <label>Marca (para generar código):</label>
+                      <select value={marcaIdParaCodigo} onChange={(e) => setMarcaIdParaCodigo(e.target.value)}>
+                        <option value="">-- Seleccione --</option>
+                        {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label>Código Interno:</label>
+                      <input name="codigo_interno" type="text" value={formData.codigo_interno || ''} readOnly />
+                    </div>
+                  </>
+                )}
+                {modoCrear && formData.tipo_producto !== 'VALVULA' && (
                   <div>
                     <label>Código Interno:</label>
                     <input name="codigo_interno" type="text" value={formData.codigo_interno || ''} onChange={handleChange} required />

@@ -425,6 +425,7 @@ function TiendaPage() {
           onClose={handleCerrarModal}
           onSave={handleGuardadoExitoso}
           onAmpliarFoto={handleAbrirVisorFoto}
+          marcas={marcas}
         />
       )}
       {crearAbierto && (
