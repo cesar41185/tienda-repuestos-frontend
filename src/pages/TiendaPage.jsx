@@ -19,13 +19,13 @@ function TiendaPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productoParaEditar, setProductoParaEditar] = useState(null);
   const [fotoParaAmpliar, setFotoParaAmpliar] = useState(null);
-  const [crearAbierto, setCrearAbierto] = useState(false);
   const [pageInfo, setPageInfo] = useState({ count: 0, next: null, previous: null });
   const [currentFilters, setCurrentFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'codigo_interno', direction: 'ascending' });
   const { agregarAlCarrito } = useCarrito();
   const { token, user } = useAuth();
   const [cantidades, setCantidades] = useState({});
+  const [crearAbierto, setCrearAbierto] = useState(false);
 
   // Router helpers
   const { tipo } = useParams();
@@ -390,7 +390,7 @@ function TiendaPage() {
               </button>
               <button 
                 className="btn btn-primary"
-                onClick={() => handleAbrirModal()}
+                onClick={() => setCrearAbierto(true)}
               >
                 + Crear Producto
               </button>
@@ -420,16 +420,16 @@ function TiendaPage() {
       </div>
 
       {isModalOpen && (
-        <ModalEditarProducto
-          producto={productoParaEditar} // Pasamos 'producto'
+        <ModalEditarProducto 
+          producto={productoParaEditar} 
           onClose={handleCerrarModal}
           onSave={handleGuardadoExitoso}
-          marcas={marcas}
-          onRefresh={handleRefreshInModal}
-          onDelete={handleDeleteProducto}
+          onAmpliarFoto={handleAbrirVisorFoto}
         />
       )}
-      <ModalCrearProducto abierto={crearAbierto} onClose={() => setCrearAbierto(false)} onCreated={onProductoCreado} />
+      {crearAbierto && (
+        <ModalCrearProducto abierto={crearAbierto} onClose={() => setCrearAbierto(false)} onCreated={() => buscarProductos()} />
+      )}
       {fotoParaAmpliar && (
         <ModalFoto imageUrl={fotoParaAmpliar} onClose={handleCerrarVisorFoto} />
       )}
