@@ -35,9 +35,23 @@ function GestorAplicacionesPage() {
   const fetchAplicaciones = async () => {
     setCargando(true);
     try {
-      const res = await fetch(API_URL + '/aplicaciones/');
-      const data = await res.json();
-      setAplicaciones(data.results || data);
+      let url = API_URL + '/aplicaciones/';
+      const acumulado = [];
+      // Seguir paginación si existe (DRF PageNumberPagination)
+      while (url) {
+        // Forzar un page_size grande si el backend lo soporta, sino DRF ignorará y seguiremos con next
+        const conTamano = url.includes('page_size=') ? url : (url.includes('?') ? url + '&page_size=1000' : url + '?page_size=1000');
+        const res = await fetch(conTamano);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          acumulado.push(...data);
+          url = null;
+        } else {
+          acumulado.push(...(data.results || []));
+          url = data.next || null;
+        }
+      }
+      setAplicaciones(acumulado);
     } catch (e) {
       toast.error('No se pudieron cargar las aplicaciones');
     } finally {
@@ -52,7 +66,7 @@ function GestorAplicacionesPage() {
 
   const aplicacionesFiltradas = useMemo(() => {
     return aplicaciones.filter((a) => {
-      // el API no expone marca_vehiculo (id) porque es write_only; usamos nombre
+      // el API no expone marca_vehiculo (id) en lectura; usamos nombre
       const selectedMarcaNombre = filtroMarcaId
         ? (marcas.find((m) => String(m.id) === String(filtroMarcaId))?.nombre || '')
         : '';
