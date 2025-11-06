@@ -27,14 +27,15 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
   // Especificaciones (para válvulas)
   const [esp, setEsp] = useState({ tipo: '', diametro_cabeza: '', diametro_vastago: '', longitud_total: '', ranuras: '' });
 
-  // Marcas (para prefijo y selector de aplicación)
+  // Marcas
   const [marcas, setMarcas] = useState([]);
   const [marcaId, setMarcaId] = useState('');
 
-  // Datos opcionales: 1 aplicación
-  const [appModelo, setAppModelo] = useState('');
-  const [appCilindrada, setAppCilindrada] = useState('');
-  const [appCilindros, setAppCilindros] = useState('');
+  // Repositorio de Aplicaciones existentes y filtros locales
+  const [aplicacionesRepo, setAplicacionesRepo] = useState([]);
+  const [filtroAppMarcaId, setFiltroAppMarcaId] = useState('');
+  const [filtroAppModelo, setFiltroAppModelo] = useState('');
+  const [aplicacionSeleccionada, setAplicacionSeleccionada] = useState(null);
 
   // Números de parte (opcional)
   const [partes, setPartes] = useState([{ marca: 'OEM', numero: '' }]);
@@ -45,12 +46,28 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       .then(r => r.json())
       .then(d => setMarcas(d.results || d))
       .catch(() => {});
+
+    // Cargar aplicaciones existentes (todas las páginas)
+    const loadApps = async () => {
+      try {
+        let url = API_URL + '/aplicaciones/?page_size=1000';
+        const all = [];
+        while (url) {
+          const res = await fetch(url);
+          const data = await res.json();
+          if (Array.isArray(data)) { all.push(...data); url = null; }
+          else { all.push(...(data.results || [])); url = data.next || null; }
+        }
+        setAplicacionesRepo(all);
+      } catch {}
+    };
+    loadApps();
   }, [abierto]);
 
+  // Previsualizar código cuando cambie tipo o marca (válvulas)
   useEffect(() => {
-    // Previsualizar código cuando cambie tipo o marca (solo válvulas por ahora)
     const fetchCodigo = async () => {
-      if (tipoProducto !== 'VALVULA' || !marcaId) return;
+      if (tipoProducto !== 'VALVULA' || !marcaId) { setCodigoInterno(''); return; }
       try {
         const url = `${API_URL}/productos/sugerir_codigo/?tipo=${encodeURIComponent(tipoProducto)}&marca_id=${encodeURIComponent(marcaId)}`;
         const res = await fetch(url, { credentials: 'include' });
@@ -77,7 +94,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
   const removeParte = (idx) => setPartes(p => p.filter((_, i) => i !== idx));
 
   const validar = () => {
-    if (!codigoInterno.trim()) { toast.error('El código interno es obligatorio'); return false; }
+    if (tipoProducto === 'VALVULA' && !codigoInterno.trim()) { toast.error('Seleccione una marca para generar el código'); return false; }
     if (tipoProducto === 'VALVULA') {
       const req = ['tipo', 'diametro_cabeza', 'diametro_vastago', 'longitud_total'];
       const falt = req.filter(k => {
@@ -117,20 +134,24 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       }
       const nuevo = await res.json();
 
-      // Crear una aplicación opcional si se ingresó
-      if (marcaId && appModelo.trim()) {
+      // Aplicación seleccionada (opcional): clonamos datos al nuevo producto
+      if (aplicacionSeleccionada) {
         try {
           await fetch(API_URL + '/aplicaciones/', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
             body: JSON.stringify({
               producto: nuevo.id,
-              marca_vehiculo: Number(marcaId),
-              modelo_vehiculo: appModelo.trim(),
-              cilindrada: appCilindrada !== '' ? Number(appCilindrada) : null,
-              cantidad_cilindros: appCilindros !== '' ? Number(appCilindros) : null,
+              marca_vehiculo: aplicacionSeleccionada.marca_vehiculo,
+              modelo_vehiculo: aplicacionSeleccionada.modelo_vehiculo,
+              cilindrada: aplicacionSeleccionada.cilindrada,
+              cantidad_cilindros: aplicacionSeleccionada.cantidad_cilindros,
+              detalle_motor: aplicacionSeleccionada.detalle_motor,
+              ano_desde: aplicacionSeleccionada.ano_desde,
+              ano_hasta: aplicacionSeleccionada.ano_hasta,
+              cantidad_valvulas: aplicacionSeleccionada.cantidad_valvulas,
             })
           });
-        } catch (e) { /* opcional */ }
+        } catch {}
       }
 
       // Crear números de parte (opcional, sólo los que tengan número)
@@ -141,7 +162,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
             body: JSON.stringify({ producto: nuevo.id, marca: p.marca || 'OEM', numero_de_parte: p.numero.trim() })
           });
-        } catch (e) { /* opcional */ }
+        } catch {}
       }
 
       toast.success('Producto creado');
@@ -151,6 +172,12 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       toast.error(e.message || 'Error al crear producto');
     }
   };
+
+  const aplicacionesFiltradas = useMemo(() => {
+    const marcaOk = (a) => !filtroAppMarcaId || String(a.marca_vehiculo) === String(filtroAppMarcaId);
+    const modeloOk = (a) => !filtroAppModelo || (a.modelo_vehiculo || '').toLowerCase().includes(filtroAppModelo.toLowerCase());
+    return aplicacionesRepo.filter(a => marcaOk(a) && modeloOk(a));
+  }, [aplicacionesRepo, filtroAppMarcaId, filtroAppModelo]);
 
   if (!abierto) return null;
 
@@ -174,8 +201,15 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
               </select>
             </div>
             <div>
+              <label>Marca (para generar código):</label>
+              <select value={marcaId} onChange={(e) => setMarcaId(e.target.value)}>
+                <option value="">-- Seleccione --</option>
+                {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+              </select>
+            </div>
+            <div>
               <label>Código Interno:</label>
-              <input value={codigoInterno} onChange={(e) => setCodigoInterno(e.target.value)} readOnly placeholder="Se sugerirá automáticamente" />
+              <input value={codigoInterno} onChange={(e) => setCodigoInterno(e.target.value)} readOnly placeholder="Seleccione marca para sugerir" />
             </div>
             <div><label>Stock:</label><input value={stock} onChange={(e) => setStock(e.target.value)} /></div>
             <div><label>Precio Costo:</label><input value={precioCosto} onChange={(e) => setPrecioCosto(e.target.value)} /></div>
@@ -191,13 +225,6 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
               <hr />
               <h4>Especificaciones de Válvula</h4>
               <div className="form-grid">
-                <div>
-                  <label>Marca (para generar código):</label>
-                  <select value={marcaId} onChange={(e) => setMarcaId(e.target.value)}>
-                    <option value="">-- Seleccione --</option>
-                    {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-                  </select>
-                </div>
                 {CAMPOS_VALVULA.map(c => (
                   <div key={c.name}>
                     <label>{c.label}:</label>
@@ -215,18 +242,32 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
           )}
 
           <hr />
-          <h4>Aplicación (opcional)</h4>
+          <h4>Seleccionar Aplicación (opcional)</h4>
           <div className="form-grid">
             <div>
               <label>Marca</label>
-              <select value={marcaId} onChange={(e) => setMarcaId(e.target.value)}>
-                <option value="">Seleccione</option>
+              <select value={filtroAppMarcaId} onChange={(e) => setFiltroAppMarcaId(e.target.value)}>
+                <option value="">Todas</option>
                 {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
               </select>
             </div>
-            <div><label>Modelo</label><input value={appModelo} onChange={(e) => setAppModelo(e.target.value)} placeholder="Vitara, Corsa 1.6, etc." /></div>
-            <div><label>Cilindrada</label><input value={appCilindrada} onChange={(e) => setAppCilindrada(e.target.value)} placeholder="1.6" /></div>
-            <div><label>Cilindros</label><input value={appCilindros} onChange={(e) => setAppCilindros(e.target.value)} placeholder="4" /></div>
+            <div>
+              <label>Modelo</label>
+              <input value={filtroAppModelo} onChange={(e) => setFiltroAppModelo(e.target.value)} placeholder="Buscar modelo" />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label>Resultados</label>
+              <select size={6} style={{ width: '100%' }} value={aplicacionSeleccionada?.id || ''} onChange={(e) => {
+                const sel = aplicacionesFiltradas.find(a => String(a.id) === e.target.value);
+                setAplicacionSeleccionada(sel || null);
+              }}>
+                <option value="">(Ninguna)</option>
+                {aplicacionesFiltradas.slice(0, 200).map(a => (
+                  <option key={a.id} value={a.id}>{`${a.marca_vehiculo_nombre || ''} ${a.modelo_vehiculo || ''}`}</option>
+                ))}
+              </select>
+              <small style={{ color: '#666' }}>Se listan hasta 200 resultados. Use filtros para acotar.</small>
+            </div>
           </div>
 
           <hr />
