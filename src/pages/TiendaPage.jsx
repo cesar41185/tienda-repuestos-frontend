@@ -6,6 +6,7 @@ import Buscador from '../components/Buscador';
 import TablaResultados from '../components/TablaResultados';
 import ModalEditarProducto from '../components/ModalEditarProducto';
 import ModalFoto from '../components/ModalFoto';
+import ModalCrearProducto from '../components/ModalCrearProducto';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
@@ -18,6 +19,7 @@ function TiendaPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productoParaEditar, setProductoParaEditar] = useState(null);
   const [fotoParaAmpliar, setFotoParaAmpliar] = useState(null);
+  const [crearAbierto, setCrearAbierto] = useState(false);
   const [pageInfo, setPageInfo] = useState({ count: 0, next: null, previous: null });
   const [currentFilters, setCurrentFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'codigo_interno', direction: 'ascending' });
@@ -63,6 +65,11 @@ function TiendaPage() {
     const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
     params.append('ordering', ordering);
     buscarProductos(`${API_URL}/productos/?${params.toString()}`);
+  };
+
+  const onProductoCreado = (nuevo) => {
+    // Refrescar lista sin perder filtros
+    buscarProductos();
   };
 
   // Mapeo de URL a tipo de producto (helpers)
@@ -422,8 +429,10 @@ function TiendaPage() {
           onDelete={handleDeleteProducto}
         />
       )}
-      
-      <ModalFoto imageUrl={fotoParaAmpliar} onClose={handleCerrarVisorFoto} />
+      <ModalCrearProducto abierto={crearAbierto} onClose={() => setCrearAbierto(false)} onCreated={onProductoCreado} />
+      {fotoParaAmpliar && (
+        <ModalFoto imageUrl={fotoParaAmpliar} onClose={handleCerrarVisorFoto} />
+      )}
     </>
   );
 }
