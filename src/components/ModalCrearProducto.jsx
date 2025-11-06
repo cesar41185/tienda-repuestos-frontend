@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import API_URL from '../apiConfig';
+import { useAuth } from '../context/AuthContext';
 
 const CAMPOS_VALVULA = [
   { name: 'tipo', label: 'Tipo', type: 'select', options: [
@@ -16,6 +17,7 @@ const CAMPOS_VALVULA = [
 
 export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
   const modalRef = useRef(null);
+  const { token } = useAuth();
 
   const [tipoProducto, setTipoProducto] = useState('VALVULA');
   const [codigoInterno, setCodigoInterno] = useState('');
@@ -33,7 +35,6 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
 
   // Repositorio de Aplicaciones existentes y filtros locales
   const [aplicacionesRepo, setAplicacionesRepo] = useState([]);
-  const [filtroAppMarcaId, setFiltroAppMarcaId] = useState('');
   const [filtroAppModelo, setFiltroAppModelo] = useState('');
   const [aplicacionSeleccionada, setAplicacionSeleccionada] = useState(null);
 
@@ -70,13 +71,14 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       if (tipoProducto !== 'VALVULA' || !marcaId) { setCodigoInterno(''); return; }
       try {
         const url = `${API_URL}/productos/sugerir_codigo/?tipo=${encodeURIComponent(tipoProducto)}&marca_id=${encodeURIComponent(marcaId)}`;
-        const res = await fetch(url, { credentials: 'include' });
+        const res = await fetch(url, { headers: token ? { 'Authorization': `Token ${token}` } : undefined, credentials: 'include' });
+        if (!res.ok) return; // si 403 u otro, no bloquear la UI
         const data = await res.json();
         if (data?.codigo_sugerido) setCodigoInterno(data.codigo_sugerido);
       } catch (e) { /* noop */ }
     };
     fetchCodigo();
-  }, [tipoProducto, marcaId]);
+  }, [tipoProducto, marcaId, token]);
 
   // Cerrar al click fuera
   useEffect(() => {
@@ -126,7 +128,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
 
     try {
       const res = await fetch(API_URL + '/productos/', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), credentials: 'include'
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) }, body: JSON.stringify(payload), credentials: 'include'
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -138,7 +140,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       if (aplicacionSeleccionada) {
         try {
           await fetch(API_URL + '/aplicaciones/', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+            method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) }, credentials: 'include',
             body: JSON.stringify({
               producto: nuevo.id,
               marca_vehiculo: aplicacionSeleccionada.marca_vehiculo,
@@ -159,7 +161,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
       for (const p of partesValidas) {
         try {
           await fetch(API_URL + '/numeros-parte/', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+            method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Token ${token}` } : {}) }, credentials: 'include',
             body: JSON.stringify({ producto: nuevo.id, marca: p.marca || 'OEM', numero_de_parte: p.numero.trim() })
           });
         } catch {}
@@ -174,10 +176,10 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
   };
 
   const aplicacionesFiltradas = useMemo(() => {
-    const marcaOk = (a) => !filtroAppMarcaId || String(a.marca_vehiculo) === String(filtroAppMarcaId);
+    const marcaOk = (a) => !marcaId || String(a.marca_vehiculo) === String(marcaId);
     const modeloOk = (a) => !filtroAppModelo || (a.modelo_vehiculo || '').toLowerCase().includes(filtroAppModelo.toLowerCase());
     return aplicacionesRepo.filter(a => marcaOk(a) && modeloOk(a));
-  }, [aplicacionesRepo, filtroAppMarcaId, filtroAppModelo]);
+  }, [aplicacionesRepo, marcaId, filtroAppModelo]);
 
   if (!abierto) return null;
 
@@ -245,13 +247,6 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
           <h4>Seleccionar Aplicación (opcional)</h4>
           <div className="form-grid">
             <div>
-              <label>Marca</label>
-              <select value={filtroAppMarcaId} onChange={(e) => setFiltroAppMarcaId(e.target.value)}>
-                <option value="">Todas</option>
-                {marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-              </select>
-            </div>
-            <div>
               <label>Modelo</label>
               <input value={filtroAppModelo} onChange={(e) => setFiltroAppModelo(e.target.value)} placeholder="Buscar modelo" />
             </div>
@@ -266,7 +261,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
                   <option key={a.id} value={a.id}>{`${a.marca_vehiculo_nombre || ''} ${a.modelo_vehiculo || ''}`}</option>
                 ))}
               </select>
-              <small style={{ color: '#666' }}>Se listan hasta 200 resultados. Use filtros para acotar.</small>
+              <small style={{ color: '#666' }}>Resultados filtrados por la marca seleccionada arriba. Use el filtro por modelo para acotar.</small>
             </div>
           </div>
 
