@@ -28,6 +28,7 @@ import ConteoFisicoPage from './pages/ConteoFisicoPage';
 import PresupuestosPage from './pages/PresupuestosPage';
 import ComisionesPage from './pages/ComisionesPage';
 import InteraccionesCRMPage from './pages/InteraccionesCRMPage'; 
+import GestorAplicacionesPage from './pages/GestorAplicacionesPage';
 
 function App() {
   return (
@@ -133,6 +134,15 @@ function App() {
             element={
               <ProtectedRoute roles={['Administrador']}>
                 <GestorMarcasPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/gestor-aplicaciones"
+            element={
+              <ProtectedRoute roles={['Administrador']}>
+                <GestorAplicacionesPage />
               </ProtectedRoute>
             }
           />

@@ -60,6 +60,29 @@ function GestorMarcasPage() {
     }
   };
 
+  // Nueva: edición inline de marca
+  const handleEditMarca = async (marca) => {
+    const nuevoNombre = window.prompt('Editar nombre de la marca:', marca.nombre);
+    if (nuevoNombre === null) return; // cancelado
+    const nombreLimpio = nuevoNombre.trim();
+    if (!nombreLimpio) {
+      toast.error('El nombre no puede estar vacío.');
+      return;
+    }
+    try {
+      const resp = await fetch(`${API_URL}/marcas/${marca.id}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: nombreLimpio })
+      });
+      if (!resp.ok) throw new Error('No OK');
+      toast.success('Marca actualizada.');
+      fetchMarcas();
+    } catch (e) {
+      toast.error('No se pudo actualizar la marca.');
+    }
+  };
+
   if (cargando) return <p>Cargando marcas...</p>;
 
   return (
@@ -82,9 +105,14 @@ function GestorMarcasPage() {
         {marcas.map(marca => (
           <li key={marca.id}>
             <span>{marca.nombre}</span>
-            <button onClick={() => handleDeleteMarca(marca.id)} className="btn-delete">
-              Eliminar
-            </button>
+            <div style={{ display: 'inline-flex', gap: 8, marginLeft: 12 }}>
+              <button onClick={() => handleEditMarca(marca)} className="btn-edit">
+                Editar
+              </button>
+              <button onClick={() => handleDeleteMarca(marca.id)} className="btn-delete">
+                Eliminar
+              </button>
+            </div>
           </li>
         ))}
       </ul>
