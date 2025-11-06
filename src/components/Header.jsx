@@ -123,7 +123,10 @@ function Header() {
               </>
             )}
             {user.groups.includes('Administrador') && (
-              <Link to="/gestor-marcas" className="nav-link" onClick={() => setMenuAbierto(false)}>Gestionar Marcas</Link>
+              <>
+                <Link to="/gestor-marcas" className="nav-link" onClick={() => setMenuAbierto(false)}>Gestionar Marcas</Link>
+                <Link to="/gestor-aplicaciones" className="nav-link" onClick={() => setMenuAbierto(false)}>Gestionar Aplicaciones</Link>
+              </>
             )}
             {(user.groups.includes('Administrador') || user.groups.includes('Almacen')) && (
               <>
