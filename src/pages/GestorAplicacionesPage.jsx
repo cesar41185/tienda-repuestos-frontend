@@ -52,16 +52,22 @@ function GestorAplicacionesPage() {
 
   const aplicacionesFiltradas = useMemo(() => {
     return aplicaciones.filter((a) => {
-      const okMarca = !filtroMarcaId || String(a.marca_vehiculo) === String(filtroMarcaId);
+      // el API no expone marca_vehiculo (id) porque es write_only; usamos nombre
+      const selectedMarcaNombre = filtroMarcaId
+        ? (marcas.find((m) => String(m.id) === String(filtroMarcaId))?.nombre || '')
+        : '';
+      const okMarca = !filtroMarcaId || (a.marca_vehiculo_nombre || '') === selectedMarcaNombre;
       const okModelo = !filtroModelo || (a.modelo_vehiculo || '').toLowerCase().includes(filtroModelo.toLowerCase());
       return okMarca && okModelo;
     });
-  }, [aplicaciones, filtroMarcaId, filtroModelo]);
+  }, [aplicaciones, filtroMarcaId, filtroModelo, marcas]);
 
   const startEdit = (a) => {
     setEditId(a.id);
+    // mapear ID desde el nombre
+    const marcaIdFromNombre = marcas.find((m) => m.nombre === a.marca_vehiculo_nombre)?.id || '';
     setForm({
-      marca_vehiculo: a.marca_vehiculo || '',
+      marca_vehiculo: marcaIdFromNombre,
       modelo_vehiculo: a.modelo_vehiculo || '',
       cilindrada: a.cilindrada ?? '',
       cantidad_cilindros: a.cantidad_cilindros ?? '',
@@ -123,11 +129,6 @@ function GestorAplicacionesPage() {
     } catch (e) {
       toast.error('No se pudo actualizar la aplicación');
     }
-  };
-
-  const nombreMarca = (id) => {
-    const m = marcas.find((x) => String(x.id) === String(id));
-    return m ? m.nombre : `ID ${id}`;
   };
 
   if (cargando) return <p>Cargando aplicaciones...</p>;
@@ -223,7 +224,7 @@ function GestorAplicacionesPage() {
             {aplicacionesFiltradas.map((a) => (
               <tr key={a.id}>
                 <td>{a.id}</td>
-                <td>{nombreMarca(a.marca_vehiculo)} ({a.marca_vehiculo})</td>
+                <td>{a.marca_vehiculo_nombre || ''}</td>
                 <td>{a.modelo_vehiculo}</td>
                 <td>{a.cilindrada ?? ''}</td>
                 <td>{a.cantidad_cilindros ?? ''}</td>
