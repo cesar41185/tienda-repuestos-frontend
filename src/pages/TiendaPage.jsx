@@ -81,9 +81,11 @@ function TiendaPage() {
   };
 
   // Helper: determina si un producto tiene al menos una foto válida (URL no vacía)
+  // NOTA: Detectamos inversions en producción; simplificamos criterio para evitar falsos positivos.
   const hasValidPhoto = (p) => {
     if (!p || !Array.isArray(p.fotos)) return false;
-    return p.fotos.some(f => f && typeof f.imagen === 'string' && f.imagen.trim() !== '');
+    // Si hay al menos un objeto con imagen no vacía consideramos que tiene foto
+    return p.fotos.some(f => f && f.imagen && String(f.imagen).trim() !== '');
   };
 
   const buscarProductos = async (url = null, overrideOnlyNoPhoto = null) => {
@@ -106,13 +108,13 @@ function TiendaPage() {
       // Si estamos en modo "solo sin foto", ignoramos next/previous y construimos dataset completo filtrado
       if (onlyNoPhoto) {
         const all = await fetchAllForCurrentFilters();
-        // Mostrar solo productos SIN foto válida
+        // Mostrar solo productos SIN foto válida (simplificado: array vacío o ninguna imagen no vacía)
         const filtered = all.filter(p => !hasValidPhoto(p));
+        console.debug('[SoloSinFoto] total cargados:', all.length, 'filtrados sin foto:', filtered.length);
         setProductos(filtered);
         setPageInfo({ count: filtered.length, next: null, previous: null });
         setPageMeta({ current: 1, total: 1, size: filtered.length });
-        // actualizar indicador si procede
-        setMissingPhotoCount(filtered.length);
+        setMissingPhotoCount(filtered.length); // mantener indicador coherente
         return filtered;
       }
       const response = await fetch(finalUrl);
@@ -160,7 +162,7 @@ function TiendaPage() {
         const data = await res.json();
         const arr = Array.isArray(data) ? data : (data.results || []);
         // Contar productos SIN foto válida
-        count += arr.filter(p => !hasValidPhoto(p)).length;
+  count += arr.filter(p => !hasValidPhoto(p)).length;
         url = data.next || null;
         loops += 1;
       }
@@ -563,9 +565,10 @@ function TiendaPage() {
             type="checkbox"
             checked={showOnlyNoPhoto}
             onChange={async (e) => {
-              setShowOnlyNoPhoto(e.target.checked);
-              // forzar carga acorde al NUEVO estado (evita usar el valor antiguo del closure)
-              await buscarProductos(undefined, e.target.checked);
+              const nuevoValor = e.target.checked;
+              setShowOnlyNoPhoto(nuevoValor);
+              // Ejecutar búsqueda con valor recién marcado para evitar inversión.
+              await buscarProductos(undefined, nuevoValor);
             }}
           />
           Solo sin foto
