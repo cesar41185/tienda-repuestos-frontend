@@ -43,6 +43,7 @@ function TiendaPage() {
   const { token, user } = useAuth();
   const [cantidades, setCantidades] = useState({});
   const [crearAbierto, setCrearAbierto] = useState(false);
+  const [pageJump, setPageJump] = useState(1); // selector de página
 
   // --- NUEVO: estado de vista (grilla de tipos o lista) ---
   const [vistaTienda, setVistaTienda] = useState(tipo ? 'list' : 'grid'); // 'grid' | 'list'
@@ -141,6 +142,26 @@ function TiendaPage() {
     } finally {
       setCargando(false);
     }
+  };
+
+  // Ir a una página específica construyendo la URL con filtros actuales
+  const irAPagina = async (paginaDestino) => {
+    if (showOnlyNoPhoto) return; // En este modo no hay paginación
+    const total = pageMeta.total || 1;
+    let p = parseInt(paginaDestino, 10);
+    if (isNaN(p)) return;
+    if (p < 1) p = 1;
+    if (p > total) p = total;
+    // Construir URL con filtros + ordering + page (y page_size si lo conocemos)
+    const filtros = { ...currentFilters };
+    if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
+    const params = new URLSearchParams(filtros);
+    const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
+    params.append('ordering', ordering);
+    if (pageMeta.size && pageMeta.size > 0) params.append('page_size', String(pageMeta.size));
+    params.append('page', String(p));
+    setPageJump(p); // reflejar en input
+    await buscarProductos(`${API_URL}/productos/?${params.toString()}`);
   };
 
   // Contar productos sin foto para los filtros actuales (momentáneo)
@@ -282,6 +303,11 @@ function TiendaPage() {
       buscarProductos();
     }
   }, [sortConfig, currentFilters]); // Se ejecuta al ordenar y al filtrar
+
+  // Sincronizar el input del selector de página cuando cambie la página actual
+  useEffect(() => {
+    if (pageMeta?.current) setPageJump(pageMeta.current);
+  }, [pageMeta.current]);
 
   // Recalcular conteo sin foto cuando cambian filtros o tipo
   useEffect(() => {
@@ -560,6 +586,25 @@ function TiendaPage() {
           <button onClick={() => buscarProductos(pageInfo.previous)} disabled={!pageInfo.previous}>Anterior</button>
           <button onClick={() => buscarProductos(pageInfo.next)} disabled={!pageInfo.next}>Siguiente</button>
         </div>
+        {pageMeta.total > 1 && !showOnlyNoPhoto && (
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+            <span>Ir a</span>
+            <input
+              type="number"
+              min={1}
+              max={pageMeta.total}
+              value={pageJump}
+              onChange={(e) => setPageJump(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  irAPagina(pageJump);
+                }
+              }}
+              style={{ width: 70 }}
+            />
+            <button onClick={() => irAPagina(pageJump)}>Ir</button>
+          </div>
+        )}
         <label style={{ display:'flex', alignItems:'center', gap:6 }} title="Mostrar solo productos sin fotos (según filtros)">
           <input
             type="checkbox"
