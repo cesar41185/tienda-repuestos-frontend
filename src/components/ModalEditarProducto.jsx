@@ -593,23 +593,83 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       return;
     }
     e.preventDefault();
-    const data = { ...nuevaReferencia, producto: producto.id };
-    await fetch(`${API_URL}/numeros-parte/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json','Authorization': `Token ${token}` },
-      body: JSON.stringify(data),
-    });
-    setNuevaReferencia({ marca: '', numero_de_parte: '' });
-  onRefresh?.();
+    // Validación básica y normalización
+    const marca = (nuevaReferencia.marca || '').trim() || 'OEM';
+    const numero = (nuevaReferencia.numero_de_parte || '').trim();
+    if (!numero) {
+      toast.error('Ingrese el número de parte.');
+      return;
+    }
+
+    // Evitar duplicados locales por número (sin importar marca)
+    const yaExiste = (formData.numeros_de_parte || []).some(r => String(r.numero_de_parte).trim().toUpperCase() === numero.toUpperCase());
+    if (yaExiste) {
+      toast('Ese número de parte ya existe en este producto.');
+      return;
+    }
+
+    const payload = { producto: producto.id, marca, numero_de_parte: numero };
+    try {
+      const resp = await fetch(`${API_URL}/numeros-parte/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json','Authorization': `Token ${token}` },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        // Mostrar errores claros desde el backend
+        let msg = 'No se pudo agregar el número de parte.';
+        try {
+          const err = await resp.json();
+          if (err.numero_de_parte && Array.isArray(err.numero_de_parte)) {
+            msg = err.numero_de_parte[0];
+          } else if (err.non_field_errors) {
+            msg = err.non_field_errors[0];
+          } else if (err.detail) {
+            msg = err.detail;
+          } else {
+            msg = JSON.stringify(err);
+          }
+        } catch {}
+        toast.error(msg);
+        return;
+      }
+
+      const creada = await resp.json();
+      // Actualizar UI inmediatamente (optimista) y luego refrescar desde el servidor
+      setFormData(prev => ({
+        ...prev,
+        numeros_de_parte: [...(prev.numeros_de_parte || []), creada]
+      }));
+      setNuevaReferencia({ marca: '', numero_de_parte: '' });
+      toast.success('Número de parte agregado.');
+      onRefresh?.();
+    } catch (err) {
+      toast.error('Error de red al agregar el número de parte.');
+      console.error('Error POST /numeros-parte/:', err);
+    }
   };
 
   const handleDeleteReferencia = async (id) => {
-    await fetch(`${API_URL}/numeros-parte/${id}/`, { 
-      method: 'DELETE',
-      headers: { 'Authorization': `Token ${token}` }
-    });
-    toast.success('Referencia eliminada.');
-  onRefresh?.();
+    try {
+      const resp = await fetch(`${API_URL}/numeros-parte/${id}/`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => '');
+        toast.error(text || 'No se pudo eliminar la referencia.');
+        return;
+      }
+      // Refrescar localmente
+      setFormData(prev => ({
+        ...prev,
+        numeros_de_parte: (prev.numeros_de_parte || []).filter(p => p.id !== id)
+      }));
+      toast.success('Referencia eliminada.');
+      onRefresh?.();
+    } catch (e) {
+      toast.error('Error de red al eliminar la referencia.');
+    }
   };
 
   const handleAddAplicacion = async (e) => {
