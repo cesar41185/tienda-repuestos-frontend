@@ -80,7 +80,13 @@ function TiendaPage() {
     return all;
   };
 
-  const buscarProductos = async (url = null) => {
+  // Helper: determina si un producto tiene al menos una foto válida (URL no vacía)
+  const hasValidPhoto = (p) => {
+    if (!p || !Array.isArray(p.fotos)) return false;
+    return p.fotos.some(f => f && typeof f.imagen === 'string' && f.imagen.trim() !== '');
+  };
+
+  const buscarProductos = async (url = null, overrideOnlyNoPhoto = null) => {
     setCargando(true);
     let finalUrl = url;
     if (!finalUrl) {
@@ -95,10 +101,13 @@ function TiendaPage() {
       finalUrl = `${API_URL}/productos/?${params.toString()}`;
     }
     try {
+      // Determinar modo 'solo sin foto' con posible override (para evitar el retraso de setState)
+      const onlyNoPhoto = overrideOnlyNoPhoto !== null ? overrideOnlyNoPhoto : showOnlyNoPhoto;
       // Si estamos en modo "solo sin foto", ignoramos next/previous y construimos dataset completo filtrado
-      if (showOnlyNoPhoto) {
+      if (onlyNoPhoto) {
         const all = await fetchAllForCurrentFilters();
-        const filtered = all.filter(p => !p.fotos || p.fotos.length === 0);
+        // Mostrar solo productos SIN foto válida
+        const filtered = all.filter(p => !hasValidPhoto(p));
         setProductos(filtered);
         setPageInfo({ count: filtered.length, next: null, previous: null });
         setPageMeta({ current: 1, total: 1, size: filtered.length });
@@ -150,7 +159,8 @@ function TiendaPage() {
         if (!res.ok) break;
         const data = await res.json();
         const arr = Array.isArray(data) ? data : (data.results || []);
-        count += arr.filter(p => !p.fotos || p.fotos.length === 0).length;
+        // Contar productos SIN foto válida
+        count += arr.filter(p => !hasValidPhoto(p)).length;
         url = data.next || null;
         loops += 1;
       }
@@ -554,8 +564,8 @@ function TiendaPage() {
             checked={showOnlyNoPhoto}
             onChange={async (e) => {
               setShowOnlyNoPhoto(e.target.checked);
-              // forzar carga acorde al estado
-              await buscarProductos();
+              // forzar carga acorde al NUEVO estado (evita usar el valor antiguo del closure)
+              await buscarProductos(undefined, e.target.checked);
             }}
           />
           Solo sin foto
