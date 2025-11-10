@@ -233,16 +233,30 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       const filteredSpecs = Object.fromEntries(
         Object.entries(formData.especificaciones || {}).filter(([k]) => allowedSpecKeys.includes(k))
       );
-      // Normalizar peso: enviar null si vacío, número si válido
-      const pesoNormalizado = (formData.peso === '' || formData.peso === null || typeof formData.peso === 'undefined')
-        ? null
-        : parseFloat(formData.peso);
-      const payload = { ...formData, especificaciones: filteredSpecs, peso: isNaN(pesoNormalizado) ? null : pesoNormalizado };
+      // Construir FormData para cumplir con parser multipart del backend
+      const fd = new FormData();
+      if (modoCrear) {
+        fd.append('tipo_producto', formData.tipo_producto || 'VALVULA');
+        if (formData.codigo_interno) fd.append('codigo_interno', formData.codigo_interno);
+      }
+      if (typeof formData.stock !== 'undefined') fd.append('stock', String(formData.stock ?? ''));
+      if (typeof formData.stock_minimo !== 'undefined') fd.append('stock_minimo', String(formData.stock_minimo ?? ''));
+      if (typeof formData.precio_costo !== 'undefined') fd.append('precio_costo', String(formData.precio_costo ?? ''));
+      if (typeof formData.precio_venta !== 'undefined') fd.append('precio_venta', String(formData.precio_venta ?? ''));
+      fd.append('observaciones', String(formData.observaciones ?? ''));
+      // Peso: solo enviar si es numérico. (Evita enviar '' que genera error de formato en DecimalField)
+      if (formData.peso !== '' && formData.peso !== null && typeof formData.peso !== 'undefined') {
+        const p = parseFloat(formData.peso);
+        if (!isNaN(p)) {
+          fd.append('peso', String(p));
+        }
+      }
+      fd.append('especificaciones', JSON.stringify(filteredSpecs));
 
       const response = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
-        body: JSON.stringify(payload),
+        headers: { 'Authorization': `Token ${token}` },
+        body: fd,
       });
       
       if (!response.ok) {
