@@ -39,16 +39,31 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
       <thead>
         <tr>
           <th className="col-foto">Foto</th>
-          {isStaff && <th className="col-trw" onClick={() => onSort('numeros_de_parte__numero_de_parte')} style={{cursor: 'pointer'}}>TRW{getSortIcon('numeros_de_parte__numero_de_parte')}</th>}
-          <th className="col-modelo" onClick={() => onSort('aplicaciones__modelo_vehiculo')} style={{cursor: 'pointer'}}>Modelo{getSortIcon('aplicaciones__modelo_vehiculo')}</th>
-          <th className="col-marca" onClick={() => onSort('aplicaciones__marca_vehiculo__nombre')} style={{cursor: 'pointer'}}>Marca{getSortIcon('aplicaciones__marca_vehiculo__nombre')}</th>
-          <th className="col-precio" onClick={() => onSort('precio_venta')} style={{cursor: 'pointer'}}>Precio{getSortIcon('precio_venta')}</th>
+          {isStaff && !esGuiaValvula && (
+            <th className="col-trw" onClick={() => onSort('numeros_de_parte__numero_de_parte')} style={{cursor: 'pointer'}}>TRW{getSortIcon('numeros_de_parte__numero_de_parte')}</th>
+          )}
+          {!esGuiaValvula && (
+            <>
+              <th className="col-modelo" onClick={() => onSort('aplicaciones__modelo_vehiculo')} style={{cursor: 'pointer'}}>Modelo{getSortIcon('aplicaciones__modelo_vehiculo')}</th>
+              <th className="col-marca" onClick={() => onSort('aplicaciones__marca_vehiculo__nombre')} style={{cursor: 'pointer'}}>Marca{getSortIcon('aplicaciones__marca_vehiculo__nombre')}</th>
+            </>
+          )}
+          {!esGuiaValvula && (
+            <th className="col-precio" onClick={() => onSort('precio_venta')} style={{cursor: 'pointer'}}>Precio{getSortIcon('precio_venta')}</th>
+          )}
           {esValvula && <th className="col-tipo" onClick={() => onSort('especificaciones__tipo')} style={{cursor: 'pointer'}}>Tipo{getSortIcon('especificaciones__tipo')}</th>}
           {esValvula && <th className="col-numerica" onClick={() => onSort('especificaciones__diametro_cabeza')} style={{cursor: 'pointer'}}>Cabe.(mm){getSortIcon('especificaciones__diametro_cabeza')}</th>}
           {esValvula && <th className="col-numerica" onClick={() => onSort('especificaciones__diametro_vastago')} style={{cursor: 'pointer'}}>Vást.(mm){getSortIcon('especificaciones__diametro_vastago')}</th>}
           {esValvula && <th className="col-long" onClick={() => onSort('especificaciones__longitud_total')} style={{cursor: 'pointer'}}>Long.(mm){getSortIcon('especificaciones__longitud_total')}</th>}
           {esValvula && <th className="col-numerica" onClick={() => onSort('especificaciones__ranuras')} style={{cursor: 'pointer'}}>Ran{getSortIcon('especificaciones__ranuras')}</th>}
-          {/* Columnas específicas para guías de válvulas - agregar cuando se definan */}
+          {esGuiaValvula && <th className="col-numerica" onClick={() => onSort('especificaciones__diametro_exterior')} style={{cursor: 'pointer'}}>Ext.(mm){getSortIcon('especificaciones__diametro_exterior')}</th>}
+          {esGuiaValvula && <th className="col-numerica" onClick={() => onSort('especificaciones__diametro_interior')} style={{cursor: 'pointer'}}>Int.(mm){getSortIcon('especificaciones__diametro_interior')}</th>}
+          {esGuiaValvula && <th className="col-long" onClick={() => onSort('especificaciones__longitud_total')} style={{cursor: 'pointer'}}>Long.(mm){getSortIcon('especificaciones__longitud_total')}</th>}
+          {esGuiaValvula && <th className="col-numerica">Compat.</th>}
+          {esGuiaValvula && (
+            <th className="col-precio" onClick={() => onSort('precio_venta')} style={{cursor: 'pointer'}}>Precio{getSortIcon('precio_venta')}</th>
+          )}
+          <th className="col-estado">Estado</th>
           {isStaff && <th className="col-stock" onClick={() => onSort('stock')} style={{cursor: 'pointer'}}>Cant{getSortIcon('stock')}</th>}
           <th className="col-acciones-tabla">Compra</th>
         </tr>
@@ -84,14 +99,22 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                     <div className="foto-placeholder"></div>
                   )}
                 </td>
-                {isStaff && ( <td className="col-trw">{producto.numeros_de_parte?.find(part => part.marca === 'TRW')?.numero_de_parte || 'N/A'}</td> )}
-                <td className="col-modelo">
-                  <Link to={`/producto/${producto.id}`} className="truncar-2-lineas">
-                    {producto.aplicaciones?.[0]?.modelo_vehiculo || 'Uso General'}
-                  </Link>
-                </td>
-                <td className="col-marca">{producto.aplicaciones?.[0]?.marca_vehiculo_nombre || 'N/A'}</td>
-                <td className="col-precio">${producto.precio_venta}</td>
+                {isStaff && !esGuiaValvula && (
+                  <td className="col-trw">{producto.numeros_de_parte?.find(part => part.marca === 'TRW')?.numero_de_parte || 'N/A'}</td>
+                )}
+                {!esGuiaValvula && (
+                  <>
+                    <td className="col-modelo">
+                      <Link to={`/producto/${producto.id}`} className="truncar-2-lineas">
+                        {producto.aplicaciones?.[0]?.modelo_vehiculo || 'Uso General'}
+                      </Link>
+                    </td>
+                    <td className="col-marca">{producto.aplicaciones?.[0]?.marca_vehiculo_nombre || 'N/A'}</td>
+                  </>
+                )}
+                {!esGuiaValvula && (
+                  <td className="col-precio">${producto.precio_venta}</td>
+                )}
                 {esValvula && (
                   <>
                     <td className="col-tipo">
@@ -103,9 +126,50 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                     <td className="col-numerica">{producto.especificaciones?.ranuras || 'N/A'}</td>
                   </>
                 )}
+                {esGuiaValvula && (
+                  <>
+                    <td className="col-numerica">{producto.especificaciones?.diametro_exterior || 'N/A'}</td>
+                    <td className="col-numerica">{producto.especificaciones?.diametro_interior || 'N/A'}</td>
+                    <td className="col-long">{producto.especificaciones?.longitud_total || 'N/A'}</td>
+                    {(() => {
+                      const compat = Array.isArray(producto.valvulas_compatibles) ? producto.valvulas_compatibles : [];
+                      const count = compat.length;
+                      const sample = compat.slice(0, 3).map(v => typeof v === 'object' ? (v.codigo_interno || v.id) : v).join(', ');
+                      const title = count > 0 ? `Primeras: ${sample}${count > 3 ? '…' : ''}` : 'Sin válvulas compatibles';
+                      const badgeStyle = {
+                        display: 'inline-block',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        background: count > 0 ? '#2e7d32' : '#bbb',
+                        color: 'white',
+                        fontSize: 12,
+                        minWidth: 28,
+                        textAlign: 'center'
+                      };
+                      return (
+                        <td className="col-numerica" title={title}>
+                          <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none' }}>
+                            <span style={badgeStyle}>{count}</span>
+                          </Link>
+                        </td>
+                      );
+                    })()}
+                    <td className="col-precio">${producto.precio_venta}</td>
+                  </>
+                )}
+                {(() => {
+                  const stock = Number(producto.stock || 0);
+                  const min = Number(producto.stock_minimo || 0);
+                  let estado = 'OK';
+                  let color = '#2e7d32';
+                  if (stock === 0) { estado = 'Sin Stock'; color = '#b71c1c'; }
+                  else if (min > 0 && stock <= min) { estado = 'Bajo Stock'; color = '#e65100'; }
+                  return <td className="col-estado" style={{ color, fontWeight: 600 }}>{estado}</td>;
+                })()}
                 {isStaff && <td className="col-stock">{producto.stock}</td>}
                 <td className="col-acciones-tabla">
                   <div className="acciones-cell-compactas">
+                    {/* Link 'Ver' eliminado: en válvulas ya se accede desde el Modelo; en guías el badge de Compat abre detalle. */}
                     {(!isStaff || (isStaff && clienteActivo)) && (
                       <div className="cantidad-compacta">
                         <input
@@ -169,23 +233,62 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                 )}
                 <div className="card-info-header">
                   <Link to={`/producto/${producto.id}`}>
-                    <h3>{producto.aplicaciones?.[0]?.modelo_vehiculo || 'Uso General'}</h3>
+                    {esGuiaValvula ? (
+                      <h3>{producto.codigo_interno || 'Guía de válvula'}</h3>
+                    ) : (
+                      <h3>{producto.aplicaciones?.[0]?.modelo_vehiculo || 'Uso General'}</h3>
+                    )}
                   </Link>
                   <span className="card-precio">${producto.precio_venta}</span>
                 </div>
               </div>
               
               <div className="card-specs">
-                <span><strong>Marca:</strong> {producto.aplicaciones?.[0]?.marca_vehiculo_nombre || 'N/A'}</span>
-                <span><strong>Tipo:</strong> {abreviaturasTipo[producto.especificaciones?.tipo] || producto.especificaciones?.tipo || 'N/A'}</span>
-                <span><strong>Cabeza:</strong> {producto.especificaciones?.diametro_cabeza || 'N/A'} mm</span>
-                <span><strong>Vástago:</strong> {producto.especificaciones?.diametro_vastago || 'N/A'} mm</span>
-                <span><strong>Long:</strong> {producto.especificaciones?.longitud_total || 'N/A'} mm</span>
-                <span><strong>Ranuras:</strong> {producto.especificaciones?.ranuras || 'N/A'}</span>
-                {isStaff && <span><strong>Stock:</strong> {producto.stock}</span>}
-                {isStaff && (
-                  <span><strong>TRW:</strong> {producto.numeros_de_parte?.find(part => part.marca === 'TRW')?.numero_de_parte || 'N/A'}</span>
+                {esValvula && (
+                  <>
+                    <span><strong>Marca:</strong> {producto.aplicaciones?.[0]?.marca_vehiculo_nombre || 'N/A'}</span>
+                    <span><strong>Tipo:</strong> {abreviaturasTipo[producto.especificaciones?.tipo] || producto.especificaciones?.tipo || 'N/A'}</span>
+                    <span><strong>Cabeza:</strong> {producto.especificaciones?.diametro_cabeza || 'N/A'} mm</span>
+                    <span><strong>Vástago:</strong> {producto.especificaciones?.diametro_vastago || 'N/A'} mm</span>
+                    <span><strong>Long:</strong> {producto.especificaciones?.longitud_total || 'N/A'} mm</span>
+                    <span><strong>Ranuras:</strong> {producto.especificaciones?.ranuras || 'N/A'}</span>
+                    {isStaff && <span><strong>Stock:</strong> {producto.stock}</span>}
+                    {isStaff && (
+                      <span><strong>TRW:</strong> {producto.numeros_de_parte?.find(part => part.marca === 'TRW')?.numero_de_parte || 'N/A'}</span>
+                    )}
+                  </>
                 )}
+
+                {esGuiaValvula && (() => {
+                  const compat = Array.isArray(producto.valvulas_compatibles) ? producto.valvulas_compatibles : [];
+                  const count = compat.length;
+                  const sample = compat.slice(0, 3).map(v => typeof v === 'object' ? (v.codigo_interno || v.id) : v).join(', ');
+                  const title = count > 0 ? `Primeras: ${sample}${count > 3 ? '…' : ''}` : 'Sin válvulas compatibles';
+                  const badgeStyle = {
+                    display: 'inline-block',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    background: count > 0 ? '#2e7d32' : '#bbb',
+                    color: 'white',
+                    fontSize: 12,
+                    minWidth: 28,
+                    textAlign: 'center'
+                  };
+                  return (
+                    <>
+                      <span><strong>Ext.:</strong> {producto.especificaciones?.diametro_exterior || 'N/A'} mm</span>
+                      <span><strong>Int.:</strong> {producto.especificaciones?.diametro_interior || 'N/A'} mm</span>
+                      <span><strong>Long.:</strong> {producto.especificaciones?.longitud_total || 'N/A'} mm</span>
+                      <span title={title}>
+                        <strong>Compat:</strong> 
+                        <Link to={`/producto/${producto.id}`} style={{ textDecoration: 'none', marginLeft: 6 }}>
+                          <span style={badgeStyle}>{count}</span>
+                        </Link>
+                      </span>
+                      {isStaff && <span><strong>Stock:</strong> {producto.stock}</span>}
+                    </>
+                  );
+                })()}
               </div>
 
               {(!isStaff || (isStaff && clienteActivo)) && (

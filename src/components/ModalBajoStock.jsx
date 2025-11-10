@@ -118,3 +118,6 @@ function ModalBajoStock({ isOpen, onClose, tiposProductos, token, onGenerarPDF }
 
 export default ModalBajoStock;
 
+
+
+

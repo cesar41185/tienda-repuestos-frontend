@@ -12,6 +12,19 @@ import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
 
 function TiendaPage() {
+  // Router helpers (antes de inicializar estados que dependen de 'tipo')
+  const { tipo } = useParams();
+  const navigate = useNavigate();
+
+  // Mapear URL a tipo de producto válido
+  const mapUrlToTipo = (urlTipo) => {
+    const t = urlTipo?.toLowerCase();
+    if (t === 'guia-valvula') return 'GUIA_VALVULA';
+    if (t === 'valvula') return 'VALVULA';
+    return urlTipo?.toUpperCase();
+  };
+
+  const initialTipoSeleccionado = tipo ? mapUrlToTipo(tipo) : null;
   // --- ESTADOS (actualizados a 'producto') ---
   const [productos, setProductos] = useState([]);
   const [marcas, setMarcas] = useState([]);
@@ -27,20 +40,21 @@ function TiendaPage() {
   const [cantidades, setCantidades] = useState({});
   const [crearAbierto, setCrearAbierto] = useState(false);
 
-  // Router helpers
-  const { tipo } = useParams();
-  const navigate = useNavigate();
-
   // --- NUEVO: estado de vista (grilla de tipos o lista) ---
   const [vistaTienda, setVistaTienda] = useState(tipo ? 'list' : 'grid'); // 'grid' | 'list'
-  const [tipoSeleccionado, setTipoSeleccionado] = useState(tipo ? tipo.toUpperCase() : null); // p.ej. 'VALVULA'
+  const [tipoSeleccionado, setTipoSeleccionado] = useState(initialTipoSeleccionado); // p.ej. 'VALVULA'
   
   // --- FUNCIONES (actualizadas a 'producto') ---
   const buscarProductos = async (url = null) => {
     setCargando(true);
     let finalUrl = url;
     if (!finalUrl) {
-      const params = new URLSearchParams(currentFilters);
+      // Enforce tipo seleccionado desde la ruta aunque existan filtros guardados
+      const filtros = { ...currentFilters };
+      if (tipoSeleccionado) {
+        filtros.tipo_producto = tipoSeleccionado;
+      }
+      const params = new URLSearchParams(filtros);
       const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
       params.append('ordering', ordering);
       finalUrl = `${API_URL}/productos/?${params.toString()}`;
@@ -60,11 +74,10 @@ function TiendaPage() {
   };
   
   const handleFilterSearch = (filtros) => {
-    setCurrentFilters(filtros);
-    const params = new URLSearchParams(filtros);
-    const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
-    params.append('ordering', ordering);
-    buscarProductos(`${API_URL}/productos/?${params.toString()}`);
+    // Fuerza el tipo de producto activo para evitar que en guías se muestren válvulas
+    const filtrosConTipo = tipoSeleccionado ? { ...filtros, tipo_producto: tipoSeleccionado } : { ...filtros };
+    setCurrentFilters(filtrosConTipo);
+    // No llamamos buscarProductos aquí para evitar condiciones de carrera; el useEffect de currentFilters hará la búsqueda con orden aplicado
   };
 
   const onProductoCreado = (nuevo) => {
@@ -398,7 +411,7 @@ function TiendaPage() {
           )}
         </div>
       </div>
-      <Buscador onBuscar={handleFilterSearch} marcas={marcas} />
+  <Buscador onBuscar={handleFilterSearch} marcas={marcas} tipoProducto={tipoSeleccionado} />
       <TablaResultados 
         productos={productos} // Pasamos 'productos'
         cargando={cargando} 
@@ -411,6 +424,19 @@ function TiendaPage() {
         onAddToCart={handleAddToCartWrapper}
         tipoProducto={tipoSeleccionado}
       />
+      {!cargando && productos.length === 0 && vistaTienda === 'list' && (
+        <div style={{ marginTop: 16, color: '#666' }}>
+          {tipoSeleccionado === 'GUIA_VALVULA' && (
+            <p>No hay guías de válvula registradas todavía.</p>
+          )}
+          {tipoSeleccionado && tipoSeleccionado !== 'GUIA_VALVULA' && (
+            <p>No hay productos para el tipo seleccionado.</p>
+          )}
+          {user && user.groups?.includes('Administrador') && (
+            <button className="btn" onClick={() => setCrearAbierto(true)}>Crear nuevo producto</button>
+          )}
+        </div>
+      )}
       <div className="pagination-controls">
         <span>Total: {pageInfo.count} productos</span>
         <div>

@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 
-function Buscador({ onBuscar, marcas }) {
+function Buscador({ onBuscar, marcas, tipoProducto }) {
   // Restaurar filtros desde localStorage al montar
   const getInitialValue = (key, defaultValue = '') => {
     try {
@@ -26,17 +26,35 @@ function Buscador({ onBuscar, marcas }) {
   const [cabezaMax, setCabezaMax] = useState(() => getInitialValue('diametro_cabeza_max'));
   const [longitudMin, setLongitudMin] = useState(() => getInitialValue('longitud_total_min'));
   const [longitudMax, setLongitudMax] = useState(() => getInitialValue('longitud_total_max'));
+  // Guías
+  const [extMin, setExtMin] = useState(() => getInitialValue('diametro_exterior_min'));
+  const [extMax, setExtMax] = useState(() => getInitialValue('diametro_exterior_max'));
+  const [intMin, setIntMin] = useState(() => getInitialValue('diametro_interior_min'));
+  const [intMax, setIntMax] = useState(() => getInitialValue('diametro_interior_max'));
   const [busquedaGeneral, setBusquedaGeneral] = useState(() => getInitialValue('search'));
 
+  const esGuia = tipoProducto === 'GUIA_VALVULA';
+
   // Variable para saber si hay algún filtro activo y mostrar la escoba
-  const isFilterActive = useMemo(() => 
-    busquedaGeneral || tipo || marca || ranuras || vastagoMin || vastagoMax || cabezaMin || cabezaMax || longitudMin || longitudMax,
-    [busquedaGeneral, tipo, marca, ranuras, vastagoMin, vastagoMax, cabezaMin, cabezaMax, longitudMin, longitudMax]
-  );
+  const isFilterActive = useMemo(() => {
+    if (esGuia) {
+      return busquedaGeneral || marca || extMin || extMax || intMin || intMax || longitudMin || longitudMax;
+    }
+    return busquedaGeneral || tipo || marca || ranuras || vastagoMin || vastagoMax || cabezaMin || cabezaMax || longitudMin || longitudMax;
+  }, [esGuia, busquedaGeneral, tipo, marca, ranuras, vastagoMin, vastagoMax, cabezaMin, cabezaMax, longitudMin, longitudMax, extMin, extMax, intMin, intMax]);
 
   // Función para enviar los filtros a la página principal
   const handleBuscarClick = () => {
-    const filtros = {
+    const filtros = esGuia ? {
+      search: busquedaGeneral,
+      marca_vehiculo: marca,
+      diametro_exterior_min: extMin,
+      diametro_exterior_max: extMax,
+      diametro_interior_min: intMin,
+      diametro_interior_max: intMax,
+      longitud_total_min: longitudMin,
+      longitud_total_max: longitudMax,
+    } : {
       search: busquedaGeneral,
       tipo,
       marca_vehiculo: marca,
@@ -68,6 +86,10 @@ function Buscador({ onBuscar, marcas }) {
     setCabezaMax('');
     setLongitudMin('');
     setLongitudMax('');
+    setExtMin('');
+    setExtMax('');
+    setIntMin('');
+    setIntMax('');
     setBusquedaGeneral('');
     onBuscar({}); // Envía una búsqueda sin filtros
   };
@@ -102,20 +124,37 @@ function Buscador({ onBuscar, marcas }) {
 
       {showAdvanced && (
         <div className="advanced-filters-grid">
-          <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-            <option value="">-- Tipo --</option>
-            <option value="INTAKE">Admisión</option>
-            <option value="EXHAUST">Escape</option>
-          </select>
+          {/* Marca aplica a ambos */}
           <select value={marca} onChange={(e) => setMarca(e.target.value)}>
             <option value="">-- Marca Vehículo --</option>
             {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
           </select>
-          <input type="number" placeholder="Ranuras" value={ranuras} onChange={(e) => setRanuras(e.target.value)} />
-          <input type="number" placeholder="Vástago Mín (mm)" value={vastagoMin} onChange={(e) => setVastagoMin(e.target.value)} />
-          <input type="number" placeholder="Vástago Máx (mm)" value={vastagoMax} onChange={(e) => setVastagoMax(e.target.value)} />
-          <input type="number" placeholder="Cabeza Mín (mm)" value={cabezaMin} onChange={(e) => setCabezaMin(e.target.value)} />
-          <input type="number" placeholder="Cabeza Máx (mm)" value={cabezaMax} onChange={(e) => setCabezaMax(e.target.value)} />
+
+          {!esGuia && (
+            <>
+              <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                <option value="">-- Tipo --</option>
+                <option value="INTAKE">Admisión</option>
+                <option value="EXHAUST">Escape</option>
+              </select>
+              <input type="number" placeholder="Ranuras" value={ranuras} onChange={(e) => setRanuras(e.target.value)} />
+              <input type="number" placeholder="Vástago Mín (mm)" value={vastagoMin} onChange={(e) => setVastagoMin(e.target.value)} />
+              <input type="number" placeholder="Vástago Máx (mm)" value={vastagoMax} onChange={(e) => setVastagoMax(e.target.value)} />
+              <input type="number" placeholder="Cabeza Mín (mm)" value={cabezaMin} onChange={(e) => setCabezaMin(e.target.value)} />
+              <input type="number" placeholder="Cabeza Máx (mm)" value={cabezaMax} onChange={(e) => setCabezaMax(e.target.value)} />
+            </>
+          )}
+
+          {esGuia && (
+            <>
+              <input type="number" placeholder="Ext. Mín (mm)" value={extMin} onChange={(e) => setExtMin(e.target.value)} />
+              <input type="number" placeholder="Ext. Máx (mm)" value={extMax} onChange={(e) => setExtMax(e.target.value)} />
+              <input type="number" placeholder="Int. Mín (mm)" value={intMin} onChange={(e) => setIntMin(e.target.value)} />
+              <input type="number" placeholder="Int. Máx (mm)" value={intMax} onChange={(e) => setIntMax(e.target.value)} />
+            </>
+          )}
+
+          {/* Longitud aplica a ambos */}
           <input type="number" placeholder="Longitud Mín (mm)" value={longitudMin} onChange={(e) => setLongitudMin(e.target.value)} />
           <input type="number" placeholder="Longitud Máx (mm)" value={longitudMax} onChange={(e) => setLongitudMax(e.target.value)} />
         </div>

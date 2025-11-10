@@ -21,6 +21,14 @@ const CAMPOS_POR_TIPO = {
       { name: 'distancia_primera_ranura', label: 'Distancia Ranura (mm)', type: 'number' },
     ]
   },
+  GUIA_VALVULA: {
+    titulo: 'Guía de Válvula',
+    campos: [
+      { name: 'diametro_exterior', label: 'Diám. Exterior (mm)', type: 'number' },
+      { name: 'diametro_interior', label: 'Diám. Interior (mm)', type: 'number' },
+      { name: 'longitud_total', label: 'Longitud (mm)', type: 'number' },
+    ]
+  },
   FILTRO: {
     titulo: 'Filtro',
     campos: [
@@ -102,6 +110,12 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     ano_hasta: '',
     cantidad_valvulas: ''
   });
+
+  // Búsqueda y selección de aplicaciones existentes
+  const [buscaMarcaExistente, setBuscaMarcaExistente] = useState('');
+  const [buscaModeloExistente, setBuscaModeloExistente] = useState('');
+  const [resultadosAplicaciones, setResultadosAplicaciones] = useState([]);
+  const [cargandoAplicaciones, setCargandoAplicaciones] = useState(false);
 
   // Marca para sugerir código (solo en creación de válvulas)
   const [marcaIdParaCodigo, setMarcaIdParaCodigo] = useState('');
@@ -213,10 +227,17 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
         method = 'PATCH';
       }
       
+      // Limitar las especificaciones a las llaves definidas para el tipo actual
+      const allowedSpecKeys = (CAMPOS_POR_TIPO[formData.tipo_producto]?.campos || []).map(c => c.name);
+      const filteredSpecs = Object.fromEntries(
+        Object.entries(formData.especificaciones || {}).filter(([k]) => allowedSpecKeys.includes(k))
+      );
+      const payload = { ...formData, especificaciones: filteredSpecs };
+
       const response = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       
       if (!response.ok) {
@@ -322,7 +343,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       }
       
       // También llamar a onRefresh para actualizar la lista si es necesario
-      onRefresh();
+  onRefresh?.();
       
       // Limpiar el input de archivo
       e.target.value = '';
@@ -352,7 +373,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
           setFormData(prev => ({ ...prev, fotos: productoActualizado.fotos }));
         }
         
-        onRefresh();
+  onRefresh?.();
       } else {
         toast.error('Error al eliminar la foto.');
       }
@@ -475,7 +496,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
         toast.error('Error al recargar las fotos.');
       }
       
-      onRefresh();
+  onRefresh?.();
     } catch (error) {
       toast.dismiss();
       toast.error('Error al subir las imágenes pegadas.');
@@ -539,7 +560,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
         toast.error('Error al recargar las fotos.');
       }
       
-      onRefresh();
+  onRefresh?.();
     } catch (error) {
       toast.dismiss();
       toast.error('Error al subir las imágenes.');
@@ -560,7 +581,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       body: JSON.stringify(data),
     });
     setNuevaReferencia({ marca: '', numero_de_parte: '' });
-    onRefresh();
+  onRefresh?.();
   };
 
   const handleDeleteReferencia = async (id) => {
@@ -569,7 +590,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       headers: { 'Authorization': `Token ${token}` }
     });
     toast.success('Referencia eliminada.');
-    onRefresh();
+  onRefresh?.();
   };
 
   const handleAddAplicacion = async (e) => {
@@ -652,10 +673,83 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       
       toast.success('Aplicación agregada exitosamente.');
       setNuevaAplicacion({ marca_vehiculo: '', modelo_vehiculo: '', cilindrada: '', cantidad_cilindros: '', detalle_motor: '', ano_desde: '', ano_hasta: '', cantidad_valvulas: '' });
-      onRefresh();
+  onRefresh?.();
     } catch (error) {
       console.error('Error al agregar aplicación:', error);
       toast.error('Error al agregar la aplicación. Por favor, intente nuevamente.');
+    }
+  };
+
+  const buscarAplicacionesExistentes = async () => {
+    setCargandoAplicaciones(true);
+    try {
+      const params = new URLSearchParams();
+      if (buscaModeloExistente) params.append('search', buscaModeloExistente);
+      if (buscaMarcaExistente) params.append('marca_vehiculo', buscaMarcaExistente);
+      const url = `${API_URL}/aplicaciones/?${params.toString()}`;
+      const resp = await fetch(url);
+      const data = await resp.json().catch(() => ({}));
+      const items = Array.isArray(data) ? data : (data.results || []);
+      setResultadosAplicaciones(items.slice(0, 25)); // limitar para UI
+    } catch (e) {
+      console.error('Error buscando aplicaciones existentes:', e);
+      toast.error('No se pudieron cargar aplicaciones.');
+    } finally {
+      setCargandoAplicaciones(false);
+    }
+  };
+
+  const handleAgregarAplicacionExistente = async (aplicacion) => {
+    if (!producto) {
+      toast.error('Primero guarda el producto.');
+      return;
+    }
+    // Evitar duplicados básicos por marca+modelo en el mismo producto
+    const marcaIdAplicacion = aplicacion.marca_vehiculo_id || aplicacion.marca_vehiculo;
+    const yaExiste = (formData.aplicaciones || []).some(a => {
+      const aMarcaId = a.marca_vehiculo_id || a.marca_vehiculo;
+      return String(aMarcaId) === String(marcaIdAplicacion) && String(a.modelo_vehiculo).trim().toLowerCase() === String(aplicacion.modelo_vehiculo).trim().toLowerCase();
+    });
+    if (yaExiste) {
+      toast('Ya existe una aplicación con esa Marca y Modelo en este producto.');
+      return;
+    }
+    try {
+      const payload = {
+        producto: producto.id,
+        marca_vehiculo: marcaIdAplicacion,
+        modelo_vehiculo: aplicacion.modelo_vehiculo,
+        cilindrada: aplicacion.cilindrada ?? null,
+        cantidad_cilindros: aplicacion.cantidad_cilindros ?? null,
+        detalle_motor: aplicacion.detalle_motor || '',
+        ano_desde: aplicacion.ano_desde ?? null,
+        ano_hasta: aplicacion.ano_hasta ?? null,
+        cantidad_valvulas: aplicacion.cantidad_valvulas ?? 1
+      };
+      const resp = await fetch(`${API_URL}/aplicaciones/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
+        body: JSON.stringify(payload)
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || 'No se pudo añadir la aplicación existente');
+      }
+      toast.success('Aplicación añadida');
+      // Refrescar lista local de aplicaciones del producto
+      try {
+        const productoResp = await fetch(`${API_URL}/productos/${producto.id}/`, {
+          headers: { 'Authorization': `Token ${token}` }
+        });
+        if (productoResp.ok) {
+          const productoActualizado = await productoResp.json();
+          setFormData(prev => ({ ...prev, aplicaciones: productoActualizado.aplicaciones }));
+        }
+      } catch {}
+      onRefresh?.();
+    } catch (e) {
+      console.error(e);
+      toast.error(e.message || 'Error al añadir aplicación');
     }
   };
 
@@ -665,7 +759,29 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       headers: { 'Authorization': `Token ${token}` }
     });
     toast.success('Aplicación eliminada.');
-    onRefresh();
+    onRefresh?.();
+  };
+
+  // Fallback interno para eliminar producto si no se pasa onDelete desde el padre
+  const handleDeleteProducto = async () => {
+    if (!producto) return;
+    const confirmar = window.confirm(`¿Seguro que deseas eliminar el producto ${producto.codigo_interno}? Esta acción no se puede deshacer.`);
+    if (!confirmar) return;
+    try {
+      const res = await fetch(`${API_URL}/productos/${producto.id}/`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        throw new Error(errText || 'No se pudo eliminar el producto');
+      }
+      toast.success('Producto eliminado');
+      onClose?.();
+      onRefresh?.();
+    } catch (e) {
+      toast.error(e.message || 'Error al eliminar el producto');
+    }
   };
 
   const renderCamposEspecificos = () => {
@@ -730,13 +846,18 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
               <div className="form-grid">
                 <div>
                   <label>Tipo de Producto:</label>
-                  <select name="tipo_producto" value={formData.tipo_producto || 'VALVULA'} onChange={handleChange}>
-                    <option value="VALVULA">Válvula</option>
-                    <option value="FILTRO">Filtro</option>
-                    <option value="BUJIA">Bujía</option>
-                    <option value="CABLE">Cable</option>
-                    <option value="OTRO">Otro</option>
-                  </select>
+                  {modoCrear ? (
+                    <select name="tipo_producto" value={formData.tipo_producto || 'VALVULA'} onChange={handleChange}>
+                      <option value="VALVULA">Válvula</option>
+                      <option value="GUIA_VALVULA">Guía Válvula</option>
+                      <option value="FILTRO">Filtro</option>
+                      <option value="BUJIA">Bujía</option>
+                      <option value="CABLE">Cable</option>
+                      <option value="OTRO">Otro</option>
+                    </select>
+                  ) : (
+                    <input type="text" value={formData.tipo_producto} readOnly style={{background:'#eee'}} />
+                  )}
                 </div>
                 {modoCrear && formData.tipo_producto === 'VALVULA' && (
                   <>
@@ -907,6 +1028,49 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                 </li>
               ))}
             </ul><hr />
+            <h4>Agregar desde catálogo</h4>
+            <div className="catalogo-aplicaciones-busqueda" style={{display:'grid', gap:'8px', gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))'}}>
+              <select value={buscaMarcaExistente} onChange={(e)=>setBuscaMarcaExistente(e.target.value)}>
+                <option value="">-- Marca --</option>
+                {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+              </select>
+              <input type="text" placeholder="Modelo contiene..." value={buscaModeloExistente} onChange={(e)=>setBuscaModeloExistente(e.target.value)} />
+              <button type="button" onClick={buscarAplicacionesExistentes} disabled={cargandoAplicaciones}>
+                {cargandoAplicaciones ? 'Buscando...' : 'Buscar'}
+              </button>
+            </div>
+            <div className="resultados-aplicaciones" style={{marginTop:'10px'}}>
+              {resultadosAplicaciones.length === 0 && !cargandoAplicaciones && <p style={{color:'#666'}}>Sin resultados (ajusta filtros).</p>}
+              {resultadosAplicaciones.length > 0 && (
+                <table style={{width:'100%', fontSize:'0.85rem'}}>
+                  <thead>
+                    <tr>
+                      <th>Marca</th>
+                      <th>Modelo</th>
+                      <th>Años</th>
+                      <th>Cil.</th>
+                      <th>Motor</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultadosAplicaciones.map(app => (
+                      <tr key={app.id}>
+                        <td>{app.marca_vehiculo_nombre || app.marca_vehiculo}</td>
+                        <td>{app.modelo_vehiculo}</td>
+                        <td>{app.ano_desde || app.ano_hasta ? `${app.ano_desde || '?'}-${app.ano_hasta || '?'}` : '—'}</td>
+                        <td>{app.cantidad_cilindros || '—'}</td>
+                        <td>{app.detalle_motor || '—'}</td>
+                        <td>
+                          <button type="button" onClick={()=>handleAgregarAplicacionExistente(app)} title="Agregar al producto">➕</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <hr />
             <h4>Añadir Nueva Aplicación</h4>
             <form onSubmit={handleAddAplicacion} className="add-form">
               <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange} required>
@@ -930,7 +1094,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
 
         <div className="modal-actions">
           {!modoCrear && (
-            <button type="button" className="btn btn-danger" onClick={() => onDelete(producto.id)}>
+            <button type="button" className="btn btn-danger" onClick={() => (typeof onDelete === 'function' ? onDelete(producto.id) : handleDeleteProducto())}>
               Eliminar Producto
             </button>
           )}
