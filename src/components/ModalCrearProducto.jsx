@@ -28,6 +28,7 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
   const [tipoProducto, setTipoProducto] = useState('VALVULA');
   const [codigoInterno, setCodigoInterno] = useState('');
   const [stock, setStock] = useState('0');
+  const [peso, setPeso] = useState('');
   const [precioCosto, setPrecioCosto] = useState('0');
   const [precioVenta, setPrecioVenta] = useState('0');
   const [observaciones, setObservaciones] = useState('');
@@ -221,6 +222,10 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
     formData.append('tipo_producto', tipoProducto);
     formData.append('codigo_interno', codigoInterno);
     formData.append('stock', Number(stock || 0));
+    if (peso !== '' && peso !== null && typeof peso !== 'undefined') {
+      const p = parseFloat(peso);
+      if (!isNaN(p)) formData.append('peso', String(p));
+    }
     formData.append('precio_costo', Number(precioCosto || 0));
     formData.append('precio_venta', Number(precioVenta || 0));
     formData.append('observaciones', observaciones);
@@ -339,6 +344,10 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
               <input value={codigoInterno} onChange={(e) => setCodigoInterno(e.target.value)} readOnly placeholder="Seleccione marca para sugerir" />
             </div>
             <div><label>Stock:</label><input value={stock} onChange={(e) => setStock(e.target.value)} /></div>
+            <div>
+              <label>Peso (g):</label>
+              <input value={peso} onChange={(e) => setPeso(e.target.value)} type="number" step="0.01" placeholder="Opcional" />
+            </div>
             <div><label>Precio Costo:</label><input value={precioCosto} onChange={(e) => setPrecioCosto(e.target.value)} /></div>
             <div><label>Precio Venta:</label><input value={precioVenta} onChange={(e) => setPrecioVenta(e.target.value)} /></div>
             <div style={{ gridColumn: '1 / -1' }}>

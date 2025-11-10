@@ -142,6 +142,11 @@ function ProductoPage() {
           </div>
 
           <h3>Especificaciones Técnicas</h3>
+          {producto.peso != null && (
+            <ul>
+              <li><strong>Peso:</strong> {producto.peso} g</li>
+            </ul>
+          )}
           {producto.tipo_producto === 'VALVULA' && (
             <ul>
               <li><strong>Tipo:</strong> {producto.especificaciones?.tipo || 'N/D'}</li>

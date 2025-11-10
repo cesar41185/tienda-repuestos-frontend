@@ -89,6 +89,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     categoria: null,
     stock: '',
     stock_minimo: '',
+    peso: '',
     precio_costo: '',
     precio_venta: '',
     observaciones: '',
@@ -232,7 +233,11 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       const filteredSpecs = Object.fromEntries(
         Object.entries(formData.especificaciones || {}).filter(([k]) => allowedSpecKeys.includes(k))
       );
-      const payload = { ...formData, especificaciones: filteredSpecs };
+      // Normalizar peso: enviar null si vacío, número si válido
+      const pesoNormalizado = (formData.peso === '' || formData.peso === null || typeof formData.peso === 'undefined')
+        ? null
+        : parseFloat(formData.peso);
+      const payload = { ...formData, especificaciones: filteredSpecs, peso: isNaN(pesoNormalizado) ? null : pesoNormalizado };
 
       const response = await fetch(url, {
         method: method,
@@ -888,6 +893,17 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                     <div><label>Precio Venta:</label><input name="precio_venta" type="number" step="0.01" value={formData.precio_venta || ''} onChange={handleChange} /></div>
                   </>
                 )}
+                        <div>
+                          <label>Peso (g):</label>
+                          <input
+                            name="peso"
+                            type="number"
+                            step="0.01"
+                            placeholder="Opcional"
+                            value={formData.peso ?? ''}
+                            onChange={handleChange}
+                          />
+                        </div>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label>Observaciones:</label>
                   <textarea name="observaciones" value={formData.observaciones || ''} onChange={handleChange} rows="3" />
