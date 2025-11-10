@@ -36,6 +36,7 @@ function TiendaPage() {
   const [pageMeta, setPageMeta] = useState({ current: 1, total: 1, size: 0 });
   const [missingPhotoCount, setMissingPhotoCount] = useState(null);
   const [countingMissing, setCountingMissing] = useState(false);
+  const [showOnlyNoPhoto, setShowOnlyNoPhoto] = useState(false);
   const [currentFilters, setCurrentFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'codigo_interno', direction: 'ascending' });
   const { agregarAlCarrito } = useCarrito();
@@ -56,6 +57,29 @@ function TiendaPage() {
     } catch { return null; }
   };
 
+  // Utilidad: recorrer todas las páginas con filtros actuales
+  const fetchAllForCurrentFilters = async () => {
+    const filtros = { ...currentFilters };
+    if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
+    const params = new URLSearchParams(filtros);
+    const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
+    params.append('ordering', ordering);
+    params.append('page_size', '200');
+    let url = `${API_URL}/productos/?${params.toString()}`;
+    const all = [];
+    let loops = 0;
+    while (url && loops < 200) {
+      const res = await fetch(url);
+      if (!res.ok) break;
+      const data = await res.json();
+      const arr = Array.isArray(data) ? data : (data.results || []);
+      all.push(...arr);
+      url = data.next || null;
+      loops += 1;
+    }
+    return all;
+  };
+
   const buscarProductos = async (url = null) => {
     setCargando(true);
     let finalUrl = url;
@@ -71,6 +95,17 @@ function TiendaPage() {
       finalUrl = `${API_URL}/productos/?${params.toString()}`;
     }
     try {
+      // Si estamos en modo "solo sin foto", ignoramos next/previous y construimos dataset completo filtrado
+      if (showOnlyNoPhoto) {
+        const all = await fetchAllForCurrentFilters();
+        const filtered = all.filter(p => !p.fotos || p.fotos.length === 0);
+        setProductos(filtered);
+        setPageInfo({ count: filtered.length, next: null, previous: null });
+        setPageMeta({ current: 1, total: 1, size: filtered.length });
+        // actualizar indicador si procede
+        setMissingPhotoCount(filtered.length);
+        return filtered;
+      }
       const response = await fetch(finalUrl);
       const data = await response.json();
       setProductos(data.results || []);
@@ -499,7 +534,7 @@ function TiendaPage() {
           )}
         </div>
       )}
-      <div className="pagination-controls">
+      <div className="pagination-controls" style={{ display:'flex', gap:12, alignItems:'center', flexWrap:'wrap' }}>
         <span>
           Total: {pageInfo.count} productos
           {pageMeta.total > 1 && (
@@ -513,6 +548,18 @@ function TiendaPage() {
           <button onClick={() => buscarProductos(pageInfo.previous)} disabled={!pageInfo.previous}>Anterior</button>
           <button onClick={() => buscarProductos(pageInfo.next)} disabled={!pageInfo.next}>Siguiente</button>
         </div>
+        <label style={{ display:'flex', alignItems:'center', gap:6 }} title="Mostrar solo productos sin fotos (según filtros)">
+          <input
+            type="checkbox"
+            checked={showOnlyNoPhoto}
+            onChange={async (e) => {
+              setShowOnlyNoPhoto(e.target.checked);
+              // forzar carga acorde al estado
+              await buscarProductos();
+            }}
+          />
+          Solo sin foto
+        </label>
       </div>
 
       {isModalOpen && (
