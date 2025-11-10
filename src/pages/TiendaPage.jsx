@@ -33,6 +33,9 @@ function TiendaPage() {
   const [productoParaEditar, setProductoParaEditar] = useState(null);
   const [fotoParaAmpliar, setFotoParaAmpliar] = useState(null);
   const [pageInfo, setPageInfo] = useState({ count: 0, next: null, previous: null });
+  const [pageMeta, setPageMeta] = useState({ current: 1, total: 1, size: 0 });
+  const [missingPhotoCount, setMissingPhotoCount] = useState(null);
+  const [countingMissing, setCountingMissing] = useState(false);
   const [currentFilters, setCurrentFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'codigo_interno', direction: 'ascending' });
   const { agregarAlCarrito } = useCarrito();
@@ -45,6 +48,14 @@ function TiendaPage() {
   const [tipoSeleccionado, setTipoSeleccionado] = useState(initialTipoSeleccionado); // p.ej. 'VALVULA'
   
   // --- FUNCIONES (actualizadas a 'producto') ---
+  const getQueryParam = (urlStr, key) => {
+    try {
+      if (!urlStr) return null;
+      const u = new URL(urlStr);
+      return u.searchParams.get(key);
+    } catch { return null; }
+  };
+
   const buscarProductos = async (url = null) => {
     setCargando(true);
     let finalUrl = url;
@@ -64,12 +75,55 @@ function TiendaPage() {
       const data = await response.json();
       setProductos(data.results || []);
       setPageInfo({ count: data.count, next: data.next, previous: data.previous });
+      // Derivar metadatos de paginación
+      const psFromUrl = parseInt(getQueryParam(data.next || data.previous, 'page_size') || '0', 10);
+      const pageSize = psFromUrl > 0 ? psFromUrl : (Array.isArray(data.results) ? data.results.length : 0);
+      let currentPage = 1;
+      if (data.next) {
+        const nextPage = parseInt(getQueryParam(data.next, 'page') || '2', 10);
+        currentPage = Math.max(1, nextPage - 1);
+      } else if (data.previous) {
+        const prevPage = parseInt(getQueryParam(data.previous, 'page') || '1', 10);
+        currentPage = prevPage + 1;
+      }
+      const totalPages = pageSize > 0 && data.count ? Math.ceil(data.count / pageSize) : 1;
+      setPageMeta({ current: currentPage, total: totalPages, size: pageSize });
       return data.results; // Devuelve los datos para que onRefresh funcione
     } catch (error) {
       console.error("Error al buscar productos:", error);
       setProductos([]);
     } finally {
       setCargando(false);
+    }
+  };
+
+  // Contar productos sin foto para los filtros actuales (momentáneo)
+  const contarSinFoto = async () => {
+    setCountingMissing(true);
+    try {
+      const filtros = { ...currentFilters };
+      if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
+      const params = new URLSearchParams(filtros);
+      // no depende de orden
+      params.append('page_size', '200');
+      let url = `${API_URL}/productos/?${params.toString()}`;
+
+      let count = 0;
+      let loops = 0;
+      while (url && loops < 50) { // tope de seguridad
+        const res = await fetch(url);
+        if (!res.ok) break;
+        const data = await res.json();
+        const arr = Array.isArray(data) ? data : (data.results || []);
+        count += arr.filter(p => !p.fotos || p.fotos.length === 0).length;
+        url = data.next || null;
+        loops += 1;
+      }
+      setMissingPhotoCount(count);
+    } catch (e) {
+      setMissingPhotoCount(null);
+    } finally {
+      setCountingMissing(false);
     }
   };
   
@@ -181,6 +235,14 @@ function TiendaPage() {
       buscarProductos();
     }
   }, [sortConfig, currentFilters]); // Se ejecuta al ordenar y al filtrar
+
+  // Recalcular conteo sin foto cuando cambian filtros o tipo
+  useEffect(() => {
+    if (vistaTienda === 'list') {
+      contarSinFoto();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFilters, tipoSeleccionado, vistaTienda]);
 
   // Guardar filtros en localStorage cuando cambian
   useEffect(() => {
@@ -438,7 +500,15 @@ function TiendaPage() {
         </div>
       )}
       <div className="pagination-controls">
-        <span>Total: {pageInfo.count} productos</span>
+        <span>
+          Total: {pageInfo.count} productos
+          {pageMeta.total > 1 && (
+            <> · Página {pageMeta.current} de {pageMeta.total}</>
+          )}
+          {missingPhotoCount !== null && (
+            <> · Sin foto: {missingPhotoCount} {countingMissing && <span style={{color:'#888'}}> (calc...)</span>}</>
+          )}
+        </span>
         <div>
           <button onClick={() => buscarProductos(pageInfo.previous)} disabled={!pageInfo.previous}>Anterior</button>
           <button onClick={() => buscarProductos(pageInfo.next)} disabled={!pageInfo.next}>Siguiente</button>
