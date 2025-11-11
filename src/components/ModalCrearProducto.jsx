@@ -232,18 +232,25 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
     // Especificaciones como JSON string
     let espec = {};
     if (tipoProducto === 'VALVULA') {
+      const dc = parseFloat(esp.diametro_cabeza);
+      const dv = parseFloat(esp.diametro_vastago);
+      const lt = parseFloat(esp.longitud_total);
+      const ran = parseFloat(esp.ranuras);
       espec = {
         tipo: esp.tipo,
-        diametro_cabeza: Number(esp.diametro_cabeza),
-        diametro_vastago: Number(esp.diametro_vastago),
-        longitud_total: Number(esp.longitud_total),
-        ranuras: esp.ranuras !== '' ? Number(esp.ranuras) : null,
+        diametro_cabeza: !isNaN(dc) ? dc : null,
+        diametro_vastago: !isNaN(dv) ? dv : null,
+        longitud_total: !isNaN(lt) ? lt : null,
+        ranuras: !isNaN(ran) ? ran : null,
       };
     } else if (tipoProducto === 'GUIA_VALVULA') {
+      const de = parseFloat(esp.diametro_exterior);
+      const di = parseFloat(esp.diametro_interior);
+      const lt = parseFloat(esp.longitud_total);
       espec = {
-        diametro_exterior: Number(esp.diametro_exterior),
-        diametro_interior: Number(esp.diametro_interior),
-        longitud_total: Number(esp.longitud_total),
+        diametro_exterior: !isNaN(de) ? de : null,
+        diametro_interior: !isNaN(di) ? di : null,
+        longitud_total: !isNaN(lt) ? lt : null,
       };
     }
     formData.append('especificaciones', JSON.stringify(espec));
@@ -487,11 +494,16 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
                         }}
                       >
                         {loadingValvulas && <option value="" disabled>Cargando...</option>}
-                        {!loadingValvulas && opcionesValvulas.slice(0, 200).map(v => (
-                          <option key={v.id} value={v.id}>
-                            {`${v.codigo_interno} — ${(v.aplicaciones?.[0]?.marca_vehiculo?.nombre || '')} ${(v.aplicaciones?.[0]?.modelo_vehiculo || '')}`}
-                          </option>
-                        ))}
+                        {!loadingValvulas && opcionesValvulas.slice(0, 200).map(v => {
+                          const tipoValvula = v.especificaciones?.tipo === 'INTAKE' ? 'Adm' : v.especificaciones?.tipo === 'EXHAUST' ? 'Esc' : '';
+                          const marca = v.aplicaciones?.[0]?.marca_vehiculo?.nombre || '';
+                          const modelo = v.aplicaciones?.[0]?.modelo_vehiculo || '';
+                          return (
+                            <option key={v.id} value={v.id}>
+                              {`${v.codigo_interno} — ${tipoValvula ? `[${tipoValvula}] ` : ''}${marca} ${modelo}`}
+                            </option>
+                          );
+                        })}
                       </select>
                     );
                   })()}
