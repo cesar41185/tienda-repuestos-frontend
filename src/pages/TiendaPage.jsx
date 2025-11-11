@@ -99,6 +99,10 @@ function TiendaPage() {
     }
     const controller = new AbortController();
     activeFetchRef.current = controller;
+    
+    // Determinar modo 'solo sin foto' con posible override (para evitar el retraso de setState)
+    const onlyNoPhoto = overrideOnlyNoPhoto !== null ? overrideOnlyNoPhoto : showOnlyNoPhoto;
+    
     let finalUrl = url;
     if (!finalUrl) {
       // Enforce tipo seleccionado desde la ruta aunque existan filtros guardados
@@ -109,42 +113,24 @@ function TiendaPage() {
       const params = new URLSearchParams(filtros);
       const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
       params.append('ordering', ordering);
+      if (onlyNoPhoto) params.append('has_photo', 'false');
+      finalUrl = `${API_URL}/productos/?${params.toString()}`;
+    } else if (onlyNoPhoto && url) {
+      // Si viene una URL explícita (next/previous) y estamos en modo sin foto,
+      // necesitamos extraer el número de página y reconstruir con has_photo=false
+      const pageNum = getQueryParam(url, 'page') || '1';
+      const filtros = { ...currentFilters };
+      if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
+      const params = new URLSearchParams(filtros);
+      const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
+      params.append('ordering', ordering);
+      params.append('has_photo', 'false');
+      if (pageMeta.size && pageMeta.size > 0) params.append('page_size', String(pageMeta.size));
+      params.append('page', pageNum);
       finalUrl = `${API_URL}/productos/?${params.toString()}`;
     }
+    
     try {
-      // Determinar modo 'solo sin foto' con posible override (para evitar el retraso de setState)
-      const onlyNoPhoto = overrideOnlyNoPhoto !== null ? overrideOnlyNoPhoto : showOnlyNoPhoto;
-      // Si estamos en modo "solo sin foto", usamos el filtro backend has_photo=false con paginación normal
-      if (onlyNoPhoto) {
-        // Reconstruir URL con has_photo=false manteniendo filtros y orden
-        const filtros = { ...currentFilters };
-        if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
-        const params = new URLSearchParams(filtros);
-        const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
-        params.append('ordering', ordering);
-        params.append('has_photo', 'false');
-        const noPhotoUrl = `${API_URL}/productos/?${params.toString()}`;
-        const response = await apiFetch(noPhotoUrl, { signal: controller.signal });
-        const data = await response.json();
-        setProductos(data.results || []);
-        setPageInfo({ count: data.count, next: data.next, previous: data.previous });
-        // Derivar metadatos de paginación
-        const psFromUrl = parseInt(getQueryParam(data.next || data.previous, 'page_size') || '0', 10);
-        const pageSize = psFromUrl > 0 ? psFromUrl : (Array.isArray(data.results) ? data.results.length : 0);
-        let currentPage = 1;
-        if (data.next) {
-          const nextPage = parseInt(getQueryParam(data.next, 'page') || '2', 10);
-          currentPage = Math.max(1, nextPage - 1);
-        } else if (data.previous) {
-          const prevPage = parseInt(getQueryParam(data.previous, 'page') || '1', 10);
-          currentPage = prevPage + 1;
-        }
-        const totalPages = pageSize > 0 && data.count ? Math.ceil(data.count / pageSize) : 1;
-        setPageMeta({ current: currentPage, total: totalPages, size: pageSize });
-        setMissingPhotoCount(data.count); // mantener coherente
-        setCargando(false);
-        return data.results;
-      }
       const response = await apiFetch(finalUrl, { signal: controller.signal });
       const data = await response.json();
       setProductos(data.results || []);
@@ -162,6 +148,7 @@ function TiendaPage() {
       }
       const totalPages = pageSize > 0 && data.count ? Math.ceil(data.count / pageSize) : 1;
       setPageMeta({ current: currentPage, total: totalPages, size: pageSize });
+      if (onlyNoPhoto) setMissingPhotoCount(data.count); // mantener coherente en modo sin foto
       return data.results; // Devuelve los datos para que onRefresh funcione
     } catch (error) {
       console.error("Error al buscar productos:", error);
