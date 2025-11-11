@@ -119,6 +119,13 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
   const [resultadosAplicaciones, setResultadosAplicaciones] = useState([]);
   const [cargandoAplicaciones, setCargandoAplicaciones] = useState(false);
 
+  // Búsqueda y selección de válvulas compatibles (para GUIA_VALVULA)
+  const [filtroValvulaEdit, setFiltroValvulaEdit] = useState('');
+  const [filtroNumeroParteEdit, setFiltroNumeroParteEdit] = useState('');
+  const [resultadosValvulas, setResultadosValvulas] = useState([]);
+  const [cargandoValvulas, setCargandoValvulas] = useState(false);
+  const [valvulasActuales, setValvulasActuales] = useState([]);
+
   // Marca para sugerir código (solo en creación de válvulas)
   const [marcaIdParaCodigo, setMarcaIdParaCodigo] = useState('');
 
@@ -157,9 +164,40 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
         ...producto,
         especificaciones: specs
       });
+      
+      // Cargar válvulas compatibles si es una guía de válvula
+      if (producto.tipo_producto === 'GUIA_VALVULA' && producto.valvulas_compatibles) {
+        // Si vienen como IDs, cargar detalles
+        if (Array.isArray(producto.valvulas_compatibles) && producto.valvulas_compatibles.length > 0) {
+          const cargarDetalles = async () => {
+            const idsNumericos = producto.valvulas_compatibles
+              .map(v => typeof v === 'number' ? v : v.id)
+              .filter(Boolean);
+            
+            if (idsNumericos.length > 0) {
+              try {
+                const detalles = await Promise.all(
+                  idsNumericos.map(id => 
+                    fetch(`${API_URL}/productos/${id}/`)
+                      .then(r => r.ok ? r.json() : null)
+                      .catch(() => null)
+                  )
+                );
+                setValvulasActuales(detalles.filter(Boolean));
+              } catch (e) {
+                console.error('Error cargando válvulas compatibles:', e);
+              }
+            }
+          };
+          cargarDetalles();
+        }
+      } else {
+        setValvulasActuales([]);
+      }
     } else {
       setModoCrear(true);
       setFormData(initialState);
+      setValvulasActuales([]);
     }
   }, [producto]);
 
@@ -842,6 +880,97 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     onRefresh?.();
   };
 
+  // Funciones para gestionar válvulas compatibles (solo GUIA_VALVULA)
+  const buscarValvulasParaAgregar = async () => {
+    if (!filtroValvulaEdit.trim() && !filtroNumeroParteEdit.trim()) {
+      toast.error('Ingrese al menos un criterio de búsqueda');
+      return;
+    }
+    
+    setCargandoValvulas(true);
+    try {
+      let url = `${API_URL}/productos/?tipo_producto=VALVULA`;
+      if (filtroValvulaEdit.trim()) url += `&search=${encodeURIComponent(filtroValvulaEdit.trim())}`;
+      if (filtroNumeroParteEdit.trim()) url += `&numero_parte=${encodeURIComponent(filtroNumeroParteEdit.trim())}`;
+      url += `&page_size=50`;
+      
+      const res = await fetch(url, {
+        headers: token ? { 'Authorization': `Token ${token}` } : undefined
+      });
+      if (!res.ok) throw new Error('Error al buscar válvulas');
+      
+      const data = await res.json();
+      const items = Array.isArray(data) ? data : (data.results || []);
+      setResultadosValvulas(items);
+    } catch (e) {
+      console.error('Error buscando válvulas:', e);
+      toast.error('No se pudieron cargar válvulas');
+    } finally {
+      setCargandoValvulas(false);
+    }
+  };
+
+  const agregarValvulaCompatible = async (valvula) => {
+    if (!producto?.id) return;
+    
+    // Verificar si ya está agregada
+    if (valvulasActuales.some(v => v.id === valvula.id)) {
+      toast.error('Esta válvula ya está agregada');
+      return;
+    }
+    
+    try {
+      // Obtener IDs actuales y agregar el nuevo
+      const idsActuales = valvulasActuales.map(v => v.id);
+      const nuevosIds = [...idsActuales, valvula.id];
+      
+      const res = await fetch(`${API_URL}/productos/${producto.id}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        },
+        body: JSON.stringify({ valvulas_compatibles: nuevosIds })
+      });
+      
+      if (!res.ok) throw new Error('Error al actualizar válvulas compatibles');
+      
+      setValvulasActuales(prev => [...prev, valvula]);
+      toast.success('Válvula agregada');
+      onRefresh?.();
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al agregar válvula');
+    }
+  };
+
+  const quitarValvulaCompatible = async (valvulaId) => {
+    if (!producto?.id) return;
+    
+    try {
+      // Filtrar la válvula a quitar
+      const nuevosIds = valvulasActuales.filter(v => v.id !== valvulaId).map(v => v.id);
+      
+      const res = await fetch(`${API_URL}/productos/${producto.id}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        },
+        body: JSON.stringify({ valvulas_compatibles: nuevosIds })
+      });
+      
+      if (!res.ok) throw new Error('Error al actualizar válvulas compatibles');
+      
+      setValvulasActuales(prev => prev.filter(v => v.id !== valvulaId));
+      toast.success('Válvula eliminada');
+      onRefresh?.();
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al quitar válvula');
+    }
+  };
+
   // Fallback interno para eliminar producto si no se pasa onDelete desde el padre
   const handleDeleteProducto = async () => {
     if (!producto) return;
@@ -915,7 +1044,11 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
           <div className="modal-tabs">
             <button onClick={() => setActiveTab('datos')} className={`modal-tab-button ${activeTab === 'datos' ? 'active' : ''}`}>Datos y Fotos</button>
             <button onClick={() => setActiveTab('referencias')} className={`modal-tab-button ${activeTab === 'referencias' ? 'active' : ''}`}>Números de Parte</button>
-            <button onClick={() => setActiveTab('aplicaciones')} className={`modal-tab-button ${activeTab === 'aplicaciones' ? 'active' : ''}`}>Aplicaciones</button>
+            {formData.tipo_producto === 'GUIA_VALVULA' ? (
+              <button onClick={() => setActiveTab('valvulas')} className={`modal-tab-button ${activeTab === 'valvulas' ? 'active' : ''}`}>Válvulas Compatibles</button>
+            ) : (
+              <button onClick={() => setActiveTab('aplicaciones')} className={`modal-tab-button ${activeTab === 'aplicaciones' ? 'active' : ''}`}>Aplicaciones</button>
+            )}
           </div>
         )}
 
@@ -1106,7 +1239,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
           </div>
         )}
 
-        {!modoCrear && activeTab === 'aplicaciones' && (
+        {!modoCrear && activeTab === 'aplicaciones' && formData.tipo_producto !== 'GUIA_VALVULA' && (
           <div className="tab-content">
             <h4>Aplicaciones Existentes</h4>
             <ul className="related-list">
@@ -1178,6 +1311,98 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
               <input name="cantidad_valvulas" type="number" placeholder="Cant. Válvulas" value={nuevaAplicacion.cantidad_valvulas} onChange={handleNuevaAplicacionChange} />
               <button type="submit">Añadir Aplicación</button>
             </form>
+          </div>
+        )}
+
+        {!modoCrear && activeTab === 'valvulas' && formData.tipo_producto === 'GUIA_VALVULA' && (
+          <div className="tab-content">
+            <h4>Válvulas Compatibles Actuales</h4>
+            {valvulasActuales.length === 0 ? (
+              <p style={{ color: '#666', padding: '10px' }}>No hay válvulas compatibles agregadas</p>
+            ) : (
+              <ul className="related-list">
+                {valvulasActuales.map(v => {
+                  const tipoValvula = v.especificaciones?.tipo === 'INTAKE' ? 'Admisión' : v.especificaciones?.tipo === 'EXHAUST' ? 'Escape' : 'N/A';
+                  const marca = v.aplicaciones?.[0]?.marca_vehiculo?.nombre || v.aplicaciones?.[0]?.marca_vehiculo_nombre || '';
+                  const modelo = v.aplicaciones?.[0]?.modelo_vehiculo || '';
+                  return (
+                    <li key={v.id}>
+                      <span>{`${v.codigo_interno} — [${tipoValvula}] ${marca} ${modelo}`.trim()}</span>
+                      <button onClick={() => quitarValvulaCompatible(v.id)}>Quitar</button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <hr />
+            <h4>Buscar y Agregar Válvulas</h4>
+            <div className="catalogo-aplicaciones-busqueda" style={{display:'grid', gap:'8px', gridTemplateColumns:'1fr 1fr auto'}}>
+              <input 
+                type="text" 
+                placeholder="Código interno o modelo..." 
+                value={filtroValvulaEdit} 
+                onChange={(e) => setFiltroValvulaEdit(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && buscarValvulasParaAgregar()}
+              />
+              <input 
+                type="text" 
+                placeholder="Número de parte..." 
+                value={filtroNumeroParteEdit} 
+                onChange={(e) => setFiltroNumeroParteEdit(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && buscarValvulasParaAgregar()}
+              />
+              <button type="button" onClick={buscarValvulasParaAgregar} disabled={cargandoValvulas}>
+                {cargandoValvulas ? 'Buscando...' : 'Buscar'}
+              </button>
+            </div>
+            <div className="resultados-aplicaciones" style={{marginTop:'10px'}}>
+              {resultadosValvulas.length === 0 && !cargandoValvulas && (
+                <p style={{color:'#666'}}>Sin resultados. Use el buscador arriba.</p>
+              )}
+              {resultadosValvulas.length > 0 && (
+                <table style={{width:'100%', fontSize:'0.85rem'}}>
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Tipo</th>
+                      <th>Marca</th>
+                      <th>Modelo</th>
+                      <th>Cabeza</th>
+                      <th>Vástago</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultadosValvulas.map(v => {
+                      const tipoValvula = v.especificaciones?.tipo === 'INTAKE' ? 'Adm' : v.especificaciones?.tipo === 'EXHAUST' ? 'Esc' : '—';
+                      const marca = v.aplicaciones?.[0]?.marca_vehiculo?.nombre || v.aplicaciones?.[0]?.marca_vehiculo_nombre || '—';
+                      const modelo = v.aplicaciones?.[0]?.modelo_vehiculo || '—';
+                      const yaAgregada = valvulasActuales.some(va => va.id === v.id);
+                      return (
+                        <tr key={v.id} style={yaAgregada ? {opacity: 0.5} : {}}>
+                          <td>{v.codigo_interno}</td>
+                          <td>{tipoValvula}</td>
+                          <td>{marca}</td>
+                          <td>{modelo}</td>
+                          <td>{v.especificaciones?.diametro_cabeza || '—'}</td>
+                          <td>{v.especificaciones?.diametro_vastago || '—'}</td>
+                          <td>
+                            <button 
+                              type="button" 
+                              onClick={() => agregarValvulaCompatible(v)} 
+                              disabled={yaAgregada}
+                              title={yaAgregada ? 'Ya agregada' : 'Agregar'}
+                            >
+                              {yaAgregada ? '✓' : '➕'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         )}
 

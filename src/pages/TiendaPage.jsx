@@ -313,8 +313,45 @@ function TiendaPage() {
     setSortConfig({ key, direction });
   };
  
-  // Restaurar filtros desde localStorage al montar el componente
+  // Restaurar filtros y estado de navegación desde storage al montar el componente
   useEffect(() => {
+    // Intentar restaurar estado completo desde sessionStorage primero (para volver de detalle)
+    const savedState = sessionStorage.getItem('tienda_state');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        // Restaurar página actual si existe
+        if (state.currentPage && state.currentPage > 1) {
+          // Construir URL con la página guardada
+          const filtros = state.filters || currentFilters;
+          if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
+          const params = new URLSearchParams(filtros);
+          const ordering = (state.sortConfig?.direction === 'descending' ? `-${state.sortConfig.key}` : state.sortConfig?.key) || sortConfig.key;
+          params.append('ordering', ordering);
+          params.append('page_size', String(state.pageSize || pageSize));
+          if (state.showOnlyNoPhoto) params.append('has_photo', 'false');
+          params.append('page', String(state.currentPage));
+          const url = `${API_URL}/productos/?${params.toString()}`;
+          
+          // Restaurar estados antes de buscar
+          if (state.filters) setCurrentFilters(state.filters);
+          if (state.sortConfig) setSortConfig(state.sortConfig);
+          if (state.pageSize) setPageSize(state.pageSize);
+          if (typeof state.showOnlyNoPhoto === 'boolean') setShowOnlyNoPhoto(state.showOnlyNoPhoto);
+          
+          // Hacer búsqueda con la URL restaurada
+          buscarProductos(url);
+          
+          // Limpiar sessionStorage para evitar restauraciones repetidas
+          sessionStorage.removeItem('tienda_state');
+          return;
+        }
+      } catch (e) {
+        console.error('Error al restaurar estado de sessionStorage:', e);
+      }
+    }
+    
+    // Fallback: restaurar desde localStorage (comportamiento original)
     const savedFilters = localStorage.getItem('tienda_filters');
     const savedSortConfig = localStorage.getItem('tienda_sortConfig');
     
@@ -374,6 +411,18 @@ function TiendaPage() {
   useEffect(() => {
     localStorage.setItem('tienda_sortConfig', JSON.stringify(sortConfig));
   }, [sortConfig]);
+
+  // Guardar estado completo en sessionStorage para restaurar al volver de ProductoPage
+  useEffect(() => {
+    const state = {
+      currentPage: pageMeta.current,
+      filters: currentFilters,
+      sortConfig: sortConfig,
+      pageSize: pageSize,
+      showOnlyNoPhoto: showOnlyNoPhoto
+    };
+    sessionStorage.setItem('tienda_state', JSON.stringify(state));
+  }, [pageMeta.current, currentFilters, sortConfig, pageSize, showOnlyNoPhoto]);
 
   useEffect(() => {
     const fetchMarcas = async () => {
