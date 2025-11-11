@@ -923,16 +923,20 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       // Obtener IDs actuales y agregar el nuevo
       const idsActuales = valvulasActuales.map(v => v.id);
       const nuevosIds = [...idsActuales, valvula.id];
-      
+
+      // Enviar como multipart/form-data porque el ViewSet usa MultiPartParser
+      const fd = new FormData();
+      // Para partial_update, solo enviamos el campo que cambia
+      nuevosIds.forEach(id => fd.append('valvulas_compatibles', id));
+
       const res = await fetch(`${API_URL}/productos/${producto.id}/`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Token ${token}`
         },
-        body: JSON.stringify({ valvulas_compatibles: nuevosIds })
+        body: fd
       });
-      
+
       if (!res.ok) throw new Error('Error al actualizar válvulas compatibles');
       
       setValvulasActuales(prev => [...prev, valvula]);
@@ -950,14 +954,23 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     try {
       // Filtrar la válvula a quitar
       const nuevosIds = valvulasActuales.filter(v => v.id !== valvulaId).map(v => v.id);
-      
+
+      const fd = new FormData();
+      // Si la lista queda vacía, debemos enviar el campo con un valor vacío explícito
+      // DRF interpretará ausencia como 'no cambiar'; para limpiar, enviamos un campo vacío
+      if (nuevosIds.length === 0) {
+        // enviar una ocurrencia vacía para forzar limpieza del M2M
+        fd.append('valvulas_compatibles', '');
+      } else {
+        nuevosIds.forEach(id => fd.append('valvulas_compatibles', id));
+      }
+
       const res = await fetch(`${API_URL}/productos/${producto.id}/`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Token ${token}`
         },
-        body: JSON.stringify({ valvulas_compatibles: nuevosIds })
+        body: fd
       });
       
       if (!res.ok) throw new Error('Error al actualizar válvulas compatibles');
