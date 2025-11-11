@@ -179,10 +179,23 @@ function TiendaPage() {
       const filtros = { ...currentFilters };
       if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
       const params = new URLSearchParams(filtros);
-      // no depende de orden
+      // Intento optimizado: usar has_photo=false para que el backend cuente por nosotros
+      const paramsOptim = new URLSearchParams(params);
+      paramsOptim.append('has_photo', 'false');
+      paramsOptim.append('page_size', '1');
+      const fastUrl = `${API_URL}/productos/?${paramsOptim.toString()}`;
+      const fastRes = await apiFetch(fastUrl);
+      if (fastRes.ok) {
+        const fastData = await fastRes.json();
+        if (typeof fastData.count === 'number') {
+          setMissingPhotoCount(fastData.count);
+          setCountingMissing(false);
+          return;
+        }
+      }
+      // Fallback: recorrer páginas si el backend aún no soporta has_photo
       params.append('page_size', '200');
       let url = `${API_URL}/productos/?${params.toString()}`;
-
       let count = 0;
       let loops = 0;
       while (url && loops < 50) { // tope de seguridad
@@ -190,8 +203,7 @@ function TiendaPage() {
         if (!res.ok) break;
         const data = await res.json();
         const arr = Array.isArray(data) ? data : (data.results || []);
-        // Contar productos SIN foto válida
-  count += arr.filter(p => !hasValidPhoto(p)).length;
+        count += arr.filter(p => !hasValidPhoto(p)).length;
         url = data.next || null;
         loops += 1;
       }
@@ -258,10 +270,9 @@ function TiendaPage() {
     if (window.confirm('¿Estás seguro de que quieres eliminar este producto permanentemente?')) {
         try {
             toast.loading('Eliminando producto...');
-            await fetch(`${API_URL}/productos/${productoId}/`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Token ${token}` }
-            });
+      await apiFetch(`${API_URL}/productos/${productoId}/`, {
+        method: 'DELETE'
+      });
             toast.dismiss();
             toast.success('Producto eliminado con éxito.');
             handleCerrarModal(); // Cierra el modal después de borrar
@@ -346,7 +357,7 @@ function TiendaPage() {
   useEffect(() => {
     const fetchMarcas = async () => {
       try {
-        const response = await fetch(`${API_URL}/marcas/`);
+        const response = await apiFetch(`${API_URL}/marcas/`);
         const data = await response.json();
         setMarcas(data.results || data); // Maneja respuestas paginadas y no paginadas
       } catch (error) { console.error("Error al cargar marcas:", error); }
@@ -624,12 +635,28 @@ function TiendaPage() {
               onChange={(e) => setPageJump(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  irAPagina(pageJump);
+                  const p = parseInt(pageJump, 10);
+                  if (!isNaN(p) && p >= 1 && p <= (pageMeta.total || 1)) {
+                    irAPagina(p);
+                  }
                 }
               }}
               style={{ width: 70 }}
             />
-            <button onClick={() => irAPagina(pageJump)}>Ir</button>
+            <button
+              onClick={() => irAPagina(pageJump)}
+              disabled={(() => {
+                const p = parseInt(pageJump, 10);
+                return isNaN(p) || p < 1 || p > (pageMeta.total || 1);
+              })()}
+              title={(() => {
+                const p = parseInt(pageJump, 10);
+                if (isNaN(p)) return 'Ingresa un número de página válido';
+                if (p < 1) return 'La página mínima es 1';
+                if (p > (pageMeta.total || 1)) return `Máximo ${pageMeta.total}`;
+                return 'Ir a la página';
+              })()}
+            >Ir</button>
           </div>
         )}
         <label style={{ display:'flex', alignItems:'center', gap:6 }} title="Mostrar solo productos sin fotos (según filtros)">
