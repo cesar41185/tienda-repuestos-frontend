@@ -1,5 +1,5 @@
 // En src/pages/TiendaPage.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Buscador from '../components/Buscador';
@@ -10,6 +10,7 @@ import ModalCrearProducto from '../components/ModalCrearProducto';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
+import { apiFetch } from '../utils/apiClient';
 
 function TiendaPage() {
   // Router helpers (antes de inicializar estados que dependen de 'tipo')
@@ -44,6 +45,7 @@ function TiendaPage() {
   const [cantidades, setCantidades] = useState({});
   const [crearAbierto, setCrearAbierto] = useState(false);
   const [pageJump, setPageJump] = useState(1); // selector de página
+  const activeFetchRef = useRef(null); // AbortController para cancelar peticiones en curso
 
   // --- NUEVO: estado de vista (grilla de tipos o lista) ---
   const [vistaTienda, setVistaTienda] = useState(tipo ? 'list' : 'grid'); // 'grid' | 'list'
@@ -59,7 +61,7 @@ function TiendaPage() {
   };
 
   // Utilidad: recorrer todas las páginas con filtros actuales
-  const fetchAllForCurrentFilters = async () => {
+  const fetchAllForCurrentFilters = async (signal) => {
     const filtros = { ...currentFilters };
     if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
     const params = new URLSearchParams(filtros);
@@ -70,7 +72,7 @@ function TiendaPage() {
     const all = [];
     let loops = 0;
     while (url && loops < 200) {
-      const res = await fetch(url);
+      const res = await apiFetch(url, { signal });
       if (!res.ok) break;
       const data = await res.json();
       const arr = Array.isArray(data) ? data : (data.results || []);
@@ -91,6 +93,12 @@ function TiendaPage() {
 
   const buscarProductos = async (url = null, overrideOnlyNoPhoto = null) => {
     setCargando(true);
+    // Cancelar petición anterior si existe
+    if (activeFetchRef.current) {
+      try { activeFetchRef.current.abort(); } catch {}
+    }
+    const controller = new AbortController();
+    activeFetchRef.current = controller;
     let finalUrl = url;
     if (!finalUrl) {
       // Enforce tipo seleccionado desde la ruta aunque existan filtros guardados
@@ -108,7 +116,7 @@ function TiendaPage() {
       const onlyNoPhoto = overrideOnlyNoPhoto !== null ? overrideOnlyNoPhoto : showOnlyNoPhoto;
       // Si estamos en modo "solo sin foto", ignoramos next/previous y construimos dataset completo filtrado
       if (onlyNoPhoto) {
-        const all = await fetchAllForCurrentFilters();
+        const all = await fetchAllForCurrentFilters(controller.signal);
         // Mostrar solo productos SIN foto válida (simplificado: array vacío o ninguna imagen no vacía)
         const filtered = all.filter(p => !hasValidPhoto(p));
         console.debug('[SoloSinFoto] total cargados:', all.length, 'filtrados sin foto:', filtered.length);
@@ -118,7 +126,7 @@ function TiendaPage() {
         setMissingPhotoCount(filtered.length); // mantener indicador coherente
         return filtered;
       }
-      const response = await fetch(finalUrl);
+      const response = await apiFetch(finalUrl, { signal: controller.signal });
       const data = await response.json();
       setProductos(data.results || []);
       setPageInfo({ count: data.count, next: data.next, previous: data.previous });
@@ -178,7 +186,7 @@ function TiendaPage() {
       let count = 0;
       let loops = 0;
       while (url && loops < 50) { // tope de seguridad
-        const res = await fetch(url);
+        const res = await apiFetch(url);
         if (!res.ok) break;
         const data = await res.json();
         const arr = Array.isArray(data) ? data : (data.results || []);
@@ -298,11 +306,19 @@ function TiendaPage() {
   }, []); // Solo se ejecuta una vez al montar
 
   useEffect(() => {
-    // Solo buscar cuando estamos en vista de lista
-    if (vistaTienda === 'list') {
+    // Debounce de búsqueda para cambios rápidos (especialmente en 'search')
+    if (vistaTienda !== 'list') return;
+    const t = setTimeout(() => {
       buscarProductos();
-    }
-  }, [sortConfig, currentFilters]); // Se ejecuta al ordenar y al filtrar
+    }, 300);
+    return () => {
+      clearTimeout(t);
+      // Cancelar si hay una petición en curso
+      if (activeFetchRef.current) {
+        try { activeFetchRef.current.abort(); } catch {}
+      }
+    };
+  }, [sortConfig, currentFilters, vistaTienda]);
 
   // Sincronizar el input del selector de página cuando cambie la página actual
   useEffect(() => {
@@ -579,7 +595,18 @@ function TiendaPage() {
             <> · Página {pageMeta.current} de {pageMeta.total}</>
           )}
           {missingPhotoCount !== null && (
-            <> · Sin foto: {missingPhotoCount} {countingMissing && <span style={{color:'#888'}}> (calc...)</span>}</>
+            <> · <span
+                  role="button"
+                  title={showOnlyNoPhoto ? 'Quitar filtro de solo sin foto' : 'Mostrar solo productos sin foto'}
+                  onClick={async () => {
+                    const nuevo = !showOnlyNoPhoto;
+                    setShowOnlyNoPhoto(nuevo);
+                    await buscarProductos(undefined, nuevo);
+                  }}
+                  style={{ cursor: 'pointer', textDecoration: 'underline', color: showOnlyNoPhoto ? '#d00' : 'inherit' }}
+                >
+                  Sin foto: {missingPhotoCount}
+                </span> {countingMissing && <span style={{color:'#888'}}> (calc...)</span>}</>
           )}
         </span>
         <div>
