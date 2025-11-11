@@ -241,7 +241,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                     {esGuiaValvula ? (
                       <h3>{producto.codigo_interno || 'Guía de válvula'}</h3>
                     ) : (
-                      <h3>{producto.aplicaciones?.[0]?.modelo_vehiculo || 'Uso General'}</h3>
+                      <h3>{(producto.aplicaciones_compactas?.[0]?.modelo_compacto || producto.aplicaciones?.[0]?.modelo_vehiculo) || 'Uso General'}</h3>
                     )}
                   </Link>
                   <span className="card-precio">${producto.precio_venta}</span>
