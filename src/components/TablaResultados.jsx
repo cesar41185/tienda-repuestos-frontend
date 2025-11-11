@@ -101,7 +101,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                       }}
                     />
                   ) : (
-                    <ImagePlaceholder size="80px" />
+                    <ImagePlaceholder size="40px" />
                   )}
                 </td>
                 {isStaff && !esGuiaValvula && (
