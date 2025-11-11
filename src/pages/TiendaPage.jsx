@@ -46,6 +46,12 @@ function TiendaPage() {
   const [crearAbierto, setCrearAbierto] = useState(false);
   const [pageJump, setPageJump] = useState(1); // selector de página
   const activeFetchRef = useRef(null); // AbortController para cancelar peticiones en curso
+  
+  // Tamaño de página: cargar desde localStorage o usar 25 por defecto
+  const [pageSize, setPageSize] = useState(() => {
+    const saved = localStorage.getItem('tienda_pageSize');
+    return saved ? parseInt(saved, 10) : 25;
+  });
 
   // --- NUEVO: estado de vista (grilla de tipos o lista) ---
   const [vistaTienda, setVistaTienda] = useState(tipo ? 'list' : 'grid'); // 'grid' | 'list'
@@ -113,6 +119,7 @@ function TiendaPage() {
       const params = new URLSearchParams(filtros);
       const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
       params.append('ordering', ordering);
+      params.append('page_size', String(pageSize)); // Usar tamaño de página preferido
       if (onlyNoPhoto) params.append('has_photo', 'false');
       finalUrl = `${API_URL}/productos/?${params.toString()}`;
     } else if (onlyNoPhoto && url) {
@@ -125,7 +132,7 @@ function TiendaPage() {
       const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
       params.append('ordering', ordering);
       params.append('has_photo', 'false');
-      if (pageMeta.size && pageMeta.size > 0) params.append('page_size', String(pageMeta.size));
+      params.append('page_size', String(pageSize)); // Usar tamaño de página preferido
       params.append('page', pageNum);
       finalUrl = `${API_URL}/productos/?${params.toString()}`;
     }
@@ -165,17 +172,25 @@ function TiendaPage() {
     if (isNaN(p)) return;
     if (p < 1) p = 1;
     if (p > total) p = total;
-    // Construir URL con filtros + ordering + page (y page_size si lo conocemos)
+    // Construir URL con filtros + ordering + page (y page_size)
     const filtros = { ...currentFilters };
     if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
     const params = new URLSearchParams(filtros);
     const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
     params.append('ordering', ordering);
-    if (pageMeta.size && pageMeta.size > 0) params.append('page_size', String(pageMeta.size));
+    params.append('page_size', String(pageSize)); // Usar tamaño de página preferido
     if (showOnlyNoPhoto) params.append('has_photo', 'false'); // Incluir filtro si estamos en modo sin foto
     params.append('page', String(p));
     setPageJump(p); // reflejar en input
     await buscarProductos(`${API_URL}/productos/?${params.toString()}`);
+  };
+  
+  // Cambiar tamaño de página
+  const handlePageSizeChange = (newSize) => {
+    setPageSize(newSize);
+    localStorage.setItem('tienda_pageSize', String(newSize));
+    // Volver a página 1 y refrescar
+    buscarProductos();
   };
 
   // Contar productos sin foto para los filtros actuales (momentáneo)
@@ -626,6 +641,19 @@ function TiendaPage() {
                 </span> {countingMissing && <span style={{color:'#888'}}> (calc...)</span>}</>
           )}
         </span>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <span>Mostrar:</span>
+          <select 
+            value={pageSize} 
+            onChange={(e) => handlePageSizeChange(parseInt(e.target.value, 10))}
+            title="Cambiar cuántos productos se muestran por página"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
         <div>
           <button onClick={() => buscarProductos(pageInfo.previous)} disabled={!pageInfo.previous}>Anterior</button>
           <button onClick={() => buscarProductos(pageInfo.next)} disabled={!pageInfo.next}>Siguiente</button>

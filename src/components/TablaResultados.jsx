@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useCarrito } from '../context/CarritoContext';
 import { JUEGO_UNIDADES } from '../apiConfig';
 import { SERVER_BASE_URL } from '../apiConfig';
+import { SkeletonRow } from './SkeletonLoader';
+import { ImagePlaceholder } from './ImagePlaceholder';
 
 function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, sortConfig, onAddToCart, cantidades, onCantidadChange, tipoProducto }) {
   const { user } = useAuth();
@@ -24,10 +26,6 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
   const esAlmacen = user && user.groups.includes('Almacen');
   const esVendedor = user && user.groups.includes('Vendedor');
   const esCajero = user && user.groups.includes('Cajero');
-
-  if (cargando) {
-    return <p>Cargando productos...</p>;
-  }
 
   // Determinar qué columnas mostrar según el tipo de producto
   const esValvula = tipoProducto === 'VALVULA';
@@ -76,7 +74,14 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
     <table id="resultsTable">
       {renderEncabezados()}
       <tbody>
-          {productos.map((producto) => {
+          {cargando && (
+            <>
+              {Array.from({ length: 10 }).map((_, i) => (
+                <SkeletonRow key={i} columns={esValvula ? 12 : esGuiaValvula ? 9 : 10} />
+              ))}
+            </>
+          )}
+          {!cargando && productos.map((producto) => {
             const cantidadJuegos = cantidades[producto.id] || 1;
             const cantidadUnidadesRequeridas = cantidadJuegos * JUEGO_UNIDADES;
             const stockInsuficiente = producto.stock < cantidadUnidadesRequeridas;
@@ -85,7 +90,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
               <tr key={producto.id}>
                 <td className="col-foto">
                   {producto.fotos && producto.fotos.length > 0 ? (
-                   <img 
+                    <img 
                       // Usar foto principal si existe, sino la primera
                       src={producto.fotos.find(f => f.es_principal)?.imagen || producto.fotos[0].imagen} 
                       alt="Miniatura" 
@@ -96,7 +101,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                       }}
                     />
                   ) : (
-                    <div className="foto-placeholder"></div>
+                    <ImagePlaceholder size="80px" />
                   )}
                 </td>
                 {isStaff && !esGuiaValvula && (

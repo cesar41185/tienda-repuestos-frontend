@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
+import { ImagePlaceholder } from './ImagePlaceholder';
 
 // Configuración de campos por tipo de producto
 const CAMPOS_POR_TIPO = {
@@ -1008,9 +1009,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                               }} 
                             />
                           ) : (
-                            <div className="error-message" style={{padding: '20px', textAlign: 'center', color: '#999'}}>
-                              Sin imagen
-                            </div>
+                            <ImagePlaceholder size="120px" />
                           )}
                           <div className="error-message" style={{display: 'none', padding: '20px', textAlign: 'center', color: '#999', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
                             Error al cargar
