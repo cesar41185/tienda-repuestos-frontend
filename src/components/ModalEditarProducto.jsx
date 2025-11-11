@@ -1254,11 +1254,11 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
 
         {!modoCrear && activeTab === 'aplicaciones' && formData.tipo_producto !== 'GUIA_VALVULA' && (
           <div className="tab-content">
-            <h4>Aplicaciones Existentes</h4>
+            <h4>Vehículos Compatibles</h4>
             <ul className="related-list">
-              {formData.aplicaciones && formData.aplicaciones.map(app => (
+              {(formData.aplicaciones_compactas || formData.aplicaciones || []).map(app => (
                 <li key={app.id}>
-                  <span>{`${app.marca_vehiculo_nombre} ${app.modelo_vehiculo}`}</span>
+                  <span>{`${app.marca_nombre || app.marca_vehiculo_nombre} ${app.modelo_compacto || app.modelo_vehiculo}`}</span>
                   <button onClick={() => handleDeleteAplicacion(app.id)}>Borrar</button>
                 </li>
               ))}
