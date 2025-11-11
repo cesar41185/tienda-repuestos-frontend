@@ -114,17 +114,36 @@ function TiendaPage() {
     try {
       // Determinar modo 'solo sin foto' con posible override (para evitar el retraso de setState)
       const onlyNoPhoto = overrideOnlyNoPhoto !== null ? overrideOnlyNoPhoto : showOnlyNoPhoto;
-      // Si estamos en modo "solo sin foto", ignoramos next/previous y construimos dataset completo filtrado
+      // Si estamos en modo "solo sin foto", usamos el filtro backend has_photo=false con paginación normal
       if (onlyNoPhoto) {
-        const all = await fetchAllForCurrentFilters(controller.signal);
-        // Mostrar solo productos SIN foto válida (simplificado: array vacío o ninguna imagen no vacía)
-        const filtered = all.filter(p => !hasValidPhoto(p));
-        console.debug('[SoloSinFoto] total cargados:', all.length, 'filtrados sin foto:', filtered.length);
-        setProductos(filtered);
-        setPageInfo({ count: filtered.length, next: null, previous: null });
-        setPageMeta({ current: 1, total: 1, size: filtered.length });
-        setMissingPhotoCount(filtered.length); // mantener indicador coherente
-        return filtered;
+        // Reconstruir URL con has_photo=false manteniendo filtros y orden
+        const filtros = { ...currentFilters };
+        if (tipoSeleccionado) filtros.tipo_producto = tipoSeleccionado;
+        const params = new URLSearchParams(filtros);
+        const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
+        params.append('ordering', ordering);
+        params.append('has_photo', 'false');
+        const noPhotoUrl = `${API_URL}/productos/?${params.toString()}`;
+        const response = await apiFetch(noPhotoUrl, { signal: controller.signal });
+        const data = await response.json();
+        setProductos(data.results || []);
+        setPageInfo({ count: data.count, next: data.next, previous: data.previous });
+        // Derivar metadatos de paginación
+        const psFromUrl = parseInt(getQueryParam(data.next || data.previous, 'page_size') || '0', 10);
+        const pageSize = psFromUrl > 0 ? psFromUrl : (Array.isArray(data.results) ? data.results.length : 0);
+        let currentPage = 1;
+        if (data.next) {
+          const nextPage = parseInt(getQueryParam(data.next, 'page') || '2', 10);
+          currentPage = Math.max(1, nextPage - 1);
+        } else if (data.previous) {
+          const prevPage = parseInt(getQueryParam(data.previous, 'page') || '1', 10);
+          currentPage = prevPage + 1;
+        }
+        const totalPages = pageSize > 0 && data.count ? Math.ceil(data.count / pageSize) : 1;
+        setPageMeta({ current: currentPage, total: totalPages, size: pageSize });
+        setMissingPhotoCount(data.count); // mantener coherente
+        setCargando(false);
+        return data.results;
       }
       const response = await apiFetch(finalUrl, { signal: controller.signal });
       const data = await response.json();
@@ -624,7 +643,7 @@ function TiendaPage() {
           <button onClick={() => buscarProductos(pageInfo.previous)} disabled={!pageInfo.previous}>Anterior</button>
           <button onClick={() => buscarProductos(pageInfo.next)} disabled={!pageInfo.next}>Siguiente</button>
         </div>
-        {pageMeta.total > 1 && !showOnlyNoPhoto && (
+        {pageMeta.total > 1 && (
           <div style={{ display:'flex', alignItems:'center', gap:6 }}>
             <span>Ir a</span>
             <input
@@ -659,7 +678,7 @@ function TiendaPage() {
             >Ir</button>
           </div>
         )}
-        <label style={{ display:'flex', alignItems:'center', gap:6 }} title="Mostrar solo productos sin fotos (según filtros)">
+        <label style={{ display:'flex', alignItems:'center', gap:6 }} title="Mostrar solo productos sin fotos (según filtros); usa paginación con filtro backend">
           <input
             type="checkbox"
             checked={showOnlyNoPhoto}
