@@ -173,7 +173,6 @@ function TiendaPage() {
 
   // Ir a una página específica construyendo la URL con filtros actuales
   const irAPagina = async (paginaDestino) => {
-    if (showOnlyNoPhoto) return; // En este modo no hay paginación
     const total = pageMeta.total || 1;
     let p = parseInt(paginaDestino, 10);
     if (isNaN(p)) return;
@@ -186,6 +185,7 @@ function TiendaPage() {
     const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
     params.append('ordering', ordering);
     if (pageMeta.size && pageMeta.size > 0) params.append('page_size', String(pageMeta.size));
+    if (showOnlyNoPhoto) params.append('has_photo', 'false'); // Incluir filtro si estamos en modo sin foto
     params.append('page', String(p));
     setPageJump(p); // reflejar en input
     await buscarProductos(`${API_URL}/productos/?${params.toString()}`);
