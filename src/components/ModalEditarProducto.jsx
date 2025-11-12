@@ -1280,9 +1280,9 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
             <h4>Vehículos Compatibles</h4>
             <ul className="related-list">
               {(formData.vehiculos || []).map(vehiculo => (
-                <li key={vehiculo.id}>
+                <li key={vehiculo.producto_vehiculo_id || vehiculo.id}>
                   <span>{`${vehiculo.marca} ${vehiculo.modelo}`} {vehiculo.anos && `(${vehiculo.anos})`}</span>
-                  <button onClick={() => handleDeleteVehiculo(vehiculo.id)}>Borrar</button>
+                  <button onClick={() => handleDeleteVehiculo(vehiculo.producto_vehiculo_id)}>Borrar</button>
                 </li>
               ))}
             </ul><hr />
