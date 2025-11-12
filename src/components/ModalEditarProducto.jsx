@@ -118,6 +118,9 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
   const [buscaModeloExistente, setBuscaModeloExistente] = useState('');
   const [resultadosVehiculos, setResultadosVehiculos] = useState([]);
   const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
+  
+  // Estados para tabs de vehículos
+  const [tabVehiculoActivo, setTabVehiculoActivo] = useState('compatibles');
 
   // Búsqueda y selección de válvulas compatibles (para GUIA_VALVULA)
   const [filtroValvulaEdit, setFiltroValvulaEdit] = useState('');
@@ -1315,76 +1318,216 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
 
         {!modoCrear && activeTab === 'vehiculos' && formData.tipo_producto !== 'GUIA_VALVULA' && (
           <div className="tab-content">
-            <h4>Vehículos Compatibles</h4>
-            <ul className="related-list">
-              {(formData.vehiculos || []).map(vehiculo => (
-                <li key={vehiculo.producto_vehiculo_id || vehiculo.id}>
-                  <span>{`${vehiculo.marca} ${vehiculo.modelo}`} {vehiculo.anos && `(${vehiculo.anos})`}</span>
-                  <button onClick={() => handleDeleteVehiculo(vehiculo.producto_vehiculo_id)}>Borrar</button>
-                </li>
-              ))}
-            </ul><hr />
-            <h4>Agregar desde catálogo</h4>
-            <div className="catalogo-vehiculos-busqueda" style={{display:'grid', gap:'8px', gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))'}}>
-              <select value={buscaMarcaExistente} onChange={(e)=>setBuscaMarcaExistente(e.target.value)}>
-                <option value="">-- Marca --</option>
-                {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.nombre}>{m.nombre}</option>)}
-              </select>
-              <input type="text" placeholder="Modelo contiene..." value={buscaModeloExistente} onChange={(e)=>setBuscaModeloExistente(e.target.value)} />
-              <button type="button" onClick={buscarVehiculosExistentes} disabled={cargandoVehiculos}>
-                {cargandoVehiculos ? 'Buscando...' : 'Buscar'}
-              </button>
-            </div>
-            <div className="resultados-vehiculos" style={{marginTop:'10px'}}>
-              {resultadosVehiculos.length === 0 && !cargandoVehiculos && <p style={{color:'#666'}}>Sin resultados (ajusta filtros).</p>}
-              {resultadosVehiculos.length > 0 && (
-                <table style={{width:'100%', fontSize:'0.85rem'}}>
-                  <thead>
-                    <tr>
-                      <th>Marca</th>
-                      <th>Modelo</th>
-                      <th>Años</th>
-                      <th>Cil.</th>
-                      <th>Motor</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {resultadosVehiculos.map(vehiculo => (
-                      <tr key={vehiculo.id}>
-                        <td>{vehiculo.marca}</td>
-                        <td>{vehiculo.modelo}</td>
-                        <td>{vehiculo.anos || '—'}</td>
-                        <td>{vehiculo.cilindrada || '—'}</td>
-                        <td>{vehiculo.detalle_motor || '—'}</td>
-                        <td>
-                          <button type="button" onClick={()=>handleAgregarVehiculoExistente(vehiculo)} title="Agregar al producto">➕</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* Tabs de gestión de vehículos */}
+            <div className="vehiculos-tabs">
+              <div className="tab-nav">
+                <button 
+                  className={`tab-btn ${tabVehiculoActivo === 'compatibles' ? 'active' : ''}`}
+                  onClick={() => setTabVehiculoActivo('compatibles')}
+                >
+                  Compatibles ({(formData.vehiculos || []).length})
+                </button>
+                <button 
+                  className={`tab-btn ${tabVehiculoActivo === 'buscar' ? 'active' : ''}`}
+                  onClick={() => setTabVehiculoActivo('buscar')}
+                >
+                  Buscar
+                </button>
+                <button 
+                  className={`tab-btn ${tabVehiculoActivo === 'nuevo' ? 'active' : ''}`}
+                  onClick={() => setTabVehiculoActivo('nuevo')}
+                >
+                  Agregar Nuevo
+                </button>
+              </div>
+
+              {/* Tab: Vehículos Compatibles */}
+              {tabVehiculoActivo === 'compatibles' && (
+                <div className="tab-panel">
+                  <div className="vehiculos-compatibles">
+                    {(formData.vehiculos || []).length === 0 ? (
+                      <div className="empty-state">
+                        <p>No hay vehículos asociados</p>
+                        <small>Usa las pestañas "Buscar" o "Agregar Nuevo" para añadir vehículos</small>
+                      </div>
+                    ) : (
+                      <div className="vehiculos-grid">
+                        {(formData.vehiculos || []).map(vehiculo => (
+                          <div key={vehiculo.producto_vehiculo_id || vehiculo.id} className="vehiculo-card">
+                            <div className="vehiculo-info">
+                              <h5>{vehiculo.marca} {vehiculo.modelo}</h5>
+                              <div className="vehiculo-details">
+                                {vehiculo.anos && <span className="detail-chip">📅 {vehiculo.anos}</span>}
+                                {vehiculo.cilindrada && <span className="detail-chip">⚙️ {vehiculo.cilindrada}L</span>}
+                                {vehiculo.cantidad_cilindros && <span className="detail-chip">🔧 {vehiculo.cantidad_cilindros} cil.</span>}
+                                {vehiculo.detalle_motor && <span className="detail-chip">🏭 {vehiculo.detalle_motor}</span>}
+                              </div>
+                            </div>
+                            <button 
+                              className="delete-btn" 
+                              onClick={() => handleDeleteVehiculo(vehiculo.producto_vehiculo_id)}
+                              title="Eliminar vehículo"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tab: Buscar Existentes */}
+              {tabVehiculoActivo === 'buscar' && (
+                <div className="tab-panel">
+                  <div className="buscar-vehiculos">
+                    <div className="search-controls">
+                      <div className="search-inputs">
+                        <select value={buscaMarcaExistente} onChange={(e)=>setBuscaMarcaExistente(e.target.value)}>
+                          <option value="">-- Todas las marcas --</option>
+                          {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.nombre}>{m.nombre}</option>)}
+                        </select>
+                        <input 
+                          type="text" 
+                          placeholder="Buscar por modelo..." 
+                          value={buscaModeloExistente} 
+                          onChange={(e)=>setBuscaModeloExistente(e.target.value)} 
+                        />
+                        <button 
+                          type="button" 
+                          onClick={buscarVehiculosExistentes} 
+                          disabled={cargandoVehiculos}
+                          className="search-btn"
+                        >
+                          {cargandoVehiculos ? '🔍 Buscando...' : '🔍 Buscar'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="search-results">
+                      {resultadosVehiculos.length === 0 && !cargandoVehiculos && (
+                        <div className="empty-results">
+                          <p>Sin resultados</p>
+                          <small>Usa los filtros de arriba para buscar vehículos</small>
+                        </div>
+                      )}
+                      
+                      {resultadosVehiculos.length > 0 && (
+                        <div className="vehiculos-encontrados">
+                          {resultadosVehiculos.map(vehiculo => (
+                            <div key={vehiculo.id} className="vehiculo-resultado">
+                              <div className="vehiculo-info">
+                                <h5>{vehiculo.marca} {vehiculo.modelo}</h5>
+                                <div className="vehiculo-details">
+                                  {vehiculo.anos && <span className="detail-chip">📅 {vehiculo.anos}</span>}
+                                  {vehiculo.cilindrada && <span className="detail-chip">⚙️ {vehiculo.cilindrada}L</span>}
+                                  {vehiculo.cantidad_cilindros && <span className="detail-chip">🔧 {vehiculo.cantidad_cilindros} cil.</span>}
+                                  {vehiculo.detalle_motor && <span className="detail-chip">🏭 {vehiculo.detalle_motor}</span>}
+                                </div>
+                              </div>
+                              <button 
+                                type="button" 
+                                onClick={()=>handleAgregarVehiculoExistente(vehiculo)} 
+                                className="add-btn"
+                                title="Agregar al producto"
+                              >
+                                ➕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab: Agregar Nuevo */}
+              {tabVehiculoActivo === 'nuevo' && (
+                <div className="tab-panel">
+                  <div className="nuevo-vehiculo">
+                    <form onSubmit={handleAddVehiculo} className="vehiculo-form">
+                      <div className="form-section">
+                        <h5>Información Básica *</h5>
+                        <div className="form-row">
+                          <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange} required>
+                            <option value="">-- Seleccionar Marca --</option>
+                            {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                          </select>
+                          <input 
+                            name="modelo_vehiculo" 
+                            type="text" 
+                            placeholder="Modelo del Vehículo" 
+                            value={nuevaAplicacion.modelo_vehiculo} 
+                            onChange={handleNuevaAplicacionChange} 
+                            required 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-section">
+                        <h5>Especificaciones Adicionales</h5>
+                        <div className="form-row">
+                          <input 
+                            name="ano_desde" 
+                            type="number" 
+                            placeholder="Año Desde" 
+                            value={nuevaAplicacion.ano_desde} 
+                            onChange={handleNuevaAplicacionChange} 
+                          />
+                          <input 
+                            name="ano_hasta" 
+                            type="number" 
+                            placeholder="Año Hasta" 
+                            value={nuevaAplicacion.ano_hasta} 
+                            onChange={handleNuevaAplicacionChange} 
+                          />
+                        </div>
+                        <div className="form-row">
+                          <input 
+                            name="cilindrada" 
+                            type="number" 
+                            step="0.1" 
+                            placeholder="Cilindrada (ej: 1.6)" 
+                            value={nuevaAplicacion.cilindrada} 
+                            onChange={handleNuevaAplicacionChange} 
+                          />
+                          <input 
+                            name="cantidad_cilindros" 
+                            type="number" 
+                            placeholder="N° Cilindros" 
+                            value={nuevaAplicacion.cantidad_cilindros} 
+                            onChange={handleNuevaAplicacionChange} 
+                          />
+                        </div>
+                        <div className="form-row">
+                          <input 
+                            name="detalle_motor" 
+                            type="text" 
+                            placeholder="Detalle Motor (ej: Zetec, DOHC)" 
+                            value={nuevaAplicacion.detalle_motor} 
+                            onChange={handleNuevaAplicacionChange} 
+                          />
+                          <input 
+                            name="cantidad_valvulas" 
+                            type="number" 
+                            placeholder="Cant. Válvulas" 
+                            value={nuevaAplicacion.cantidad_valvulas} 
+                            onChange={handleNuevaAplicacionChange} 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-actions">
+                        <small>* Solo Marca y Modelo son obligatorios</small>
+                        <button type="submit" className="submit-btn">Crear y Agregar Vehículo</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
               )}
             </div>
-            <hr />
-            <h4>Añadir Nueva Aplicación</h4>
-            <form onSubmit={handleAddVehiculo} className="add-form">
-              <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange} required>
-                <option value="">-- Marca * --</option>
-                {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-              </select>
-              <input name="modelo_vehiculo" type="text" placeholder="Modelo Vehículo *" value={nuevaAplicacion.modelo_vehiculo} onChange={handleNuevaAplicacionChange} required />
-              <small style={{gridColumn: '1 / -1', color: '#666', fontSize: '0.85em'}}>
-                * Marca y Modelo son campos requeridos. Los demás campos son opcionales.
-              </small>
-              <input name="detalle_motor" type="text" placeholder="Detalle Motor (ej: Zetec)" value={nuevaAplicacion.detalle_motor} onChange={handleNuevaAplicacionChange} />
-              <input name="cilindrada" type="number" step="0.1" placeholder="Cilindrada (ej: 1.6)" value={nuevaAplicacion.cilindrada} onChange={handleNuevaAplicacionChange} />
-              <input name="cantidad_cilindros" type="number" placeholder="N° Cilindros" value={nuevaAplicacion.cantidad_cilindros} onChange={handleNuevaAplicacionChange} />
-              <input name="ano_desde" type="number" placeholder="Año Desde" value={nuevaAplicacion.ano_desde} onChange={handleNuevaAplicacionChange} />
-              <input name="ano_hasta" type="number" placeholder="Año Hasta" value={nuevaAplicacion.ano_hasta} onChange={handleNuevaAplicacionChange} />
-              <input name="cantidad_valvulas" type="number" placeholder="Cant. Válvulas" value={nuevaAplicacion.cantidad_valvulas} onChange={handleNuevaAplicacionChange} />
-              <button type="submit">Añadir Aplicación</button>
-            </form>
           </div>
         )}
 
