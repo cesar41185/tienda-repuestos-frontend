@@ -747,7 +747,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     
     // Preparar datos para crear/encontrar vehículo normalizado
     const vehiculoData = {
-      marca: marcaFinal,
+      marca_nombre: marcaFinal,  // Usar marca_nombre para crear vehículos
       modelo: modelo,
       ano_desde: anoDesde,
       ano_hasta: anoHasta,
