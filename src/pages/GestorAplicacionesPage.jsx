@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import API_URL from '../apiConfig';
 
 function GestorAplicacionesPage() {
-  const [aplicaciones, setAplicaciones] = useState([]);
+  const [vehiculos, setVehiculos] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [filtroMarcaId, setFiltroMarcaId] = useState('');
@@ -12,14 +12,13 @@ function GestorAplicacionesPage() {
   // Estado de edición
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({
-    marca_vehiculo: '',
-    modelo_vehiculo: '',
+    marca: '',
+    modelo: '',
     cilindrada: '',
-    cantidad_cilindros: '',
+    cilindros: '',
     detalle_motor: '',
     ano_desde: '',
-    ano_hasta: '',
-    cantidad_valvulas: ''
+    ano_hasta: ''
   });
 
   const fetchMarcas = async () => {
@@ -35,7 +34,7 @@ function GestorAplicacionesPage() {
   const fetchAplicaciones = async () => {
     setCargando(true);
     try {
-      let url = API_URL + '/aplicaciones/';
+      let url = API_URL + '/vehiculos/';
       const acumulado = [];
       // Seguir paginación si existe (DRF PageNumberPagination)
       while (url) {
@@ -51,9 +50,9 @@ function GestorAplicacionesPage() {
           url = data.next || null;
         }
       }
-      setAplicaciones(acumulado);
+      setVehiculos(acumulado);
     } catch (e) {
-      toast.error('No se pudieron cargar las aplicaciones');
+      toast.error('No se pudieron cargar los vehículos');
     } finally {
       setCargando(false);
     }
@@ -64,39 +63,37 @@ function GestorAplicacionesPage() {
     fetchAplicaciones();
   }, []);
 
-  const aplicacionesFiltradas = useMemo(() => {
-    return aplicaciones.filter((a) => {
-      // el API no expone marca_vehiculo (id) en lectura; usamos nombre
+  const vehiculosFiltrados = useMemo(() => {
+    return vehiculos.filter((v) => {
       const selectedMarcaNombre = filtroMarcaId
         ? (marcas.find((m) => String(m.id) === String(filtroMarcaId))?.nombre || '')
         : '';
-      const okMarca = !filtroMarcaId || (a.marca_vehiculo_nombre || '') === selectedMarcaNombre;
-      const okModelo = !filtroModelo || (a.modelo_vehiculo || '').toLowerCase().includes(filtroModelo.toLowerCase());
+      const okMarca = !filtroMarcaId || (v.marca || '') === selectedMarcaNombre;
+      const okModelo = !filtroModelo || (v.modelo || '').toLowerCase().includes(filtroModelo.toLowerCase());
       return okMarca && okModelo;
     });
-  }, [aplicaciones, filtroMarcaId, filtroModelo, marcas]);
+  }, [vehiculos, filtroMarcaId, filtroModelo, marcas]);
 
-  const startEdit = (a) => {
-    setEditId(a.id);
+  const startEdit = (v) => {
+    setEditId(v.id);
     // mapear ID desde el nombre
-    const marcaIdFromNombre = marcas.find((m) => m.nombre === a.marca_vehiculo_nombre)?.id || '';
+    const marcaIdFromNombre = marcas.find((m) => m.nombre === v.marca)?.id || '';
     setForm({
-      marca_vehiculo: marcaIdFromNombre,
-      modelo_vehiculo: a.modelo_vehiculo || '',
-      cilindrada: a.cilindrada ?? '',
-      cantidad_cilindros: a.cantidad_cilindros ?? '',
-      detalle_motor: a.detalle_motor || '',
-      ano_desde: a.ano_desde ?? '',
-      ano_hasta: a.ano_hasta ?? '',
-      cantidad_valvulas: a.cantidad_valvulas ?? ''
+      marca: marcaIdFromNombre,
+      modelo: v.modelo || '',
+      cilindrada: v.cilindrada ?? '',
+      cilindros: v.cilindros ?? '',
+      detalle_motor: v.detalle_motor || '',
+      ano_desde: v.ano_desde ?? '',
+      ano_hasta: v.ano_hasta ?? ''
     });
   };
 
   const cancelEdit = () => {
     setEditId(null);
     setForm({
-      marca_vehiculo: '', modelo_vehiculo: '', cilindrada: '', cantidad_cilindros: '',
-      detalle_motor: '', ano_desde: '', ano_hasta: '', cantidad_valvulas: ''
+      marca: '', modelo: '', cilindrada: '', cilindros: '',
+      detalle_motor: '', ano_desde: '', ano_hasta: ''
     });
   };
 
@@ -107,28 +104,27 @@ function GestorAplicacionesPage() {
 
   const saveEdit = async () => {
     if (!editId) return;
-    if (!form.marca_vehiculo) {
+    if (!form.marca) {
       toast.error('Seleccione una marca');
       return;
     }
-    if (!form.modelo_vehiculo.trim()) {
+    if (!form.modelo.trim()) {
       toast.error('Ingrese el modelo');
       return;
     }
 
     const payload = {
-      marca_vehiculo: Number(form.marca_vehiculo),
-      modelo_vehiculo: form.modelo_vehiculo.trim(),
+      marca: marcas.find(m => String(m.id) === String(form.marca))?.nombre || '',
+      modelo: form.modelo.trim(),
       cilindrada: form.cilindrada !== '' ? Number(form.cilindrada) : null,
-      cantidad_cilindros: form.cantidad_cilindros !== '' ? Number(form.cantidad_cilindros) : null,
+      cilindros: form.cilindros !== '' ? Number(form.cilindros) : null,
       detalle_motor: form.detalle_motor.trim(),
       ano_desde: form.ano_desde !== '' ? Number(form.ano_desde) : null,
       ano_hasta: form.ano_hasta !== '' ? Number(form.ano_hasta) : null,
-      cantidad_valvulas: form.cantidad_valvulas !== '' ? Number(form.cantidad_valvulas) : null,
     };
 
     try {
-      const resp = await fetch(`${API_URL}/aplicaciones/${editId}/`, {
+      const resp = await fetch(`${API_URL}/vehiculos/${editId}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -137,19 +133,19 @@ function GestorAplicacionesPage() {
         const err = await resp.json().catch(() => ({}));
         throw new Error(err?.detail || 'No OK');
       }
-      toast.success('Aplicación actualizada');
+      toast.success('Vehículo actualizado');
       cancelEdit();
       fetchAplicaciones();
     } catch (e) {
-      toast.error('No se pudo actualizar la aplicación');
+      toast.error('No se pudo actualizar el vehículo');
     }
   };
 
-  if (cargando) return <p>Cargando aplicaciones...</p>;
+  if (cargando) return <p>Cargando vehículos...</p>;
 
   return (
     <div className="gestor-container">
-      <h2>Gestor de Aplicaciones de Vehículo</h2>
+      <h2>Gestor de Vehículos</h2>
 
       {/* Filtros */}
       <div className="gestor-filtros" style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
@@ -170,11 +166,11 @@ function GestorAplicacionesPage() {
       {/* Editor */}
       {editId && (
         <div className="editor-card" style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, marginBottom: 12 }}>
-          <h3 style={{ marginTop: 0 }}>Editar aplicación #{editId}</h3>
+          <h3 style={{ marginTop: 0 }}>Editar vehículo #{editId}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
             <label>
               <div>Marca</div>
-              <select name="marca_vehiculo" value={form.marca_vehiculo} onChange={onChange}>
+              <select name="marca" value={form.marca} onChange={onChange}>
                 <option value="">Seleccione</option>
                 {marcas.map((m) => (
                   <option key={m.id} value={m.id}>{m.nombre}</option>
@@ -183,7 +179,7 @@ function GestorAplicacionesPage() {
             </label>
             <label>
               <div>Modelo</div>
-              <input name="modelo_vehiculo" value={form.modelo_vehiculo} onChange={onChange} />
+              <input name="modelo" value={form.modelo} onChange={onChange} />
             </label>
             <label>
               <div>Cilindrada</div>
@@ -191,7 +187,7 @@ function GestorAplicacionesPage() {
             </label>
             <label>
               <div>Cilindros</div>
-              <input name="cantidad_cilindros" value={form.cantidad_cilindros} onChange={onChange} placeholder="4" />
+              <input name="cilindros" value={form.cilindros} onChange={onChange} placeholder="4" />
             </label>
             <label>
               <div>Detalle Motor</div>
@@ -204,10 +200,6 @@ function GestorAplicacionesPage() {
             <label>
               <div>Año Hasta</div>
               <input name="ano_hasta" value={form.ano_hasta} onChange={onChange} placeholder="2012" />
-            </label>
-            <label>
-              <div>Válvulas</div>
-              <input name="cantidad_valvulas" value={form.cantidad_valvulas} onChange={onChange} placeholder="16" />
             </label>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
@@ -230,24 +222,24 @@ function GestorAplicacionesPage() {
               <th>Detalle</th>
               <th>Año Desde</th>
               <th>Año Hasta</th>
-              <th>Válvulas</th>
+              <th>Años</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {aplicacionesFiltradas.map((a) => (
-              <tr key={a.id}>
-                <td>{a.id}</td>
-                <td>{a.marca_vehiculo_nombre || ''}</td>
-                <td>{a.modelo_vehiculo}</td>
-                <td>{a.cilindrada ?? ''}</td>
-                <td>{a.cantidad_cilindros ?? ''}</td>
-                <td>{a.detalle_motor || ''}</td>
-                <td>{a.ano_desde ?? ''}</td>
-                <td>{a.ano_hasta ?? ''}</td>
-                <td>{a.cantidad_valvulas ?? ''}</td>
+            {vehiculosFiltrados.map((v) => (
+              <tr key={v.id}>
+                <td>{v.id}</td>
+                <td>{v.marca || ''}</td>
+                <td>{v.modelo}</td>
+                <td>{v.cilindrada ?? ''}</td>
+                <td>{v.cilindros ?? ''}</td>
+                <td>{v.detalle_motor || ''}</td>
+                <td>{v.ano_desde ?? ''}</td>
+                <td>{v.ano_hasta ?? ''}</td>
+                <td>{v.anos || ''}</td>
                 <td>
-                  <button onClick={() => startEdit(a)} className="btn-edit">Editar</button>
+                  <button onClick={() => startEdit(v)} className="btn-edit">Editar</button>
                 </td>
               </tr>
             ))}
