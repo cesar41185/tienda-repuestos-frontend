@@ -829,7 +829,12 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     try {
       const params = new URLSearchParams();
       if (buscaModeloExistente) params.append('search', buscaModeloExistente);
-      if (buscaMarcaExistente) params.append('marca', buscaMarcaExistente);
+      if (buscaMarcaExistente) {
+        // Convertir ID de marca a nombre de marca para el filtro
+        const marcaObj = marcas.find(m => m.nombre === buscaMarcaExistente || m.id === parseInt(buscaMarcaExistente));
+        const marcaNombre = marcaObj ? marcaObj.nombre : buscaMarcaExistente;
+        params.append('marca', marcaNombre);
+      }
       const url = `${API_URL}/vehiculos/?${params.toString()}`;
       const resp = await fetch(url);
       const data = await resp.json().catch(() => ({}));
