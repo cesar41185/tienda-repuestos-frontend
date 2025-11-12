@@ -793,11 +793,25 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
             throw new Error('No se pudo crear ni encontrar el vehículo');
           }
         } else {
-          throw new Error('Error al buscar vehículo existente');
+          let errorMessage = `Error ${searchResponse.status} al buscar vehículo existente`;
+          try {
+            const errorData = await searchResponse.json();
+            errorMessage = errorData.error || errorData.detail || errorData.message || errorMessage;
+          } catch (jsonError) {
+            errorMessage = searchResponse.statusText || errorMessage;
+          }
+          throw new Error(errorMessage);
         }
       } else {
-        const errorData = await vehiculoResponse.json();
-        throw new Error(errorData.detail || 'Error al crear vehículo');
+        let errorMessage = `Error ${vehiculoResponse.status}`;
+        try {
+          const errorData = await vehiculoResponse.json();
+          errorMessage = errorData.error || errorData.detail || errorData.message || errorMessage;
+        } catch (jsonError) {
+          // Si no es JSON válido, usar el status
+          errorMessage = vehiculoResponse.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
       
       // Ahora asociar el vehículo al producto

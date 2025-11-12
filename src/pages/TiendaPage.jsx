@@ -762,6 +762,7 @@ function TiendaPage() {
           producto={productoParaEditar} 
           onClose={handleCerrarModal}
           onSave={handleGuardadoExitoso}
+          onRefresh={handleRefreshInModal}
           onAmpliarFoto={handleAbrirVisorFoto}
           marcas={marcas}
         />
