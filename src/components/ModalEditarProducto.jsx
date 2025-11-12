@@ -113,11 +113,11 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     cantidad_valvulas: ''
   });
 
-  // Búsqueda y selección de aplicaciones existentes
+  // Búsqueda y selección de vehículos existentes
   const [buscaMarcaExistente, setBuscaMarcaExistente] = useState('');
   const [buscaModeloExistente, setBuscaModeloExistente] = useState('');
-  const [resultadosAplicaciones, setResultadosAplicaciones] = useState([]);
-  const [cargandoAplicaciones, setCargandoAplicaciones] = useState(false);
+  const [resultadosVehiculos, setResultadosVehiculos] = useState([]);
+  const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
 
   // Búsqueda y selección de válvulas compatibles (para GUIA_VALVULA)
   const [filtroValvulaEdit, setFiltroValvulaEdit] = useState('');
@@ -713,7 +713,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
 
   const handleAddAplicacion = async (e) => {
     if (!producto) {
-      toast.error('Debe crear el producto primero para agregar aplicaciones');
+      toast.error('Debe crear el producto primero para agregar vehículos');
       return;
     }
     e.preventDefault();
@@ -798,85 +798,77 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     }
   };
 
-  const buscarAplicacionesExistentes = async () => {
-    setCargandoAplicaciones(true);
+  const buscarVehiculosExistentes = async () => {
+    setCargandoVehiculos(true);
     try {
       const params = new URLSearchParams();
       if (buscaModeloExistente) params.append('search', buscaModeloExistente);
-      if (buscaMarcaExistente) params.append('marca_vehiculo', buscaMarcaExistente);
-      const url = `${API_URL}/aplicaciones/?${params.toString()}`;
+      if (buscaMarcaExistente) params.append('marca', buscaMarcaExistente);
+      const url = `${API_URL}/vehiculos/?${params.toString()}`;
       const resp = await fetch(url);
       const data = await resp.json().catch(() => ({}));
       const items = Array.isArray(data) ? data : (data.results || []);
-      setResultadosAplicaciones(items.slice(0, 25)); // limitar para UI
+      setResultadosVehiculos(items.slice(0, 25)); // limitar para UI
     } catch (e) {
-      console.error('Error buscando aplicaciones existentes:', e);
-      toast.error('No se pudieron cargar aplicaciones.');
+      console.error('Error buscando vehículos existentes:', e);
+      toast.error('No se pudieron cargar vehículos.');
     } finally {
-      setCargandoAplicaciones(false);
+      setCargandoVehiculos(false);
     }
   };
 
-  const handleAgregarAplicacionExistente = async (aplicacion) => {
+  const handleAgregarVehiculoExistente = async (vehiculo) => {
     if (!producto) {
       toast.error('Primero guarda el producto.');
       return;
     }
     // Evitar duplicados básicos por marca+modelo en el mismo producto
-    const marcaIdAplicacion = aplicacion.marca_vehiculo_id || aplicacion.marca_vehiculo;
-    const yaExiste = (formData.aplicaciones || []).some(a => {
-      const aMarcaId = a.marca_vehiculo_id || a.marca_vehiculo;
-      return String(aMarcaId) === String(marcaIdAplicacion) && String(a.modelo_vehiculo).trim().toLowerCase() === String(aplicacion.modelo_vehiculo).trim().toLowerCase();
+    const yaExiste = (formData.vehiculos || []).some(v => {
+      return String(v.marca).trim().toLowerCase() === String(vehiculo.marca).trim().toLowerCase() && 
+             String(v.modelo).trim().toLowerCase() === String(vehiculo.modelo).trim().toLowerCase();
     });
     if (yaExiste) {
-      toast('Ya existe una aplicación con esa Marca y Modelo en este producto.');
+      toast('Ya existe un vehículo con esa Marca y Modelo en este producto.');
       return;
     }
     try {
       const payload = {
         producto: producto.id,
-        marca_vehiculo: marcaIdAplicacion,
-        modelo_vehiculo: aplicacion.modelo_vehiculo,
-        cilindrada: aplicacion.cilindrada ?? null,
-        cantidad_cilindros: aplicacion.cantidad_cilindros ?? null,
-        detalle_motor: aplicacion.detalle_motor || '',
-        ano_desde: aplicacion.ano_desde ?? null,
-        ano_hasta: aplicacion.ano_hasta ?? null,
-        cantidad_valvulas: aplicacion.cantidad_valvulas ?? 1
+        vehiculo: vehiculo.id
       };
-      const resp = await fetch(`${API_URL}/aplicaciones/`, {
+      const resp = await fetch(`${API_URL}/productos/${producto.id}/vehiculos/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
         body: JSON.stringify(payload)
       });
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({}));
-        throw new Error(err.detail || 'No se pudo añadir la aplicación existente');
+        throw new Error(err.detail || 'No se pudo añadir el vehículo existente');
       }
-      toast.success('Aplicación añadida');
-      // Refrescar lista local de aplicaciones del producto
+      toast.success('Vehículo añadido');
+      // Refrescar lista local de vehículos del producto
       try {
         const productoResp = await fetch(`${API_URL}/productos/${producto.id}/`, {
           headers: { 'Authorization': `Token ${token}` }
         });
         if (productoResp.ok) {
           const productoActualizado = await productoResp.json();
-          setFormData(prev => ({ ...prev, aplicaciones: productoActualizado.aplicaciones }));
+          setFormData(prev => ({ ...prev, vehiculos: productoActualizado.vehiculos }));
         }
       } catch {}
       onRefresh?.();
     } catch (e) {
       console.error(e);
-      toast.error(e.message || 'Error al añadir aplicación');
+      toast.error(e.message || 'Error al añadir vehículo');
     }
   };
 
-  const handleDeleteAplicacion = async (id) => {
-    await fetch(`${API_URL}/aplicaciones/${id}/`, { 
+  const handleDeleteVehiculo = async (productoVehiculoId) => {
+    await fetch(`${API_URL}/productos/${producto.id}/vehiculos/${productoVehiculoId}/`, { 
       method: 'DELETE',
       headers: { 'Authorization': `Token ${token}` }
     });
-    toast.success('Aplicación eliminada.');
+    toast.success('Vehículo eliminado.');
     onRefresh?.();
   };
 
@@ -1060,7 +1052,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
             {formData.tipo_producto === 'GUIA_VALVULA' ? (
               <button onClick={() => setActiveTab('valvulas')} className={`modal-tab-button ${activeTab === 'valvulas' ? 'active' : ''}`}>Válvulas Compatibles</button>
             ) : (
-              <button onClick={() => setActiveTab('aplicaciones')} className={`modal-tab-button ${activeTab === 'aplicaciones' ? 'active' : ''}`}>Aplicaciones</button>
+              <button onClick={() => setActiveTab('vehiculos')} className={`modal-tab-button ${activeTab === 'vehiculos' ? 'active' : ''}`}>Vehículos</button>
             )}
           </div>
         )}
@@ -1252,7 +1244,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
           </div>
         )}
 
-        {!modoCrear && activeTab === 'aplicaciones' && formData.tipo_producto !== 'GUIA_VALVULA' && (
+        {!modoCrear && activeTab === 'vehiculos' && formData.tipo_producto !== 'GUIA_VALVULA' && (
           <div className="tab-content">
             <h4>Vehículos Compatibles</h4>
             <ul className="related-list">
@@ -1264,19 +1256,19 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
               ))}
             </ul><hr />
             <h4>Agregar desde catálogo</h4>
-            <div className="catalogo-aplicaciones-busqueda" style={{display:'grid', gap:'8px', gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))'}}>
+            <div className="catalogo-vehiculos-busqueda" style={{display:'grid', gap:'8px', gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))'}}>
               <select value={buscaMarcaExistente} onChange={(e)=>setBuscaMarcaExistente(e.target.value)}>
                 <option value="">-- Marca --</option>
-                {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.nombre}>{m.nombre}</option>)}
               </select>
               <input type="text" placeholder="Modelo contiene..." value={buscaModeloExistente} onChange={(e)=>setBuscaModeloExistente(e.target.value)} />
-              <button type="button" onClick={buscarAplicacionesExistentes} disabled={cargandoAplicaciones}>
-                {cargandoAplicaciones ? 'Buscando...' : 'Buscar'}
+              <button type="button" onClick={buscarVehiculosExistentes} disabled={cargandoVehiculos}>
+                {cargandoVehiculos ? 'Buscando...' : 'Buscar'}
               </button>
             </div>
-            <div className="resultados-aplicaciones" style={{marginTop:'10px'}}>
-              {resultadosAplicaciones.length === 0 && !cargandoAplicaciones && <p style={{color:'#666'}}>Sin resultados (ajusta filtros).</p>}
-              {resultadosAplicaciones.length > 0 && (
+            <div className="resultados-vehiculos" style={{marginTop:'10px'}}>
+              {resultadosVehiculos.length === 0 && !cargandoVehiculos && <p style={{color:'#666'}}>Sin resultados (ajusta filtros).</p>}
+              {resultadosVehiculos.length > 0 && (
                 <table style={{width:'100%', fontSize:'0.85rem'}}>
                   <thead>
                     <tr>
@@ -1289,15 +1281,15 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                     </tr>
                   </thead>
                   <tbody>
-                    {resultadosAplicaciones.map(app => (
-                      <tr key={app.id}>
-                        <td>{app.marca_vehiculo_nombre || app.marca_vehiculo}</td>
-                        <td>{app.modelo_vehiculo}</td>
-                        <td>{app.ano_desde || app.ano_hasta ? `${app.ano_desde || '?'}-${app.ano_hasta || '?'}` : '—'}</td>
-                        <td>{app.cantidad_cilindros || '—'}</td>
-                        <td>{app.detalle_motor || '—'}</td>
+                    {resultadosVehiculos.map(vehiculo => (
+                      <tr key={vehiculo.id}>
+                        <td>{vehiculo.marca}</td>
+                        <td>{vehiculo.modelo}</td>
+                        <td>{vehiculo.anos || '—'}</td>
+                        <td>{vehiculo.cilindrada || '—'}</td>
+                        <td>{vehiculo.detalle_motor || '—'}</td>
                         <td>
-                          <button type="button" onClick={()=>handleAgregarAplicacionExistente(app)} title="Agregar al producto">➕</button>
+                          <button type="button" onClick={()=>handleAgregarVehiculoExistente(vehiculo)} title="Agregar al producto">➕</button>
                         </td>
                       </tr>
                     ))}
