@@ -115,7 +115,7 @@ function ProductoPage() {
       </button>
       <div className="producto-detalle-container">
         <div className="producto-fotos">
-          {producto.fotos.map(foto => (
+          {(producto.fotos || []).map(foto => (
             <img 
               key={foto.id} 
               // Construye la URL absoluta
@@ -186,7 +186,7 @@ function ProductoPage() {
             <>
             <h3>Números de Parte (Referencias)</h3>
             <div className="part-numbers-container">
-              {producto.numeros_de_parte
+              {(producto.numeros_de_parte || [])
                 .filter(part => part.marca !== 'SKU ML') // Filtramos para excluir 'SKU ML'
                 .map(part => (
                   <div key={part.id} className="part-number-item">
@@ -199,11 +199,11 @@ function ProductoPage() {
             </>
           )}
 
-          <h3>Aplicaciones</h3>
+          <h3>Vehículos Compatibles</h3>
           <ul>
-            {producto.aplicaciones.map(app => (
-              <li key={app.id}>
-                {app.marca_vehiculo_nombre} {app.modelo_vehiculo} ({app.ano_desde}-{app.ano_hasta})
+            {(producto.vehiculos || []).map(vehiculo => (
+              <li key={vehiculo.id}>
+                {vehiculo.marca} {vehiculo.modelo} {vehiculo.anos && `(${vehiculo.anos})`}
               </li>
             ))}
           </ul>
