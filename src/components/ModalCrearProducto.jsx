@@ -496,8 +496,8 @@ export default function ModalCrearProducto({ abierto, onClose, onCreated }) {
                         {loadingValvulas && <option value="" disabled>Cargando...</option>}
                         {!loadingValvulas && opcionesValvulas.slice(0, 200).map(v => {
                           const tipoValvula = v.especificaciones?.tipo === 'INTAKE' ? 'Adm' : v.especificaciones?.tipo === 'EXHAUST' ? 'Esc' : '';
-                          const marca = v.aplicaciones_compactas?.[0]?.marca_nombre || v.aplicaciones?.[0]?.marca_vehiculo?.nombre || '';
-                          const modelo = v.aplicaciones_compactas?.[0]?.modelo_compacto || v.aplicaciones?.[0]?.modelo_vehiculo || '';
+                          const marca = v.vehiculos?.[0]?.marca || '';
+                          const modelo = v.vehiculos?.[0]?.modelo || '';
                           return (
                             <option key={v.id} value={v.id}>
                               {`${v.codigo_interno} — ${tipoValvula ? `[${tipoValvula}] ` : ''}${marca} ${modelo}`}

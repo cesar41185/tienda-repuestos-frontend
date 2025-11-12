@@ -111,10 +111,10 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                   <>
                                         <td className="col-modelo">
                       <Link to={`/producto/${producto.id}`} className="truncar-2-lineas">
-                        {(producto.aplicaciones_compactas?.[0]?.modelo_compacto || producto.aplicaciones?.[0]?.modelo_vehiculo) || 'Uso General'}
+                        {producto.vehiculos?.[0]?.modelo || 'Uso General'}
                       </Link>
                     </td>
-                    <td className="col-marca">{(producto.aplicaciones_compactas?.[0]?.marca_nombre || producto.aplicaciones?.[0]?.marca_vehiculo_nombre) || 'N/A'}</td>
+                    <td className="col-marca">{producto.vehiculos?.[0]?.marca || 'N/A'}</td>
                   </>
                 )}
                 {!esGuiaValvula && (
@@ -241,7 +241,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                     {esGuiaValvula ? (
                       <h3>{producto.codigo_interno || 'Guía de válvula'}</h3>
                     ) : (
-                      <h3>{(producto.aplicaciones_compactas?.[0]?.modelo_compacto || producto.aplicaciones?.[0]?.modelo_vehiculo) || 'Uso General'}</h3>
+                      <h3>{producto.vehiculos?.[0]?.modelo || 'Uso General'}</h3>
                     )}
                   </Link>
                   <span className="card-precio">${producto.precio_venta}</span>
@@ -251,7 +251,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
               <div className="card-specs">
                 {esValvula && (
                   <>
-                    <span><strong>Marca:</strong> {(producto.aplicaciones_compactas?.[0]?.marca_nombre || producto.aplicaciones?.[0]?.marca_vehiculo_nombre) || 'N/A'}</span>
+                    <span><strong>Marca:</strong> {producto.vehiculos?.[0]?.marca || 'N/A'}</span>
                     <span><strong>Tipo:</strong> {abreviaturasTipo[producto.especificaciones?.tipo] || producto.especificaciones?.tipo || 'N/A'}</span>
                     <span><strong>Cabeza:</strong> {producto.especificaciones?.diametro_cabeza || 'N/A'} mm</span>
                     <span><strong>Vástago:</strong> {producto.especificaciones?.diametro_vastago || 'N/A'} mm</span>

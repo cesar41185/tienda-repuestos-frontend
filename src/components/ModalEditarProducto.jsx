@@ -1256,10 +1256,10 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
           <div className="tab-content">
             <h4>Vehículos Compatibles</h4>
             <ul className="related-list">
-              {(formData.aplicaciones_compactas || formData.aplicaciones || []).map(app => (
-                <li key={app.id}>
-                  <span>{`${app.marca_nombre || app.marca_vehiculo_nombre} ${app.modelo_compacto || app.modelo_vehiculo}`}</span>
-                  <button onClick={() => handleDeleteAplicacion(app.id)}>Borrar</button>
+              {(formData.vehiculos || []).map(vehiculo => (
+                <li key={vehiculo.id}>
+                  <span>{`${vehiculo.marca} ${vehiculo.modelo}`} {vehiculo.anos && `(${vehiculo.anos})`}</span>
+                  <button onClick={() => handleDeleteVehiculo(vehiculo.id)}>Borrar</button>
                 </li>
               ))}
             </ul><hr />
@@ -1336,8 +1336,8 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
               <ul className="related-list">
                 {valvulasActuales.map(v => {
                   const tipoValvula = v.especificaciones?.tipo === 'INTAKE' ? 'Admisión' : v.especificaciones?.tipo === 'EXHAUST' ? 'Escape' : 'N/A';
-                  const marca = v.aplicaciones_compactas?.[0]?.marca_nombre || v.aplicaciones?.[0]?.marca_vehiculo?.nombre || v.aplicaciones?.[0]?.marca_vehiculo_nombre || '';
-                  const modelo = v.aplicaciones_compactas?.[0]?.modelo_compacto || v.aplicaciones?.[0]?.modelo_vehiculo || '';
+                  const marca = v.vehiculos?.[0]?.marca || '';
+                  const modelo = v.vehiculos?.[0]?.modelo || '';
                   return (
                     <li key={v.id}>
                       <span>{`${v.codigo_interno} — [${tipoValvula}] ${marca} ${modelo}`.trim()}</span>
@@ -1388,8 +1388,8 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
                   <tbody>
                     {resultadosValvulas.map(v => {
                       const tipoValvula = v.especificaciones?.tipo === 'INTAKE' ? 'Adm' : v.especificaciones?.tipo === 'EXHAUST' ? 'Esc' : '—';
-                      const marca = v.aplicaciones_compactas?.[0]?.marca_nombre || v.aplicaciones?.[0]?.marca_vehiculo?.nombre || v.aplicaciones?.[0]?.marca_vehiculo_nombre || '—';
-                      const modelo = v.aplicaciones_compactas?.[0]?.modelo_compacto || v.aplicaciones?.[0]?.modelo_vehiculo || '—';
+                      const marca = v.vehiculos?.[0]?.marca || '—';
+                      const modelo = v.vehiculos?.[0]?.modelo || '—';
                       const yaAgregada = valvulasActuales.some(va => va.id === v.id);
                       return (
                         <tr key={v.id} style={yaAgregada ? {opacity: 0.5} : {}}>

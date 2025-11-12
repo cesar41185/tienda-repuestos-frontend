@@ -53,7 +53,7 @@ function CarritoPage() {
           <li key={item.id} className="carrito-item">
             <img src={item.fotos?.[0]?.imagen || '/placeholder.png'} alt={item.codigo_interno} className="carrito-item-img" />
             <div className="carrito-item-details">
-              <span className="carrito-item-modelo">{(item.aplicaciones_compactas?.[0]?.modelo_compacto || item.aplicaciones?.[0]?.modelo_vehiculo) || item.codigo_interno}</span>
+              <span className="carrito-item-modelo">{item.vehiculos?.[0]?.modelo || item.codigo_interno}</span>
               <span className="carrito-item-codigo">{item.cantidad} unidades ({item.cantidad / JUEGO_UNIDADES} juego/s)</span>
               {item.cantidad > item.stock && (
                 <span className="carrito-item-advertencia">Stock insuficiente</span>

@@ -126,7 +126,7 @@ function ProductoPage() {
         </div>
         <div className="producto-info">
           <h1>{producto.codigo_interno}</h1>
-          <p className="producto-modelo">{(producto.aplicaciones_compactas?.[0]?.modelo_compacto || producto.aplicaciones?.[0]?.modelo_vehiculo) || 'Uso General'}</p>
+          <p className="producto-modelo">{producto.vehiculos?.[0]?.modelo || 'Uso General'}</p>
           <p className="producto-precio">${producto.precio_venta}</p>
           
           <div className="producto-acciones">
