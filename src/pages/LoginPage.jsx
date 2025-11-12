@@ -20,8 +20,8 @@ function LoginPage() {
     <div className="auth-container">
       <h2>Iniciar Sesión</h2>
       <form onSubmit={handleSubmit} className="auth-form">
-        <label htmlFor="username">Nombre de Usuario</label>
-        <input id="username" type="text" name="username" onChange={handleChange} required />
+        <label htmlFor="username">Usuario o Correo Electrónico</label>
+        <input id="username" type="text" name="username" placeholder="usuario o email@ejemplo.com" onChange={handleChange} required />
         
         <label htmlFor="password">Contraseña</label>
         <input id="password" type="password" name="password" onChange={handleChange} required />
