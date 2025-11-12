@@ -1319,23 +1319,54 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
         {!modoCrear && activeTab === 'vehiculos' && formData.tipo_producto !== 'GUIA_VALVULA' && (
           <div className="tab-content">
             {/* Tabs de gestión de vehículos */}
-            <div className="vehiculos-tabs">
-              <div className="tab-nav">
+            <div>
+              {/* Tabs */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '15px', borderBottom: '2px solid #e5e7eb' }}>
                 <button 
-                  className={`tab-btn ${tabVehiculoActivo === 'compatibles' ? 'active' : ''}`}
                   onClick={() => setTabVehiculoActivo('compatibles')}
+                  style={{
+                    padding: '10px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: tabVehiculoActivo === 'compatibles' ? '3px solid #2563eb' : '3px solid transparent',
+                    color: tabVehiculoActivo === 'compatibles' ? '#2563eb' : '#6b7280',
+                    fontWeight: tabVehiculoActivo === 'compatibles' ? '600' : '400',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    marginBottom: '-2px'
+                  }}
                 >
                   Compatibles ({(formData.vehiculos || []).length})
                 </button>
                 <button 
-                  className={`tab-btn ${tabVehiculoActivo === 'buscar' ? 'active' : ''}`}
                   onClick={() => setTabVehiculoActivo('buscar')}
+                  style={{
+                    padding: '10px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: tabVehiculoActivo === 'buscar' ? '3px solid #2563eb' : '3px solid transparent',
+                    color: tabVehiculoActivo === 'buscar' ? '#2563eb' : '#6b7280',
+                    fontWeight: tabVehiculoActivo === 'buscar' ? '600' : '400',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    marginBottom: '-2px'
+                  }}
                 >
                   Buscar
                 </button>
                 <button 
-                  className={`tab-btn ${tabVehiculoActivo === 'nuevo' ? 'active' : ''}`}
                   onClick={() => setTabVehiculoActivo('nuevo')}
+                  style={{
+                    padding: '10px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: tabVehiculoActivo === 'nuevo' ? '3px solid #2563eb' : '3px solid transparent',
+                    color: tabVehiculoActivo === 'nuevo' ? '#2563eb' : '#6b7280',
+                    fontWeight: tabVehiculoActivo === 'nuevo' ? '600' : '400',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    marginBottom: '-2px'
+                  }}
                 >
                   Agregar Nuevo
                 </button>
@@ -1343,188 +1374,429 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
 
               {/* Tab: Vehículos Compatibles */}
               {tabVehiculoActivo === 'compatibles' && (
-                <div className="tab-panel">
-                  <div className="vehiculos-compatibles">
-                    {(formData.vehiculos || []).length === 0 ? (
-                      <div className="empty-state">
-                        <p>No hay vehículos asociados</p>
-                        <small>Usa las pestañas "Buscar" o "Agregar Nuevo" para añadir vehículos</small>
-                      </div>
-                    ) : (
-                      <div className="vehiculos-grid">
-                        {(formData.vehiculos || []).map(vehiculo => (
-                          <div key={vehiculo.producto_vehiculo_id || vehiculo.id} className="vehiculo-card">
-                            <div className="vehiculo-info">
-                              <h5>{vehiculo.marca} {vehiculo.modelo}</h5>
-                              <div className="vehiculo-details">
-                                {vehiculo.anos && <span className="detail-chip">📅 {vehiculo.anos}</span>}
-                                {vehiculo.cilindrada && <span className="detail-chip">⚙️ {vehiculo.cilindrada}L</span>}
-                                {vehiculo.cantidad_cilindros && <span className="detail-chip">🔧 {vehiculo.cantidad_cilindros} cil.</span>}
-                                {vehiculo.detalle_motor && <span className="detail-chip">🏭 {vehiculo.detalle_motor}</span>}
-                              </div>
+                <div style={{ padding: '15px 0' }}>
+                  {(formData.vehiculos || []).length === 0 ? (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      padding: '40px 20px', 
+                      color: '#9ca3af',
+                      background: '#f9fafb',
+                      borderRadius: '8px',
+                      border: '2px dashed #e5e7eb'
+                    }}>
+                      <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🚗</div>
+                      <p style={{ margin: '0 0 5px 0', fontWeight: '500' }}>No hay vehículos asociados</p>
+                      <small>Usa "Buscar" o "Agregar Nuevo" para añadir vehículos</small>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                      {(formData.vehiculos || []).map(vehiculo => (
+                        <div 
+                          key={vehiculo.producto_vehiculo_id || vehiculo.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px',
+                            background: 'white',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '6px',
+                            gap: '12px'
+                          }}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: '600', marginBottom: '6px', color: '#1f2937' }}>
+                              {vehiculo.marca} {vehiculo.modelo}
                             </div>
-                            <button 
-                              className="delete-btn" 
-                              onClick={() => handleDeleteVehiculo(vehiculo.producto_vehiculo_id)}
-                              title="Eliminar vehículo"
-                            >
-                              🗑️
-                            </button>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '0.85rem' }}>
+                              {vehiculo.anos && (
+                                <span style={{ 
+                                  background: '#dbeafe', 
+                                  color: '#1e40af', 
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px' 
+                                }}>
+                                  📅 {vehiculo.anos}
+                                </span>
+                              )}
+                              {vehiculo.cilindrada && (
+                                <span style={{ 
+                                  background: '#dcfce7', 
+                                  color: '#166534', 
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px' 
+                                }}>
+                                  ⚙️ {vehiculo.cilindrada}L
+                                </span>
+                              )}
+                              {vehiculo.cantidad_cilindros && (
+                                <span style={{ 
+                                  background: '#fef3c7', 
+                                  color: '#92400e', 
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px' 
+                                }}>
+                                  🔧 {vehiculo.cantidad_cilindros} cil.
+                                </span>
+                              )}
+                              {vehiculo.detalle_motor && (
+                                <span style={{ 
+                                  background: '#e0e7ff', 
+                                  color: '#3730a3', 
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px' 
+                                }}>
+                                  🏭 {vehiculo.detalle_motor}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                          <button 
+                            onClick={() => handleDeleteVehiculo(vehiculo.producto_vehiculo_id)}
+                            title="Eliminar vehículo"
+                            style={{
+                              padding: '6px 10px',
+                              background: '#fee2e2',
+                              color: '#991b1b',
+                              border: '1px solid #fca5a5',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '1.1rem'
+                            }}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Tab: Buscar Existentes */}
               {tabVehiculoActivo === 'buscar' && (
-                <div className="tab-panel">
-                  <div className="buscar-vehiculos">
-                    <div className="search-controls">
-                      <div className="search-inputs">
-                        <select value={buscaMarcaExistente} onChange={(e)=>setBuscaMarcaExistente(e.target.value)}>
-                          <option value="">-- Todas las marcas --</option>
-                          {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.nombre}>{m.nombre}</option>)}
-                        </select>
-                        <input 
-                          type="text" 
-                          placeholder="Buscar por modelo..." 
-                          value={buscaModeloExistente} 
-                          onChange={(e)=>setBuscaModeloExistente(e.target.value)} 
-                        />
-                        <button 
-                          type="button" 
-                          onClick={buscarVehiculosExistentes} 
-                          disabled={cargandoVehiculos}
-                          className="search-btn"
-                        >
-                          {cargandoVehiculos ? '🔍 Buscando...' : '🔍 Buscar'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="search-results">
-                      {resultadosVehiculos.length === 0 && !cargandoVehiculos && (
-                        <div className="empty-results">
-                          <p>Sin resultados</p>
-                          <small>Usa los filtros de arriba para buscar vehículos</small>
-                        </div>
-                      )}
-                      
-                      {resultadosVehiculos.length > 0 && (
-                        <div className="vehiculos-encontrados">
-                          {resultadosVehiculos.map(vehiculo => (
-                            <div key={vehiculo.id} className="vehiculo-resultado">
-                              <div className="vehiculo-info">
-                                <h5>{vehiculo.marca} {vehiculo.modelo}</h5>
-                                <div className="vehiculo-details">
-                                  {vehiculo.anos && <span className="detail-chip">📅 {vehiculo.anos}</span>}
-                                  {vehiculo.cilindrada && <span className="detail-chip">⚙️ {vehiculo.cilindrada}L</span>}
-                                  {vehiculo.cantidad_cilindros && <span className="detail-chip">🔧 {vehiculo.cantidad_cilindros} cil.</span>}
-                                  {vehiculo.detalle_motor && <span className="detail-chip">🏭 {vehiculo.detalle_motor}</span>}
-                                </div>
-                              </div>
-                              <button 
-                                type="button" 
-                                onClick={()=>handleAgregarVehiculoExistente(vehiculo)} 
-                                className="add-btn"
-                                title="Agregar al producto"
-                              >
-                                ➕
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                <div style={{ padding: '15px 0' }}>
+                  {/* Controles de búsqueda */}
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '8px', 
+                    marginBottom: '15px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <select 
+                      value={buscaMarcaExistente} 
+                      onChange={(e)=>setBuscaMarcaExistente(e.target.value)}
+                      style={{
+                        flex: '1',
+                        minWidth: '150px',
+                        padding: '8px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '4px',
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      <option value="">Todas las marcas</option>
+                      {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.nombre}>{m.nombre}</option>)}
+                    </select>
+                    <input 
+                      type="text" 
+                      placeholder="Buscar por modelo..." 
+                      value={buscaModeloExistente} 
+                      onChange={(e)=>setBuscaModeloExistente(e.target.value)}
+                      style={{
+                        flex: '2',
+                        minWidth: '200px',
+                        padding: '8px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '4px',
+                        fontSize: '0.95rem'
+                      }}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={buscarVehiculosExistentes} 
+                      disabled={cargandoVehiculos}
+                      style={{
+                        padding: '8px 16px',
+                        background: cargandoVehiculos ? '#9ca3af' : '#2563eb',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: cargandoVehiculos ? 'not-allowed' : 'pointer',
+                        fontWeight: '500',
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      {cargandoVehiculos ? '🔍 Buscando...' : '🔍 Buscar'}
+                    </button>
                   </div>
+
+                  {/* Resultados */}
+                  {resultadosVehiculos.length === 0 && !cargandoVehiculos && (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      padding: '40px 20px', 
+                      color: '#9ca3af',
+                      background: '#f9fafb',
+                      borderRadius: '8px',
+                      border: '2px dashed #e5e7eb'
+                    }}>
+                      <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🔍</div>
+                      <p style={{ margin: '0 0 5px 0', fontWeight: '500' }}>Sin resultados</p>
+                      <small>Usa los filtros de arriba para buscar vehículos</small>
+                    </div>
+                  )}
+                  
+                  {resultadosVehiculos.length > 0 && (
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                      {resultadosVehiculos.map(vehiculo => (
+                        <div 
+                          key={vehiculo.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px',
+                            background: 'white',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '6px',
+                            gap: '12px'
+                          }}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: '600', marginBottom: '6px', color: '#1f2937' }}>
+                              {vehiculo.marca} {vehiculo.modelo}
+                            </div>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '0.85rem' }}>
+                              {vehiculo.anos && (
+                                <span style={{ 
+                                  background: '#dbeafe', 
+                                  color: '#1e40af', 
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px' 
+                                }}>
+                                  📅 {vehiculo.anos}
+                                </span>
+                              )}
+                              {vehiculo.cilindrada && (
+                                <span style={{ 
+                                  background: '#dcfce7', 
+                                  color: '#166534', 
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px' 
+                                }}>
+                                  ⚙️ {vehiculo.cilindrada}L
+                                </span>
+                              )}
+                              {vehiculo.cantidad_cilindros && (
+                                <span style={{ 
+                                  background: '#fef3c7', 
+                                  color: '#92400e', 
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px' 
+                                }}>
+                                  🔧 {vehiculo.cantidad_cilindros} cil.
+                                </span>
+                              )}
+                              {vehiculo.detalle_motor && (
+                                <span style={{ 
+                                  background: '#e0e7ff', 
+                                  color: '#3730a3', 
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px' 
+                                }}>
+                                  🏭 {vehiculo.detalle_motor}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <button 
+                            type="button" 
+                            onClick={()=>handleAgregarVehiculoExistente(vehiculo)}
+                            title="Agregar al producto"
+                            style={{
+                              padding: '6px 10px',
+                              background: '#dcfce7',
+                              color: '#166534',
+                              border: '1px solid #86efac',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '1.1rem'
+                            }}
+                          >
+                            ➕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Tab: Agregar Nuevo */}
               {tabVehiculoActivo === 'nuevo' && (
-                <div className="tab-panel">
-                  <div className="nuevo-vehiculo">
-                    <form onSubmit={handleAddVehiculo} className="vehiculo-form">
-                      <div className="form-section">
-                        <h5>Información Básica *</h5>
-                        <div className="form-row">
-                          <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange} required>
-                            <option value="">-- Seleccionar Marca --</option>
-                            {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-                          </select>
-                          <input 
-                            name="modelo_vehiculo" 
-                            type="text" 
-                            placeholder="Modelo del Vehículo" 
-                            value={nuevaAplicacion.modelo_vehiculo} 
-                            onChange={handleNuevaAplicacionChange} 
-                            required 
-                          />
-                        </div>
+                <div style={{ padding: '15px 0' }}>
+                  <form onSubmit={handleAddVehiculo}>
+                    {/* Información Básica */}
+                    <div style={{ 
+                      background: '#f9fafb', 
+                      padding: '15px', 
+                      borderRadius: '6px', 
+                      marginBottom: '15px',
+                      border: '1px solid #e5e7eb'
+                    }}>
+                      <h5 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', color: '#374151' }}>
+                        Información Básica <span style={{ color: '#ef4444' }}>*</span>
+                      </h5>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                        <select 
+                          name="marca_vehiculo" 
+                          value={nuevaAplicacion.marca_vehiculo} 
+                          onChange={handleNuevaAplicacionChange} 
+                          required
+                          style={{
+                            padding: '8px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            fontSize: '0.95rem'
+                          }}
+                        >
+                          <option value="">Seleccionar Marca</option>
+                          {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                        </select>
+                        <input 
+                          name="modelo_vehiculo" 
+                          type="text" 
+                          placeholder="Modelo del Vehículo *" 
+                          value={nuevaAplicacion.modelo_vehiculo} 
+                          onChange={handleNuevaAplicacionChange} 
+                          required
+                          style={{
+                            padding: '8px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            fontSize: '0.95rem'
+                          }}
+                        />
                       </div>
+                    </div>
 
-                      <div className="form-section">
-                        <h5>Especificaciones Adicionales</h5>
-                        <div className="form-row">
-                          <input 
-                            name="ano_desde" 
-                            type="number" 
-                            placeholder="Año Desde" 
-                            value={nuevaAplicacion.ano_desde} 
-                            onChange={handleNuevaAplicacionChange} 
-                          />
-                          <input 
-                            name="ano_hasta" 
-                            type="number" 
-                            placeholder="Año Hasta" 
-                            value={nuevaAplicacion.ano_hasta} 
-                            onChange={handleNuevaAplicacionChange} 
-                          />
-                        </div>
-                        <div className="form-row">
-                          <input 
-                            name="cilindrada" 
-                            type="number" 
-                            step="0.1" 
-                            placeholder="Cilindrada (ej: 1.6)" 
-                            value={nuevaAplicacion.cilindrada} 
-                            onChange={handleNuevaAplicacionChange} 
-                          />
-                          <input 
-                            name="cantidad_cilindros" 
-                            type="number" 
-                            placeholder="N° Cilindros" 
-                            value={nuevaAplicacion.cantidad_cilindros} 
-                            onChange={handleNuevaAplicacionChange} 
-                          />
-                        </div>
-                        <div className="form-row">
-                          <input 
-                            name="detalle_motor" 
-                            type="text" 
-                            placeholder="Detalle Motor (ej: Zetec, DOHC)" 
-                            value={nuevaAplicacion.detalle_motor} 
-                            onChange={handleNuevaAplicacionChange} 
-                          />
-                          <input 
-                            name="cantidad_valvulas" 
-                            type="number" 
-                            placeholder="Cant. Válvulas" 
-                            value={nuevaAplicacion.cantidad_valvulas} 
-                            onChange={handleNuevaAplicacionChange} 
-                          />
-                        </div>
+                    {/* Especificaciones Adicionales */}
+                    <div style={{ 
+                      background: 'white', 
+                      padding: '15px', 
+                      borderRadius: '6px', 
+                      marginBottom: '15px',
+                      border: '1px solid #e5e7eb'
+                    }}>
+                      <h5 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', color: '#374151' }}>
+                        Especificaciones Adicionales (Opcional)
+                      </h5>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+                        <input 
+                          name="ano_desde" 
+                          type="number" 
+                          placeholder="Año Desde" 
+                          value={nuevaAplicacion.ano_desde} 
+                          onChange={handleNuevaAplicacionChange}
+                          style={{
+                            padding: '8px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            fontSize: '0.95rem'
+                          }}
+                        />
+                        <input 
+                          name="ano_hasta" 
+                          type="number" 
+                          placeholder="Año Hasta" 
+                          value={nuevaAplicacion.ano_hasta} 
+                          onChange={handleNuevaAplicacionChange}
+                          style={{
+                            padding: '8px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            fontSize: '0.95rem'
+                          }}
+                        />
+                        <input 
+                          name="cilindrada" 
+                          type="number" 
+                          step="0.1" 
+                          placeholder="Cilindrada (1.6)" 
+                          value={nuevaAplicacion.cilindrada} 
+                          onChange={handleNuevaAplicacionChange}
+                          style={{
+                            padding: '8px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            fontSize: '0.95rem'
+                          }}
+                        />
+                        <input 
+                          name="cantidad_cilindros" 
+                          type="number" 
+                          placeholder="N° Cilindros" 
+                          value={nuevaAplicacion.cantidad_cilindros} 
+                          onChange={handleNuevaAplicacionChange}
+                          style={{
+                            padding: '8px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            fontSize: '0.95rem'
+                          }}
+                        />
+                        <input 
+                          name="detalle_motor" 
+                          type="text" 
+                          placeholder="Detalle Motor" 
+                          value={nuevaAplicacion.detalle_motor} 
+                          onChange={handleNuevaAplicacionChange}
+                          style={{
+                            padding: '8px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            fontSize: '0.95rem'
+                          }}
+                        />
+                        <input 
+                          name="cantidad_valvulas" 
+                          type="number" 
+                          placeholder="Cant. Válvulas" 
+                          value={nuevaAplicacion.cantidad_valvulas} 
+                          onChange={handleNuevaAplicacionChange}
+                          style={{
+                            padding: '8px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            fontSize: '0.95rem'
+                          }}
+                        />
                       </div>
+                    </div>
 
-                      <div className="form-actions">
-                        <small>* Solo Marca y Modelo son obligatorios</small>
-                        <button type="submit" className="submit-btn">Crear y Agregar Vehículo</button>
-                      </div>
-                    </form>
-                  </div>
+                    {/* Botón de envío */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+                      <button 
+                        type="submit"
+                        style={{
+                          padding: '10px 20px',
+                          background: '#10b981',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '0.95rem'
+                        }}
+                      >
+                        ✅ Crear y Agregar Vehículo
+                      </button>
+                      <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
+                        * Solo Marca y Modelo son obligatorios
+                      </small>
+                    </div>
+                  </form>
                 </div>
               )}
             </div>
