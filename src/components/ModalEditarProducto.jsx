@@ -871,7 +871,6 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     }
     try {
       const payload = {
-        producto: producto.id,
         vehiculo: vehiculo.id
       };
       const resp = await fetch(`${API_URL}/productos/${producto.id}/vehiculos/`, {
