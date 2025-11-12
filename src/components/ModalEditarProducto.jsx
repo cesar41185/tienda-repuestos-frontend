@@ -833,7 +833,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
         // Convertir ID de marca a nombre de marca para el filtro
         const marcaObj = marcas.find(m => m.nombre === buscaMarcaExistente || m.id === parseInt(buscaMarcaExistente));
         const marcaNombre = marcaObj ? marcaObj.nombre : buscaMarcaExistente;
-        params.append('marca', marcaNombre);
+        params.append('marca__nombre', marcaNombre);
       }
       const url = `${API_URL}/vehiculos/?${params.toString()}`;
       const resp = await fetch(url);
