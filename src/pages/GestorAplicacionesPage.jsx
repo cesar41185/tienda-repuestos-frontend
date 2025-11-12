@@ -5,7 +5,7 @@ import API_URL from '../apiConfig';
 function GestorAplicacionesPage() {
   const [vehiculos, setVehiculos] = useState([]);
   const [marcas, setMarcas] = useState([]);
-  const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(false);
   const [filtroMarcaId, setFiltroMarcaId] = useState('');
   const [filtroModelo, setFiltroModelo] = useState('');
 
