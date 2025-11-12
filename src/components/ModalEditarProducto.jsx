@@ -811,8 +811,15 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       });
       
       if (!asociacionResponse.ok) {
-        const errorData = await asociacionResponse.json();
-        throw new Error(errorData.detail || 'Error al asociar vehículo al producto');
+        let errorMessage = `Error ${asociacionResponse.status}`;
+        try {
+          const errorData = await asociacionResponse.json();
+          errorMessage = errorData.error || errorData.detail || errorData.message || errorMessage;
+        } catch (jsonError) {  
+          // Si no es JSON válido, usar el status
+          errorMessage = asociacionResponse.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
       
       toast.success('Vehículo agregado exitosamente.');
@@ -873,8 +880,15 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
         body: JSON.stringify(payload)
       });
       if (!resp.ok) {
-        const err = await resp.json().catch(() => ({}));
-        throw new Error(err.detail || 'No se pudo añadir el vehículo existente');
+        let errorMessage = `Error ${resp.status}`;
+        try {
+          const err = await resp.json();
+          errorMessage = err.error || err.detail || err.message || errorMessage;
+        } catch (jsonError) {
+          // Si no es JSON válido, usar el status text
+          errorMessage = resp.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
       toast.success('Vehículo añadido');
       // Refrescar lista local de vehículos del producto
@@ -895,12 +909,23 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
   };
 
   const handleDeleteVehiculo = async (productoVehiculoId) => {
-    await fetch(`${API_URL}/productos/${producto.id}/vehiculos/${productoVehiculoId}/`, { 
-      method: 'DELETE',
-      headers: { 'Authorization': `Token ${token}` }
-    });
-    toast.success('Vehículo eliminado.');
-    onRefresh?.();
+    try {
+      const response = await fetch(`${API_URL}/productos/${producto.id}/vehiculos/${productoVehiculoId}/`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Error desconocido' }));
+        throw new Error(errorData.error || errorData.detail || `Error ${response.status}`);
+      }
+      
+      toast.success('Vehículo eliminado.');
+      onRefresh?.();
+    } catch (error) {
+      console.error('Error al eliminar vehículo:', error);
+      toast.error(`Error al eliminar vehículo: ${error.message}`);
+    }
   };
 
   // Funciones para gestionar válvulas compatibles (solo GUIA_VALVULA)
