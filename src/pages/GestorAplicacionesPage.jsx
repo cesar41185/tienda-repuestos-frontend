@@ -144,112 +144,287 @@ function GestorAplicacionesPage() {
   if (cargando) return <p>Cargando vehículos...</p>;
 
   return (
-    <div className="gestor-container">
-      <h2>Gestor de Vehículos</h2>
+    <div className="gestor-aplicaciones">
+      <div className="gestor-header">
+        <div className="header-content">
+          <h1>🚗 Gestor de Vehículos</h1>
+          <p className="header-subtitle">Administra la base de datos de vehículos compatibles</p>
+        </div>
+        <div className="stats-summary">
+          <div className="stat-card">
+            <span className="stat-number">{vehiculosFiltrados.length}</span>
+            <span className="stat-label">Vehículos {filtroMarcaId || filtroModelo ? 'filtrados' : 'totales'}</span>
+          </div>
+        </div>
+      </div>
 
       {/* Filtros */}
-      <div className="gestor-filtros" style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
-        <select value={filtroMarcaId} onChange={(e) => setFiltroMarcaId(e.target.value)}>
-          <option value="">Todas las marcas</option>
-          {marcas.map((m) => (
-            <option key={m.id} value={m.id}>{m.nombre}</option>
-          ))}
-        </select>
-        <input
-          type="text"
-          placeholder="Buscar modelo"
-          value={filtroModelo}
-          onChange={(e) => setFiltroModelo(e.target.value)}
-        />
+      <div className="filtros-section">
+        <div className="filtros-header">
+          <h3>🔍 Filtros de Búsqueda</h3>
+        </div>
+        <div className="filtros-controls">
+          <div className="filtro-group">
+            <label>Marca</label>
+            <select value={filtroMarcaId} onChange={(e) => setFiltroMarcaId(e.target.value)} className="filtro-select">
+              <option value="">🏷️ Todas las marcas</option>
+              {marcas.map((m) => (
+                <option key={m.id} value={m.id}>{m.nombre}</option>
+              ))}
+            </select>
+          </div>
+          <div className="filtro-group">
+            <label>Modelo</label>
+            <input
+              type="text"
+              placeholder="🔍 Buscar por modelo"
+              value={filtroModelo}
+              onChange={(e) => setFiltroModelo(e.target.value)}
+              className="filtro-input"
+            />
+          </div>
+          {(filtroMarcaId || filtroModelo) && (
+            <button 
+              onClick={() => { setFiltroMarcaId(''); setFiltroModelo(''); }} 
+              className="clear-filters-btn"
+              title="Limpiar filtros"
+            >
+              ✕ Limpiar
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Editor */}
       {editId && (
-        <div className="editor-card" style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, marginBottom: 12 }}>
-          <h3 style={{ marginTop: 0 }}>Editar vehículo #{editId}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
-            <label>
-              <div>Marca</div>
-              <select name="marca" value={form.marca} onChange={onChange}>
-                <option value="">Seleccione</option>
-                {marcas.map((m) => (
-                  <option key={m.id} value={m.id}>{m.nombre}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <div>Modelo</div>
-              <input name="modelo" value={form.modelo} onChange={onChange} />
-            </label>
-            <label>
-              <div>Cilindrada</div>
-              <input name="cilindrada" value={form.cilindrada} onChange={onChange} placeholder="1.6" />
-            </label>
-            <label>
-              <div>Cilindros</div>
-              <input name="cilindros" value={form.cilindros} onChange={onChange} placeholder="4" />
-            </label>
-            <label>
-              <div>Detalle Motor</div>
-              <input name="detalle_motor" value={form.detalle_motor} onChange={onChange} placeholder="Zetec" />
-            </label>
-            <label>
-              <div>Año Desde</div>
-              <input name="ano_desde" value={form.ano_desde} onChange={onChange} placeholder="2005" />
-            </label>
-            <label>
-              <div>Año Hasta</div>
-              <input name="ano_hasta" value={form.ano_hasta} onChange={onChange} placeholder="2012" />
-            </label>
-          </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button onClick={saveEdit} className="btn-edit">Guardar</button>
-            <button onClick={cancelEdit} className="btn-delete">Cancelar</button>
+        <div className="editor-section">
+          <div className="editor-card">
+            <div className="editor-header">
+              <h3>✏️ Editando Vehículo #{editId}</h3>
+              <button onClick={cancelEdit} className="close-editor-btn" title="Cerrar editor">✕</button>
+            </div>
+            
+            <div className="editor-form">
+              <div className="form-section">
+                <h4>📋 Información Básica</h4>
+                <div className="form-grid basic">
+                  <div className="form-group">
+                    <label>🏷️ Marca *</label>
+                    <select name="marca" value={form.marca} onChange={onChange} className="form-control" required>
+                      <option value="">Seleccionar marca</option>
+                      {marcas.map((m) => (
+                        <option key={m.id} value={m.id}>{m.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>🚗 Modelo *</label>
+                    <input 
+                      name="modelo" 
+                      value={form.modelo} 
+                      onChange={onChange} 
+                      className="form-control"
+                      placeholder="Ej: Corolla, Focus"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h4>⚙️ Especificaciones Técnicas</h4>
+                <div className="form-grid specs">
+                  <div className="form-group">
+                    <label>🔧 Cilindrada (L)</label>
+                    <input 
+                      name="cilindrada" 
+                      value={form.cilindrada} 
+                      onChange={onChange} 
+                      className="form-control"
+                      placeholder="1.6"
+                      type="number"
+                      step="0.1"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>⚡ N° Cilindros</label>
+                    <input 
+                      name="cilindros" 
+                      value={form.cilindros} 
+                      onChange={onChange} 
+                      className="form-control"
+                      placeholder="4"
+                      type="number"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>🏭 Detalle Motor</label>
+                    <input 
+                      name="detalle_motor" 
+                      value={form.detalle_motor} 
+                      onChange={onChange} 
+                      className="form-control"
+                      placeholder="Ej: Zetec, DOHC"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h4>📅 Años de Producción</h4>
+                <div className="form-grid years">
+                  <div className="form-group">
+                    <label>📅 Año Desde</label>
+                    <input 
+                      name="ano_desde" 
+                      value={form.ano_desde} 
+                      onChange={onChange} 
+                      className="form-control"
+                      placeholder="2005"
+                      type="number"
+                      min="1900"
+                      max="2030"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>📅 Año Hasta</label>
+                    <input 
+                      name="ano_hasta" 
+                      value={form.ano_hasta} 
+                      onChange={onChange} 
+                      className="form-control"
+                      placeholder="2012"
+                      type="number"
+                      min="1900"
+                      max="2030"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="editor-actions">
+              <button onClick={saveEdit} className="btn-save">
+                💾 Guardar Cambios
+              </button>
+              <button onClick={cancelEdit} className="btn-cancel">
+                ❌ Cancelar
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Tabla responsive con scroll horizontal */}
-      <div className="tabla-responsive" style={{ overflowX: 'auto' }}>
-        <table style={{ minWidth: 900 }}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Cilindrada</th>
-              <th>Cilindros</th>
-              <th>Detalle</th>
-              <th>Año Desde</th>
-              <th>Año Hasta</th>
-              <th>Años</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {vehiculosFiltrados.map((v) => (
-              <tr key={v.id}>
-                <td>{v.id}</td>
-                <td>{v.marca || ''}</td>
-                <td>{v.modelo}</td>
-                <td>{v.cilindrada ?? ''}</td>
-                <td>{v.cilindros ?? ''}</td>
-                <td>{v.detalle_motor || ''}</td>
-                <td>{v.ano_desde ?? ''}</td>
-                <td>{v.ano_hasta ?? ''}</td>
-                <td>{v.anos || ''}</td>
-                <td>
-                  <button onClick={() => startEdit(v)} className="btn-edit">Editar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Lista de vehículos */}
+      <div className="vehiculos-section">
+        <div className="vehiculos-header">
+          <h3>📋 Lista de Vehículos</h3>
+          {vehiculosFiltrados.length === 0 && (
+            <div className="empty-state">
+              <p>No se encontraron vehículos</p>
+              <small>Ajusta los filtros para ver resultados</small>
+            </div>
+          )}
+        </div>
+
+        {vehiculosFiltrados.length > 0 && (
+          <>
+            {/* Vista de tabla para desktop */}
+            <div className="tabla-desktop">
+              <div className="tabla-wrapper">
+                <table className="vehiculos-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>🏷️ Marca</th>
+                      <th>🚗 Modelo</th>
+                      <th>🔧 Cilindrada</th>
+                      <th>⚡ Cilindros</th>
+                      <th>🏭 Motor</th>
+                      <th>📅 Años</th>
+                      <th>🛠️ Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vehiculosFiltrados.map((v) => (
+                      <tr key={v.id} className={editId === v.id ? 'editing' : ''}>
+                        <td className="id-cell">#{v.id}</td>
+                        <td className="marca-cell">{v.marca || '—'}</td>
+                        <td className="modelo-cell">{v.modelo}</td>
+                        <td className="spec-cell">{v.cilindrada ? `${v.cilindrada}L` : '—'}</td>
+                        <td className="spec-cell">{v.cilindros || '—'}</td>
+                        <td className="motor-cell">{v.detalle_motor || '—'}</td>
+                        <td className="anos-cell">
+                          {v.anos || 
+                            (v.ano_desde && v.ano_hasta ? `${v.ano_desde}-${v.ano_hasta}` : 
+                             v.ano_desde ? `${v.ano_desde}+` : 
+                             v.ano_hasta ? `hasta ${v.ano_hasta}` : '—')}
+                        </td>
+                        <td className="actions-cell">
+                          <button 
+                            onClick={() => startEdit(v)} 
+                            className="btn-edit-table"
+                            disabled={editId && editId !== v.id}
+                          >
+                            ✏️ Editar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Vista de cards para móvil */}
+            <div className="cards-mobile">
+              {vehiculosFiltrados.map((v) => (
+                <div key={v.id} className={`vehiculo-card ${editId === v.id ? 'editing' : ''}`}>
+                  <div className="card-header">
+                    <div className="card-title">
+                      <h4>{v.marca} {v.modelo}</h4>
+                      <span className="card-id">#{v.id}</span>
+                    </div>
+                    <button 
+                      onClick={() => startEdit(v)} 
+                      className="btn-edit-card"
+                      disabled={editId && editId !== v.id}
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                  
+                  <div className="card-specs">
+                    {v.cilindrada && <span className="spec-chip">🔧 {v.cilindrada}L</span>}
+                    {v.cilindros && <span className="spec-chip">⚡ {v.cilindros} cil.</span>}
+                    {v.detalle_motor && <span className="spec-chip">🏭 {v.detalle_motor}</span>}
+                  </div>
+                  
+                  {(v.anos || v.ano_desde || v.ano_hasta) && (
+                    <div className="card-years">
+                      📅 {v.anos || 
+                          (v.ano_desde && v.ano_hasta ? `${v.ano_desde}-${v.ano_hasta}` : 
+                           v.ano_desde ? `${v.ano_desde}+` : 
+                           v.ano_hasta ? `hasta ${v.ano_hasta}` : '')}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
-      <p style={{ marginTop: 12, color: '#666' }}>
-        Consejo: use el filtro por marca o modelo. El selector de marca evita errores de escritura y mantiene integridad.
-      </p>
+      <div className="gestor-footer">
+        <div className="tip-section">
+          <h4>💡 Consejos</h4>
+          <ul>
+            <li>Usa los filtros para encontrar vehículos específicos</li>
+            <li>Los campos con * son obligatorios</li>
+            <li>Mantén la consistencia en nombres de marcas</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
