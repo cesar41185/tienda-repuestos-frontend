@@ -711,7 +711,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     }
   };
 
-  const handleAddAplicacion = async (e) => {
+  const handleAddVehiculo = async (e) => {
     if (!producto) {
       toast.error('Debe crear el producto primero para agregar vehículos');
       return;
@@ -719,10 +719,10 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
     e.preventDefault();
     
     // Validación básica en el frontend - ambos campos son requeridos
-    const marca = nuevaAplicacion.marca_vehiculo || '';
+    const marcaNombre = nuevaAplicacion.marca_vehiculo || '';
     const modelo = (nuevaAplicacion.modelo_vehiculo || '').trim();
     
-    if (!marca) {
+    if (!marcaNombre) {
       toast.error('La marca del vehículo es requerida.');
       return;
     }
@@ -741,60 +741,86 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
       return;
     }
     
-    // Preparar datos - convertir strings vacíos a null/undefined
-    const data = {
-      producto: producto.id,
-      marca_vehiculo: marca && marca !== '' ? parseInt(marca) : null,
-      modelo_vehiculo: modelo || '',
+    // Buscar la marca por nombre
+    const marcaObj = marcas.find(m => m.nombre === marcaNombre || m.id === parseInt(marcaNombre));
+    const marcaFinal = marcaObj ? marcaObj.nombre : marcaNombre;
+    
+    // Preparar datos para crear/encontrar vehículo normalizado
+    const vehiculoData = {
+      marca: marcaFinal,
+      modelo: modelo,
+      ano_desde: anoDesde,
+      ano_hasta: anoHasta,
       cilindrada: nuevaAplicacion.cilindrada && nuevaAplicacion.cilindrada !== '' ? parseFloat(nuevaAplicacion.cilindrada) : null,
       cantidad_cilindros: nuevaAplicacion.cantidad_cilindros && nuevaAplicacion.cantidad_cilindros !== '' ? parseInt(nuevaAplicacion.cantidad_cilindros) : null,
       detalle_motor: nuevaAplicacion.detalle_motor || '',
-      ano_desde: anoDesde || null,
-      ano_hasta: anoHasta || null,
       cantidad_valvulas: nuevaAplicacion.cantidad_valvulas && nuevaAplicacion.cantidad_valvulas !== '' ? parseInt(nuevaAplicacion.cantidad_valvulas) : 1
     };
     
     try {
-      const response = await fetch(`${API_URL}/aplicaciones/`, {
+      // Primero crear o buscar el vehículo normalizado
+      const vehiculoResponse = await fetch(`${API_URL}/vehiculos/`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Token ${token}`
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(vehiculoData),
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        // Extraer mensajes de error del backend
-        let errorMessage = 'Error al agregar la aplicación.';
-        if (errorData.non_field_errors) {
-          errorMessage = errorData.non_field_errors[0];
-        } else if (errorData.marca_vehiculo) {
-          errorMessage = `Marca: ${errorData.marca_vehiculo[0]}`;
-        } else if (errorData.modelo_vehiculo) {
-          errorMessage = `Modelo: ${errorData.modelo_vehiculo[0]}`;
-        } else if (errorData.ano_desde) {
-          errorMessage = `Año Desde: ${errorData.ano_desde[0]}`;
-        } else {
-          // Mostrar el primer error que encuentre
-          const firstError = Object.values(errorData)[0];
-          if (Array.isArray(firstError)) {
-            errorMessage = firstError[0];
-          } else {
-            errorMessage = JSON.stringify(errorData);
+      let vehiculo;
+      if (vehiculoResponse.ok) {
+        vehiculo = await vehiculoResponse.json();
+      } else if (vehiculoResponse.status === 400) {
+        // Puede que ya exista, intentar buscarlo
+        const searchParams = new URLSearchParams();
+        searchParams.append('marca', marcaFinal);
+        searchParams.append('search', modelo);
+        
+        const searchResponse = await fetch(`${API_URL}/vehiculos/?${searchParams.toString()}`, {
+          headers: { 'Authorization': `Token ${token}` }
+        });
+        
+        if (searchResponse.ok) {
+          const searchData = await searchResponse.json();
+          const resultados = Array.isArray(searchData) ? searchData : (searchData.results || []);
+          vehiculo = resultados.find(v => 
+            v.marca === marcaFinal && 
+            v.modelo.toLowerCase() === modelo.toLowerCase()
+          );
+          
+          if (!vehiculo) {
+            throw new Error('No se pudo crear ni encontrar el vehículo');
           }
+        } else {
+          throw new Error('Error al buscar vehículo existente');
         }
-        toast.error(errorMessage);
-        return;
+      } else {
+        const errorData = await vehiculoResponse.json();
+        throw new Error(errorData.detail || 'Error al crear vehículo');
       }
       
-      toast.success('Aplicación agregada exitosamente.');
+      // Ahora asociar el vehículo al producto
+      const asociacionResponse = await fetch(`${API_URL}/productos/${producto.id}/vehiculos/`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        },
+        body: JSON.stringify({ vehiculo: vehiculo.id }),
+      });
+      
+      if (!asociacionResponse.ok) {
+        const errorData = await asociacionResponse.json();
+        throw new Error(errorData.detail || 'Error al asociar vehículo al producto');
+      }
+      
+      toast.success('Vehículo agregado exitosamente.');
       setNuevaAplicacion({ marca_vehiculo: '', modelo_vehiculo: '', cilindrada: '', cantidad_cilindros: '', detalle_motor: '', ano_desde: '', ano_hasta: '', cantidad_valvulas: '' });
-  onRefresh?.();
+      onRefresh?.();
     } catch (error) {
-      console.error('Error al agregar aplicación:', error);
-      toast.error('Error al agregar la aplicación. Por favor, intente nuevamente.');
+      console.error('Error al agregar vehículo:', error);
+      toast.error(`Error al agregar el vehículo: ${error.message}`);
     }
   };
 
@@ -1299,7 +1325,7 @@ function ModalEditarProducto({ producto, onClose, onSave, onRefresh, marcas, onD
             </div>
             <hr />
             <h4>Añadir Nueva Aplicación</h4>
-            <form onSubmit={handleAddAplicacion} className="add-form">
+            <form onSubmit={handleAddVehiculo} className="add-form">
               <select name="marca_vehiculo" value={nuevaAplicacion.marca_vehiculo} onChange={handleNuevaAplicacionChange} required>
                 <option value="">-- Marca * --</option>
                 {Array.isArray(marcas) && marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
