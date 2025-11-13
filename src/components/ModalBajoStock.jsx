@@ -8,6 +8,7 @@ function ModalBajoStock({ isOpen, onClose, tiposProductos, token, onGenerarPDF }
   // Iconos para cada tipo de producto
   const iconosPorTipo = {
     'VALVULA': '🔧',
+    'GUIA_VALVULA': '⚙️',
     'FILTRO': '🔍',
     'BUJIA': '⚡',
     'CABLE': '🔌',
