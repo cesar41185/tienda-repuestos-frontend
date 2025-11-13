@@ -58,7 +58,7 @@ function Header() {
         <Link to="/">
           <img src="/logo.png" alt="Logo de la tienda" className="logo" />
         </Link>
-        <h1>Verificador de Válvulas</h1>
+        <h1>Partes de Motor</h1>
       </div>
 
       <div className="header-right">
