@@ -61,7 +61,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
           {esGuiaValvula && (
             <th className="col-precio" onClick={() => onSort('precio_venta')} style={{cursor: 'pointer'}}>Precio{getSortIcon('precio_venta')}</th>
           )}
-          <th className="col-estado" style={{minWidth: 70, textAlign: 'center'}}>Stock</th>
+          <th className="col-estado">Stock</th>
           {isStaff && <th className="col-stock" onClick={() => onSort('stock')} style={{cursor: 'pointer'}}>Cant{getSortIcon('stock')}</th>}
           <th className="col-acciones-tabla">Compra</th>
         </tr>
@@ -169,7 +169,7 @@ function TablaResultados({ productos, cargando, onEditar, onFotoClick, onSort, s
                   let color = '#2e7d32';
                   if (stock === 0) { estado = 'Bajo'; color = '#b71c1c'; }
                   else if (min > 0 && stock <= min) { estado = 'Bajo'; color = '#e65100'; }
-                  return <td className="col-estado" style={{ color, fontWeight: 600, minWidth: 70, textAlign: 'center', whiteSpace: 'nowrap' }}>{estado}</td>;
+                  return <td className="col-estado" style={{ color, fontWeight: 600, textAlign: 'center', whiteSpace: 'nowrap' }}>{estado}</td>;
                 })()}
                 {isStaff && <td className="col-stock">{producto.stock}</td>}
                 <td className="col-acciones-tabla">

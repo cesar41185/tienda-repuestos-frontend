@@ -991,7 +991,8 @@ body {
 #resultsTable .col-foto { width: 40px; } /* Simétrico con la imagen */
 #resultsTable .col-trw { width: 55px; } /* Basado en "VF0010" */
 #resultsTable .col-modelo { width: 250px; } /* Ampliado con el espacio ganado */
-#resultsTable .col-numerica { width: 30px; } /* Reducido para Ran */
+#resultsTable .col-numerica { width: 48px; } /* Más ancho para Cabeza y Vástago */
+#resultsTable .col-estado { width: 48px; min-width: 48px; max-width: 48px; text-align: center; }
 #resultsTable .col-long { width: 50px; } /* Aumentado para Long */
 #resultsTable .col-stock { width: 40px; } /* Aumentado */
 #resultsTable .col-marca { width: 100px; } /* Basado en "Mitsubishi" */
