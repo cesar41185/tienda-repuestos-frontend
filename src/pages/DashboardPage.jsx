@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
 import toast from 'react-hot-toast';
@@ -6,6 +7,7 @@ import ModalBajoStock from '../components/ModalBajoStock';
 
 function DashboardPage() {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -149,7 +151,12 @@ function DashboardPage() {
       
       {/* CARDS DE RESÚMEN */}
       <div className="dashboard-grid">
-        <div className="dashboard-card">
+        <div 
+          className="dashboard-card" 
+          style={{ cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+          title="Click para ir a la tienda"
+        >
           <div className="dashboard-card-icon" style={{ backgroundColor: '#28a745' }}>
             📦
           </div>
@@ -159,7 +166,12 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="dashboard-card">
+        <div 
+          className="dashboard-card" 
+          style={{ cursor: 'pointer' }}
+          onClick={() => navigate('/clientes')}
+          title="Click para ir a clientes"
+        >
           <div className="dashboard-card-icon" style={{ backgroundColor: '#007bff' }}>
             👥
           </div>
