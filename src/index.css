@@ -776,6 +776,16 @@ body {
 .tabla-clientes .col-cliente-estado { width: 10%; }
 .tabla-clientes .col-cliente-accion { width: 13%; }
 
+/* Anchura de columnas para tabla de pedidos (GestionPedidosPage) */
+.gestor-container #resultsTable .col-id { width: 90px; }
+.gestor-container #resultsTable .col-cliente { width: 200px; }
+.gestor-container #resultsTable .col-vendedor { width: 160px; }
+.gestor-container #resultsTable .col-fecha { width: 110px; }
+.gestor-container #resultsTable .col-total { width: 100px; }
+.gestor-container #resultsTable .col-pago { width: 150px; }
+/* Estado Pedido necesita más espacio para textos largos como "Pendiente de Pago" */
+.gestor-container #resultsTable .col-estado { width: 180px; min-width: 180px; }
+
 .gestor-container h2 {
   text-align: center;
   margin-bottom: 2rem;
