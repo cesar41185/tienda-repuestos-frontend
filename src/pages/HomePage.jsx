@@ -16,10 +16,10 @@ function HomePage() {
       alignItems: 'center'
     }}>
       <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: '#212529' }}>
-        Verificador de Válvulas
+        Partes de Motores
       </h1>
       <p style={{ fontSize: '1.5rem', marginBottom: '3rem', color: '#6c757d', maxWidth: '600px' }}>
-        Bienvenido al sistema de gestión y consulta de válvulas para motores
+        Bienvenido al sistema de gestión y consulta de partes de motores
       </p>
       
       <Link 
