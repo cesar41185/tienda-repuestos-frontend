@@ -69,7 +69,7 @@ function ListaClientesPage() {
 
   const handleSeleccionarParaVenta = (cliente) => {
     seleccionarCliente(cliente);
-    navigate('/');
+    navigate('/tienda');
   };
 
   if (cargando && clientes.length === 0) return <p>Cargando clientes...</p>;

@@ -154,7 +154,7 @@ function DashboardPage() {
         <div 
           className="dashboard-card" 
           style={{ cursor: 'pointer' }}
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/tienda')}
           title="Click para ir a la tienda"
         >
           <div className="dashboard-card-icon" style={{ backgroundColor: '#28a745' }}>
