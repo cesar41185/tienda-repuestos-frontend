@@ -834,6 +834,100 @@
   border: 1px solid #e2e8f0;
 }
 
+/* Usuarios Conectados improvements */
+.uc-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.uc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.uc-header h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #1f2937;
+}
+
+.uc-count {
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.uc-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.uc-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,#60a5fa,#6366f1);
+  color: white;
+  font-weight: 700;
+}
+
+.uc-user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.uc-username {
+  font-weight: 600;
+  color: #111827;
+}
+
+.uc-name {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.uc-table th {
+  background: #f8fafc;
+  padding: 0.85rem 0.75rem;
+}
+
+.uc-table td {
+  padding: 0.8rem 0.75rem;
+  vertical-align: middle;
+}
+
+.uc-table tbody tr:nth-child(even) {
+  background: #ffffff;
+}
+
+.uc-agent-cell {
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .uc-avatar { width:32px; height:32px; font-size:0.85rem }
+  .uc-agent-cell { max-width: 180px }
+}
+
+@media (max-width: 600px) {
+  .uc-container { padding: 0.75rem }
+  .uc-header { flex-direction: column; align-items: flex-start }
+  .uc-table th, .uc-table td { padding: 0.6rem }
+}
+
 .tip-section h4 {
   margin: 0 0 1rem 0;
   color: #2d3748;

@@ -9,6 +9,14 @@ function UsuariosConectadosPage() {
   const [logins, setLogins] = useState({ count: 0, results: [] });
   const [loading, setLoading] = useState(true);
 
+  const initials = (nombre, username) => {
+    const source = nombre || username || '';
+    const parts = source.trim().split(' ').filter(Boolean);
+    if (parts.length === 0) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  };
+
   const fetchData = async () => {
     if (!token) return;
     try {
@@ -37,56 +45,72 @@ function UsuariosConectadosPage() {
   if (loading) return <p>Cargando monitoreo...</p>;
 
   return (
-    <div className="gestor-container" style={{ maxWidth: '1200px' }}>
-      <h2>Usuarios Conectados</h2>
-      <p>Online (últimos 5 minutos): <strong>{online.count}</strong></p>
+    <div className="gestor-container uc-container">
+      <div className="uc-header">
+        <h2>Usuarios Conectados</h2>
+        <div className="uc-meta">
+          <span className="uc-count">Online (últimos 5 minutos): <strong>{online.count}</strong></span>
+        </div>
+      </div>
 
-      <table style={{ width: '100%', marginBottom: '2rem' }}>
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>Nombre</th>
-            <th>Última Actividad</th>
-            <th>IP</th>
-            <th>User-Agent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {online.results.map(u => (
-            <tr key={u.id}>
-              <td>{u.username}</td>
-              <td>{u.nombre_completo}</td>
-              <td>{new Date(u.last_seen).toLocaleString()}</td>
-              <td>{u.last_ip}</td>
-              <td style={{ maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.last_user_agent}</td>
+      <div className="tabla-wrapper">
+        <table className="uc-table vehiculos-table" style={{ marginBottom: '1.5rem' }}>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Nombre</th>
+              <th>Última Actividad</th>
+              <th>IP</th>
+              <th>User-Agent</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {online.results.map(u => (
+              <tr key={u.id}>
+                <td>
+                  <div className="uc-user">
+                    <span className="uc-avatar">{initials(u.nombre_completo, u.username)}</span>
+                    <div className="uc-user-meta">
+                      <div className="uc-username">{u.username}</div>
+                      <div className="uc-name">{u.nombre_completo}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="uc-only-name">{u.nombre_completo}</td>
+                <td>{new Date(u.last_seen).toLocaleString()}</td>
+                <td>{u.last_ip}</td>
+                <td className="uc-agent-cell" title={u.last_user_agent}>{u.last_user_agent}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <h3>Historial Reciente (7 días)</h3>
-      <table style={{ width: '100%' }}>
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Usuario</th>
-            <th>Acción</th>
-            <th>IP</th>
-            <th>User-Agent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {logins.results.map((r, idx) => (
-            <tr key={idx}>
-              <td>{new Date(r.timestamp).toLocaleString()}</td>
-              <td>{r.username}</td>
-              <td>{r.action}</td>
-              <td>{r.ip}</td>
-              <td style={{ maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.user_agent}</td>
+      <div className="tabla-wrapper">
+        <table className="uc-table vehiculos-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>IP</th>
+              <th>User-Agent</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {logins.results.map((r, idx) => (
+              <tr key={idx}>
+                <td>{new Date(r.timestamp).toLocaleString()}</td>
+                <td>{r.username}</td>
+                <td>{r.action}</td>
+                <td>{r.ip}</td>
+                <td className="uc-agent-cell" title={r.user_agent}>{r.user_agent}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
