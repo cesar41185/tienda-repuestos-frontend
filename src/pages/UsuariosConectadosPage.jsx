@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
 import toast from 'react-hot-toast';
+import ActionIcon from '../components/icons/ActionIcon';
 
 function UsuariosConectadosPage() {
   const { token, user } = useAuth();
@@ -10,7 +11,8 @@ function UsuariosConectadosPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize] = useState(25);
+  const [lastRefresh, setLastRefresh] = useState(null);
 
   const initials = (nombre, username) => {
     const source = nombre || username || '';
@@ -32,6 +34,7 @@ function UsuariosConectadosPage() {
       const l = await lRes.json();
       setOnline(o);
       setLogins(l);
+      setLastRefresh(new Date());
     } catch (e) {
       toast.error('No se pudo cargar el monitoreo');
     } finally {
@@ -45,55 +48,58 @@ function UsuariosConectadosPage() {
     return () => clearInterval(id);
   }, [token]);
 
-  if (loading) return <p>Cargando monitoreo...</p>;
-
-  // Derived values for history filtering & pagination
-  const filteredLogins = logins.results.filter(r => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return (r.username || '').toLowerCase().includes(s)
-      || (r.action || '').toLowerCase().includes(s)
-      || (r.ip || '').toLowerCase().includes(s)
-      || (r.user_agent || '').toLowerCase().includes(s);
-  });
+  const filteredLogins = useMemo(() => {
+    return logins.results.filter(r => {
+      if (!search) return true;
+      const s = search.toLowerCase();
+      return (r.username || '').toLowerCase().includes(s)
+        || (r.action || '').toLowerCase().includes(s)
+        || (r.ip || '').toLowerCase().includes(s)
+        || (r.user_agent || '').toLowerCase().includes(s);
+    });
+  }, [logins.results, search]);
 
   const pageCount = Math.max(1, Math.ceil(filteredLogins.length / pageSize));
-  const pageSafe = Math.min(Math.max(1, page), pageCount);
+  const pageSafe = Math.min(pageCount, Math.max(1, page));
   const pageItems = filteredLogins.slice((pageSafe - 1) * pageSize, pageSafe * pageSize);
 
+  if (loading) return <p>Cargando monitoreo...</p>;
+
   return (
-    <div className="gestor-container uc-container">
+    <div className="gestor-container uc-container" aria-labelledby="uc-title">
       <div className="uc-header">
-        <h2>Usuarios Conectados</h2>
+        <h2 id="uc-title">Usuarios Conectados</h2>
         <div className="uc-meta">
-          <span className="uc-count">Online (últimos 5 minutos): <strong>{online.count}</strong></span>
+          <span className="uc-count" aria-live="polite">Online (últimos 5 minutos): <strong>{online.count}</strong></span>
+          {lastRefresh && <span className="uc-refresh">Actualizado: {lastRefresh.toLocaleTimeString()}</span>}
         </div>
       </div>
 
-      <div className="tabla-wrapper">
-        <table className="uc-table vehiculos-table" style={{ marginBottom: '1.5rem' }}>
+      <div className="tabla-wrapper" aria-label="Usuarios actualmente conectados">
+        <table className="uc-table vehiculos-table">
           <thead>
             <tr>
-              <th>Usuario</th>
-              <th>Nombre</th>
-              <th>Última Actividad</th>
-              <th>IP</th>
-              <th>User-Agent</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Última Actividad</th>
+              <th scope="col">IP</th>
+              <th scope="col">User-Agent</th>
             </tr>
           </thead>
           <tbody>
+            {online.results.length === 0 && (
+              <tr><td colSpan={4} style={{textAlign:'center',color:'#64748b'}}>No hay usuarios conectados.</td></tr>
+            )}
             {online.results.map(u => (
               <tr key={u.id}>
                 <td className="col-user">
                   <div className="uc-user">
-                    <span className="uc-avatar">{initials(u.nombre_completo, u.username)}</span>
+                    <span className="uc-avatar" title={u.nombre_completo}>{initials(u.nombre_completo, u.username)}</span>
                     <div className="uc-user-meta">
                       <div className="uc-username">{u.username}</div>
-                      <div className="uc-name">{u.nombre_completo}</div>
+                      <div className="uc-name" title={u.nombre_completo}>{u.nombre_completo}</div>
                     </div>
                   </div>
                 </td>
-                <td className="col-name">{u.nombre_completo}</td>
                 <td className="col-time">{new Date(u.last_seen).toLocaleString()}</td>
                 <td className="col-ip">{u.last_ip}</td>
                 <td className="col-agent uc-agent-cell" title={u.last_user_agent}>{u.last_user_agent}</td>
@@ -103,50 +109,40 @@ function UsuariosConectadosPage() {
         </table>
       </div>
 
-      <div className="uc-search-row">
-        <div style={{flex:1}}>
-          <h3 style={{margin:'0 0 0.5rem 0'}}>Historial Reciente (7 días)</h3>
-          <input className="uc-search-input" placeholder="Buscar por usuario, acción, IP o user-agent" value={search} onChange={e=>{setSearch(e.target.value); setPage(1)}} />
-        </div>
-        <div style={{display:'flex',gap:8,alignItems:'center'}}>
-          <label style={{fontSize:12,color:'#6b7280'}}>Por página</label>
-          <select value={pageSize} onChange={e=>{setPageSize(parseInt(e.target.value,10)); setPage(1)}} style={{padding:'0.35rem',borderRadius:6}}>
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
-        </div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'1rem 0 0.5rem'}}>
+        <h3 style={{margin:0,fontSize:'1rem',color:'var(--muted-700)'}}>Historial (7 días)</h3>
+        <input
+          type="text"
+          className="uc-search-input"
+          placeholder="Buscar usuario / IP / agente"
+          aria-label="Buscar en historial"
+          value={search}
+          onChange={e=>{setSearch(e.target.value); setPage(1);}}
+          style={{minWidth:'240px'}}
+        />
       </div>
 
-      <div className="tabla-wrapper">
+      <div className="tabla-wrapper" aria-label="Historial de accesos">
         <table className="uc-table vehiculos-table">
           <thead>
             <tr>
-              <th>Fecha</th>
-              <th>Usuario</th>
-              <th>Acción</th>
-              <th>IP</th>
-              <th>User-Agent</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Acción</th>
+              <th scope="col">IP</th>
+              <th scope="col">User-Agent</th>
             </tr>
           </thead>
           <tbody>
+            {pageItems.length === 0 && (
+              <tr><td colSpan={5} style={{textAlign:'center',color:'#64748b'}}>Sin coincidencias.</td></tr>
+            )}
             {pageItems.map((r, idx) => (
               <tr key={idx}>
                 <td className="col-time">{new Date(r.timestamp).toLocaleString()}</td>
                 <td className="col-user">{r.username}</td>
                 <td className="col-action">
-                  {r.action === 'LOGIN' ? (
-                    <svg className="uc-action-svg login" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false" title="Login">
-                      <path d="M5 12h14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" stroke="currentColor" />
-                      <path d="M13 6l6 6-6 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" stroke="currentColor" />
-                    </svg>
-                  ) : (
-                    <svg className="uc-action-svg logout" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false" title="Logout">
-                      <path d="M19 12H5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" stroke="currentColor" />
-                      <path d="M11 18l-6-6 6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" stroke="currentColor" />
-                    </svg>
-                  )}
+                  <ActionIcon type={r.action} />
                 </td>
                 <td className="col-ip">{r.ip}</td>
                 <td className="col-agent uc-agent-cell" title={r.user_agent}>{r.user_agent}</td>
@@ -155,13 +151,13 @@ function UsuariosConectadosPage() {
           </tbody>
         </table>
         <div className="uc-pagination" style={{marginTop:8}}>
-          <button className="uc-page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={pageSafe===1}>Prev</button>
+          <button className="uc-page-btn" aria-label="Página anterior" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={pageSafe===1}>Prev</button>
           {Array.from({length:pageCount}).slice(0,10).map((_,i)=>{
             const p = i+1;
-            return <button key={p} className={`uc-page-btn ${p===pageSafe? 'active':''}`} onClick={()=>setPage(p)}>{p}</button>
+            return <button key={p} aria-label={`Ir a página ${p}`} className={`uc-page-btn ${p===pageSafe? 'active':''}`} onClick={()=>setPage(p)}>{p}</button>
           })}
           {pageCount>10 && <span style={{paddingLeft:8,color:'#6b7280'}}>... {pageCount} páginas</span>}
-          <button className="uc-page-btn" onClick={()=>setPage(p=>Math.min(pageCount,p+1))} disabled={pageSafe===pageCount}>Next</button>
+          <button className="uc-page-btn" aria-label="Página siguiente" onClick={()=>setPage(p=>Math.min(pageCount,p+1))} disabled={pageSafe===pageCount}>Next</button>
         </div>
       </div>
     </div>
