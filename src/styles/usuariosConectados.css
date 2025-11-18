@@ -133,61 +133,93 @@
 
 /* Mobile responsive for online table */
 @media (max-width: 768px) {
+  .uc-online-table,
+  .uc-online-table tbody,
+  .uc-online-table thead,
+  .uc-online-table tr,
+  .uc-online-table th,
+  .uc-online-table td {
+    display: block !important;
+  }
+  
   .uc-online-table {
-    display: block;
-    border: none;
-    box-shadow: none;
+    border: none !important;
+    box-shadow: none !important;
   }
   
   .uc-online-table thead {
-    display: none;
-  }
-  
-  .uc-online-table tbody {
-    display: block;
+    display: none !important;
   }
   
   .uc-online-table tbody tr {
-    display: block;
-    margin-bottom: 1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    background: white !important;
   }
   
   .uc-online-table tbody tr:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    background: white !important;
   }
   
   .uc-online-table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f1f5f9;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.75rem 0 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    text-align: left !important;
+    width: 100% !important;
   }
   
   .uc-online-table td:last-child {
-    border-bottom: none;
+    border-bottom: none !important;
   }
   
   .uc-online-table td::before {
-    content: attr(data-label);
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-    color: #64748b;
-    letter-spacing: 0.5px;
+    content: attr(data-label) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 0.7rem !important;
+    color: #64748b !important;
+    letter-spacing: 0.5px !important;
+    flex-shrink: 0 !important;
+    margin-right: 1rem !important;
   }
   
   .uc-online-table td.col-user {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
   }
   
   .uc-online-table td.col-user::before {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.25rem !important;
+    margin-right: 0 !important;
+  }
+  
+  .uc-online-table td.col-agent {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+  
+  .uc-online-table td.col-agent::before {
+    margin-bottom: 0.25rem !important;
+    margin-right: 0 !important;
+  }
+  
+  .uc-online-table .uc-agent-cell {
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .uc-online-table td.col-ip span {
+    font-size: 0.8rem !important;
   }
 }
