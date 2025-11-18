@@ -887,6 +887,19 @@
   font-weight: 400;
 }
 
+.uc-build-version {
+  margin-top: 0.5rem;
+  display: inline-block;
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  border-radius: 6px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
 .uc-refresh-badge {
   display: flex;
   align-items: center;

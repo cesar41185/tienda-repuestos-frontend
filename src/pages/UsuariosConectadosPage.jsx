@@ -71,6 +71,7 @@ function UsuariosConectadosPage() {
         <div className="uc-hero-content">
           <h1 id="uc-title">👥 Monitoreo de Usuarios</h1>
           <p className="uc-hero-subtitle">Panel de control en tiempo real</p>
+          <div className="uc-build-version" title="Versión del bundle frontend">v2025-11-18-1</div>
         </div>
         {lastRefresh && (
           <div className="uc-refresh-badge">
