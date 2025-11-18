@@ -75,6 +75,22 @@ function UsuariosConectadosPage() {
         </div>
       </div>
 
+      {/* Stat cards */}
+      <div className="uc-stats-row" style={{marginBottom:'1rem'}}>
+        <div className="uc-stat-card">
+          <div className="uc-stat-value" aria-label="Usuarios en línea">{online.count}</div>
+          <div className="uc-stat-label">ONLINE</div>
+        </div>
+        <div className="uc-stat-card">
+          <div className="uc-stat-value" aria-label="Eventos total">{logins.count}</div>
+          <div className="uc-stat-label">EVENTOS</div>
+        </div>
+        <div className="uc-stat-card">
+          <div className="uc-stat-value" style={{fontSize:'0.9rem'}}>{lastRefresh ? lastRefresh.toLocaleTimeString() : '--'}</div>
+          <div className="uc-stat-label">REFRESCO</div>
+        </div>
+      </div>
+
       <div className="tabla-wrapper" aria-label="Usuarios actualmente conectados">
         <table className="uc-table vehiculos-table">
           <thead>
@@ -142,7 +158,8 @@ function UsuariosConectadosPage() {
                 <td className="col-time">{new Date(r.timestamp).toLocaleString()}</td>
                 <td className="col-user">{r.username}</td>
                 <td className="col-action">
-                  <ActionIcon type={r.action} />
+                  <ActionIcon type={r.action} />{' '}
+                  <span className={`uc-badge ${r.action.toLowerCase()}`}>{r.action}</span>
                 </td>
                 <td className="col-ip">{r.ip}</td>
                 <td className="col-agent uc-agent-cell" title={r.user_agent}>{r.user_agent}</td>
