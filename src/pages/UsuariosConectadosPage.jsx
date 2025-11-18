@@ -84,7 +84,7 @@ function UsuariosConectadosPage() {
           <tbody>
             {online.results.map(u => (
               <tr key={u.id}>
-                <td>
+                <td className="col-user">
                   <div className="uc-user">
                     <span className="uc-avatar">{initials(u.nombre_completo, u.username)}</span>
                     <div className="uc-user-meta">
@@ -93,10 +93,10 @@ function UsuariosConectadosPage() {
                     </div>
                   </div>
                 </td>
-                <td className="uc-only-name">{u.nombre_completo}</td>
-                <td>{new Date(u.last_seen).toLocaleString()}</td>
-                <td>{u.last_ip}</td>
-                <td className="uc-agent-cell" title={u.last_user_agent}>{u.last_user_agent}</td>
+                <td className="col-name">{u.nombre_completo}</td>
+                <td className="col-time">{new Date(u.last_seen).toLocaleString()}</td>
+                <td className="col-ip">{u.last_ip}</td>
+                <td className="col-agent uc-agent-cell" title={u.last_user_agent}>{u.last_user_agent}</td>
               </tr>
             ))}
           </tbody>
@@ -137,9 +137,15 @@ function UsuariosConectadosPage() {
                 <td className="col-user">{r.username}</td>
                 <td className="col-action">
                   {r.action === 'LOGIN' ? (
-                    <span className="uc-action-icon login" title="Login">➜</span>
+                    <svg className="uc-action-svg login" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false" title="Login">
+                      <path d="M5 12h14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" stroke="currentColor" />
+                      <path d="M13 6l6 6-6 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" stroke="currentColor" />
+                    </svg>
                   ) : (
-                    <span className="uc-action-icon logout" title="Logout">←</span>
+                    <svg className="uc-action-svg logout" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false" title="Logout">
+                      <path d="M19 12H5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" stroke="currentColor" />
+                      <path d="M11 18l-6-6 6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" stroke="currentColor" />
+                    </svg>
                   )}
                 </td>
                 <td className="col-ip">{r.ip}</td>

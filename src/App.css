@@ -929,6 +929,16 @@
 /* Slightly tighter table spacing for compact view */
 .uc-table th { padding: 0.6rem 0.6rem }
 .uc-table td { padding: 0.55rem 0.6rem }
+
+/* SVG action icons styling */
+.uc-action-svg { display:inline-block; vertical-align:middle; color: var(--muted-600) }
+.uc-action-svg.login { color: #059669 }
+.uc-action-svg.logout { color: #ef4444 }
+
+/* Make sure online table uses same compact spacing */
+.gestor-container.uc-container .vehiculos-table th, .gestor-container.uc-container .vehiculos-table td {
+  padding: 0.6rem 0.6rem;
+}
   background: #f8fafc;
   padding: 0.85rem 0.75rem;
 }
