@@ -114,6 +114,9 @@ function Header() {
             {user.groups.includes('Administrador') && (
               <Link to="/dashboard" className="nav-link" onClick={() => setMenuAbierto(false)}>Dashboard</Link>
             )}
+            {user.groups.includes('Administrador') && (
+              <Link to="/usuarios-conectados" className="nav-link" onClick={() => setMenuAbierto(false)}>Usuarios Conectados</Link>
+            )}
             {(user.groups.includes('Administrador') || user.groups.includes('Vendedor')) && (
               <>
                 <Link to="/clientes" className="nav-link" onClick={() => setMenuAbierto(false)}>Clientes</Link>

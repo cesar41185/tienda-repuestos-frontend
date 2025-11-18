@@ -29,6 +29,7 @@ import PresupuestosPage from './pages/PresupuestosPage';
 import ComisionesPage from './pages/ComisionesPage';
 import InteraccionesCRMPage from './pages/InteraccionesCRMPage'; 
 import GestorAplicacionesPage from './pages/GestorAplicacionesPage';
+import UsuariosConectadosPage from './pages/UsuariosConectadosPage';
 
 function App() {
   return (
@@ -89,6 +90,14 @@ function App() {
             element={
               <ProtectedRoute roles={['Administrador']}>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/usuarios-conectados"
+            element={
+              <ProtectedRoute roles={['Administrador']}>
+                <UsuariosConectadosPage />
               </ProtectedRoute>
             }
           />
