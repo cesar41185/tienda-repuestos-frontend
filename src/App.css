@@ -959,24 +959,22 @@
   white-space: nowrap;
 }
 
-.col-ip {
+td.col-ip {
   width: 140px;
+  text-align: center;
 }
 
-.col-ip {
-  font-family: 'Courier New', monospace !important;
-  font-size: 0.85rem !important;
-  color: #6366f1 !important;
-  font-weight: 600 !important;
-}
-
-.col-ip > span,
-.col-ip {
-  background: #f0f4ff !important;
-  padding: 0.4rem 0.75rem !important;
-  border-radius: 8px !important;
-  display: inline-block !important;
-  border: 1px solid #e0e7ff !important;
+td.col-ip span {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #6366f1;
+  font-weight: 600;
+  background: #f0f4ff;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid #e0e7ff;
+  white-space: nowrap;
 }
 
 .col-action {
@@ -1014,50 +1012,49 @@
 }
 
 /* Make sure online table uses same compact spacing */
-.gestor-container.uc-container .vehiculos-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
+.uc-container .vehiculos-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  width: 100% !important;
 }
 
-.gestor-container.uc-container .vehiculos-table th,
-.gestor-container.uc-container .vehiculos-table td {
-  padding: 1rem 0.75rem;
+.uc-container .vehiculos-table th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2 !important;
+  background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%) !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.5px !important;
+  color: #475569 !important;
+  padding: 1rem 0.75rem !important;
+  text-align: left !important;
+  white-space: nowrap !important;
 }
 
-.uc-table td {
-  padding: 1rem 0.75rem;
-  vertical-align: middle;
-  border-bottom: 1px solid #f1f5f9;
+.uc-container .vehiculos-table td {
+  padding: 1rem 0.75rem !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid #f1f5f9 !important;
 }
 
-.uc-table tbody tr {
-  background: white;
-  transition: all 0.2s;
+.uc-container .vehiculos-table tbody tr {
+  background: white !important;
+  transition: all 0.2s !important;
 }
 
-.uc-table tbody tr:nth-child(even) {
-  background: #f8fafc;
+.uc-container .vehiculos-table tbody tr:nth-child(even) {
+  background: #f8fafc !important;
 }
 
-.uc-table tbody tr:hover {
+.uc-container .vehiculos-table tbody tr:hover {
   background: #e0f2fe !important;
-  box-shadow: inset 0 0 0 1px #bae6fd;
-}
-
-.uc-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-  border-bottom: 2px solid #cbd5e1;
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
-  color: #475569;
+  box-shadow: inset 0 0 0 1px #bae6fd !important;
 }
 
 .uc-agent-cell {
