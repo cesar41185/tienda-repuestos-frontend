@@ -134,7 +134,7 @@ function UsuariosConectadosPage() {
           <span className="uc-count-badge">{online.count} {online.count === 1 ? 'usuario' : 'usuarios'}</span>
         </div>
         <div className="tabla-wrapper" aria-label="Usuarios actualmente conectados">
-        <table className="uc-table vehiculos-table">
+        <table className="uc-online-table">
           <thead>
             <tr>
               <th scope="col">Usuario</th>
@@ -149,7 +149,7 @@ function UsuariosConectadosPage() {
             )}
             {online.results.map(u => (
               <tr key={u.id}>
-                <td className="col-user">
+                <td className="col-user" data-label="Usuario">
                   <div className="uc-user">
                     <span className="uc-avatar" title={u.nombre_completo}>{initials(u.nombre_completo, u.username)}</span>
                     <div className="uc-user-meta">
@@ -158,9 +158,9 @@ function UsuariosConectadosPage() {
                     </div>
                   </div>
                 </td>
-                <td className="col-time">{new Date(u.last_seen).toLocaleString()}</td>
-                <td className="col-ip"><span>{u.last_ip}</span></td>
-                <td className="col-agent uc-agent-cell" title={u.last_user_agent}>{u.last_user_agent}</td>
+                <td className="col-time" data-label="Última Actividad">{new Date(u.last_seen).toLocaleString()}</td>
+                <td className="col-ip" data-label="IP"><span>{u.last_ip}</span></td>
+                <td className="col-agent uc-agent-cell" data-label="Navegador" title={u.last_user_agent}>{u.last_user_agent}</td>
               </tr>
             ))}
           </tbody>
