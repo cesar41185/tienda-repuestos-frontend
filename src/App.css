@@ -1204,40 +1204,6 @@ td.col-ip span {
   font-weight: 400;
 }
 
-/* High-specificity overrides to ensure production uses these styles */
-.uc-container .uc-stats-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
-  gap: 1.5rem !important;
-  margin-bottom: 2rem !important;
-}
-
-.uc-container .uc-stat-card {
-  background: var(--card-bg) !important;
-  border-radius: 16px !important;
-  padding: 1.5rem !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 1rem !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  transition: all 0.3s ease !important;
-  border: 1px solid transparent !important;
-}
-
-.uc-container .uc-stat-online {
-  border-color: rgba(16, 185, 129, 0.2) !important;
-  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%) !important;
-}
-
-.uc-container .uc-stat-events {
-  border-color: rgba(59, 130, 246, 0.2) !important;
-  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
-}
-
-.uc-container .uc-stat-summary {
-  border-color: rgba(139, 92, 246, 0.2) !important;
-  background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%) !important;
-}
 
 /* Section headers */
 .uc-section {

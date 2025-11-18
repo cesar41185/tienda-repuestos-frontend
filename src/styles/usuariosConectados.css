@@ -1,0 +1,85 @@
+/* Estilos específicos para Monitoreo de Usuarios */
+.uc-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.uc-stat-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.uc-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.uc-stat-online {
+  border-color: rgba(16, 185, 129, 0.2);
+  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+}
+.uc-stat-online:hover { border-color: var(--success-500); }
+
+.uc-stat-events {
+  border-color: rgba(59, 130, 246, 0.2);
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+}
+.uc-stat-events:hover { border-color: var(--info-500); }
+
+.uc-stat-summary {
+  border-color: rgba(139, 92, 246, 0.2);
+  background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
+}
+.uc-stat-summary:hover { border-color: var(--purple-500); }
+
+.uc-stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.uc-stat-online .uc-stat-icon {
+  background: linear-gradient(135deg, var(--success-500), var(--success-600));
+  color: white;
+}
+.uc-stat-events .uc-stat-icon {
+  background: linear-gradient(135deg, var(--info-500), var(--info-600));
+  color: white;
+}
+.uc-stat-summary .uc-stat-icon {
+  background: linear-gradient(135deg, var(--purple-500), var(--purple-600));
+  color: white;
+}
+
+.uc-stat-content { flex: 1; }
+.uc-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--muted-700);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.uc-stat-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted-600);
+  margin-bottom: 0.25rem;
+}
+.uc-stat-sublabel {
+  font-size: 0.75rem;
+  color: var(--muted-400);
+  font-weight: 400;
+}

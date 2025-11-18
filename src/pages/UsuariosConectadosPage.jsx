@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import API_URL from '../apiConfig';
 import toast from 'react-hot-toast';
 import ActionIcon from '../components/icons/ActionIcon';
+import '../styles/usuariosConectados.css';
 
 function UsuariosConectadosPage() {
   const { token, user } = useAuth();
@@ -83,9 +84,9 @@ function UsuariosConectadosPage() {
         )}
       </div>
 
-      {/* Stat cards con estilos inline de refuerzo por problemas de carga de CSS en producción */}
-      <div className="uc-stats-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:'1.5rem',marginBottom:'2rem'}}>
-        <div className="uc-stat-card uc-stat-online" style={{background:'linear-gradient(135deg,#ffffff 0%,#ecfdf5 100%)',borderRadius:'16px',padding:'1.5rem',display:'flex',alignItems:'center',gap:'1rem',boxShadow:'0 4px 12px rgba(0,0,0,0.08)',border:'1px solid rgba(16,185,129,0.2)'}}>
+      {/* Stat cards usando hoja de estilos dedicada */}
+      <div className="uc-stats-grid">
+        <div className="uc-stat-card uc-stat-online">
           <div className="uc-stat-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
@@ -98,7 +99,7 @@ function UsuariosConectadosPage() {
             <div className="uc-stat-sublabel">Activos últimos 5 min</div>
           </div>
         </div>
-        <div className="uc-stat-card uc-stat-events" style={{background:'linear-gradient(135deg,#ffffff 0%,#eff6ff 100%)',borderRadius:'16px',padding:'1.5rem',display:'flex',alignItems:'center',gap:'1rem',boxShadow:'0 4px 12px rgba(0,0,0,0.08)',border:'1px solid rgba(59,130,246,0.2)'}}>
+        <div className="uc-stat-card uc-stat-events">
           <div className="uc-stat-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 11l3 3L22 4"/>
@@ -111,7 +112,7 @@ function UsuariosConectadosPage() {
             <div className="uc-stat-sublabel">Últimos 7 días</div>
           </div>
         </div>
-        <div className="uc-stat-card uc-stat-summary" style={{background:'linear-gradient(135deg,#ffffff 0%,#f5f3ff 100%)',borderRadius:'16px',padding:'1.5rem',display:'flex',alignItems:'center',gap:'1rem',boxShadow:'0 4px 12px rgba(0,0,0,0.08)',border:'1px solid rgba(139,92,246,0.2)'}}>
+        <div className="uc-stat-card uc-stat-summary">
           <div className="uc-stat-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
