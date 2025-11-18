@@ -133,11 +133,17 @@ function UsuariosConectadosPage() {
           <tbody>
             {pageItems.map((r, idx) => (
               <tr key={idx}>
-                <td>{new Date(r.timestamp).toLocaleString()}</td>
-                <td>{r.username}</td>
-                <td>{r.action}</td>
-                <td>{r.ip}</td>
-                <td className="uc-agent-cell" title={r.user_agent}>{r.user_agent}</td>
+                <td className="col-time">{new Date(r.timestamp).toLocaleString()}</td>
+                <td className="col-user">{r.username}</td>
+                <td className="col-action">
+                  {r.action === 'LOGIN' ? (
+                    <span className="uc-action-icon login" title="Login">➜</span>
+                  ) : (
+                    <span className="uc-action-icon logout" title="Logout">←</span>
+                  )}
+                </td>
+                <td className="col-ip">{r.ip}</td>
+                <td className="col-agent uc-agent-cell" title={r.user_agent}>{r.user_agent}</td>
               </tr>
             ))}
           </tbody>

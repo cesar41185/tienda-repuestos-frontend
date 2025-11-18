@@ -900,12 +900,35 @@
   color: var(--muted-600);
 }
 
+
+/* Column helpers */
+.col-user { width: 240px; }
+.col-name { width: 220px; }
+.col-time { width: 200px; }
+.col-ip { width: 140px; }
+.col-action { width: 80px; text-align: center }
+.col-agent { min-width: 180px; }
 .uc-name {
   font-size: 0.85rem;
   color: var(--muted-400);
 }
 
 .uc-table th {
+
+.uc-action-icon {
+  display:inline-flex;
+  width:18px;
+  height:18px;
+  align-items:center;
+  justify-content:center;
+  border-radius:4px;
+}
+.uc-action-icon.login { background: rgba(16,185,129,0.12); color: #059669 }
+.uc-action-icon.logout { background: rgba(239,68,68,0.08); color: #ef4444 }
+
+/* Slightly tighter table spacing for compact view */
+.uc-table th { padding: 0.6rem 0.6rem }
+.uc-table td { padding: 0.55rem 0.6rem }
   background: #f8fafc;
   padding: 0.85rem 0.75rem;
 }
