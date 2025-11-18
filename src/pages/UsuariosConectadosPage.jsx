@@ -157,7 +157,7 @@ function UsuariosConectadosPage() {
                   </div>
                 </td>
                 <td className="col-time">{new Date(u.last_seen).toLocaleString()}</td>
-                <td className="col-ip">{u.last_ip}</td>
+                <td className="col-ip"><span>{u.last_ip}</span></td>
                 <td className="col-agent uc-agent-cell" title={u.last_user_agent}>{u.last_user_agent}</td>
               </tr>
             ))}
@@ -212,7 +212,7 @@ function UsuariosConectadosPage() {
                     <span className={`uc-badge ${r.action.toLowerCase()}`}>{r.action === 'LOGIN' ? 'Ingreso' : 'Salida'}</span>
                   </div>
                 </td>
-                <td className="col-ip">{r.ip}</td>
+                <td className="col-ip"><span>{r.ip}</span></td>
                 <td className="col-agent uc-agent-cell" title={r.user_agent}>{r.user_agent}</td>
               </tr>
             ))}
