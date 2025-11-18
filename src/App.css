@@ -844,6 +844,15 @@
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
 }
 
+/* Branding variables (override these to match your brand) */
+:root {
+  --brand-500: #2563eb; /* primary */
+  --brand-400: #60a5fa;
+  --muted-600: #374151;
+  --muted-400: #9ca3af;
+  --card-bg: #ffffff;
+}
+
 .uc-header {
   display: flex;
   justify-content: space-between;
@@ -876,7 +885,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg,#60a5fa,#6366f1);
+  background: linear-gradient(135deg,var(--brand-400),var(--brand-500));
   color: white;
   font-weight: 700;
 }
@@ -888,18 +897,20 @@
 
 .uc-username {
   font-weight: 600;
-  color: #111827;
+  color: var(--muted-600);
 }
 
 .uc-name {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--muted-400);
 }
 
 .uc-table th {
   background: #f8fafc;
   padding: 0.85rem 0.75rem;
 }
+
+.uc-table th { color: var(--muted-600); font-weight:700 }
 
 .uc-table td {
   padding: 0.8rem 0.75rem;
@@ -916,6 +927,39 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Search + pagination */
+.uc-search-row {
+  display:flex;
+  gap:0.5rem;
+  align-items:center;
+  margin-bottom:0.75rem;
+}
+
+.uc-search-input{
+  padding:0.5rem 0.75rem;
+  border:1px solid #e6e9ef;
+  border-radius:8px;
+  width: 320px;
+}
+
+.uc-pagination{
+  display:flex;
+  gap:0.5rem;
+  align-items:center;
+  justify-content:flex-end;
+  margin-top:0.5rem;
+}
+
+.uc-page-btn{
+  padding:0.4rem 0.7rem;
+  border-radius:6px;
+  border:1px solid #e6e9ef;
+  background:transparent;
+  cursor:pointer;
+}
+
+.uc-page-btn.active{ background:var(--brand-500); color:white; border-color:var(--brand-500) }
 
 @media (max-width: 900px) {
   .uc-avatar { width:32px; height:32px; font-size:0.85rem }

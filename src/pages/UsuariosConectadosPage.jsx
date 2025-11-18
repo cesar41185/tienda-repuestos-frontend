@@ -8,6 +8,9 @@ function UsuariosConectadosPage() {
   const [online, setOnline] = useState({ count: 0, results: [] });
   const [logins, setLogins] = useState({ count: 0, results: [] });
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   const initials = (nombre, username) => {
     const source = nombre || username || '';
@@ -43,6 +46,20 @@ function UsuariosConectadosPage() {
   }, [token]);
 
   if (loading) return <p>Cargando monitoreo...</p>;
+
+  // Derived values for history filtering & pagination
+  const filteredLogins = logins.results.filter(r => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (r.username || '').toLowerCase().includes(s)
+      || (r.action || '').toLowerCase().includes(s)
+      || (r.ip || '').toLowerCase().includes(s)
+      || (r.user_agent || '').toLowerCase().includes(s);
+  });
+
+  const pageCount = Math.max(1, Math.ceil(filteredLogins.length / pageSize));
+  const pageSafe = Math.min(Math.max(1, page), pageCount);
+  const pageItems = filteredLogins.slice((pageSafe - 1) * pageSize, pageSafe * pageSize);
 
   return (
     <div className="gestor-container uc-container">
@@ -86,7 +103,22 @@ function UsuariosConectadosPage() {
         </table>
       </div>
 
-      <h3>Historial Reciente (7 días)</h3>
+      <div className="uc-search-row">
+        <div style={{flex:1}}>
+          <h3 style={{margin:'0 0 0.5rem 0'}}>Historial Reciente (7 días)</h3>
+          <input className="uc-search-input" placeholder="Buscar por usuario, acción, IP o user-agent" value={search} onChange={e=>{setSearch(e.target.value); setPage(1)}} />
+        </div>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <label style={{fontSize:12,color:'#6b7280'}}>Por página</label>
+          <select value={pageSize} onChange={e=>{setPageSize(parseInt(e.target.value,10)); setPage(1)}} style={{padding:'0.35rem',borderRadius:6}}>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
+      </div>
+
       <div className="tabla-wrapper">
         <table className="uc-table vehiculos-table">
           <thead>
@@ -99,7 +131,7 @@ function UsuariosConectadosPage() {
             </tr>
           </thead>
           <tbody>
-            {logins.results.map((r, idx) => (
+            {pageItems.map((r, idx) => (
               <tr key={idx}>
                 <td>{new Date(r.timestamp).toLocaleString()}</td>
                 <td>{r.username}</td>
@@ -110,6 +142,15 @@ function UsuariosConectadosPage() {
             ))}
           </tbody>
         </table>
+        <div className="uc-pagination" style={{marginTop:8}}>
+          <button className="uc-page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={pageSafe===1}>Prev</button>
+          {Array.from({length:pageCount}).slice(0,10).map((_,i)=>{
+            const p = i+1;
+            return <button key={p} className={`uc-page-btn ${p===pageSafe? 'active':''}`} onClick={()=>setPage(p)}>{p}</button>
+          })}
+          {pageCount>10 && <span style={{paddingLeft:8,color:'#6b7280'}}>... {pageCount} páginas</span>}
+          <button className="uc-page-btn" onClick={()=>setPage(p=>Math.min(pageCount,p+1))} disabled={pageSafe===pageCount}>Next</button>
+        </div>
       </div>
     </div>
   );
