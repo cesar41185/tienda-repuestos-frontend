@@ -67,31 +67,71 @@ function UsuariosConectadosPage() {
 
   return (
     <div className="gestor-container uc-container" aria-labelledby="uc-title">
-      <div className="uc-header">
-        <h2 id="uc-title">Usuarios Conectados</h2>
-        <div className="uc-meta">
-          <span className="uc-count" aria-live="polite">Online (últimos 5 minutos): <strong>{online.count}</strong></span>
-          {lastRefresh && <span className="uc-refresh">Actualizado: {lastRefresh.toLocaleTimeString()}</span>}
+      <div className="uc-hero">
+        <div className="uc-hero-content">
+          <h1 id="uc-title">👥 Monitoreo de Usuarios</h1>
+          <p className="uc-hero-subtitle">Panel de control en tiempo real</p>
+        </div>
+        {lastRefresh && (
+          <div className="uc-refresh-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+            </svg>
+            <span>Actualizado: {lastRefresh.toLocaleTimeString()}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Stat cards mejoradas */}
+      <div className="uc-stats-grid">
+        <div className="uc-stat-card uc-stat-online">
+          <div className="uc-stat-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="3" fill="currentColor"/>
+            </svg>
+          </div>
+          <div className="uc-stat-content">
+            <div className="uc-stat-value">{online.count}</div>
+            <div className="uc-stat-label">Usuarios Online</div>
+            <div className="uc-stat-sublabel">Activos últimos 5 min</div>
+          </div>
+        </div>
+        <div className="uc-stat-card uc-stat-events">
+          <div className="uc-stat-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+          </div>
+          <div className="uc-stat-content">
+            <div className="uc-stat-value">{logins.count}</div>
+            <div className="uc-stat-label">Eventos Totales</div>
+            <div className="uc-stat-sublabel">Últimos 7 días</div>
+          </div>
+        </div>
+        <div className="uc-stat-card uc-stat-summary">
+          <div className="uc-stat-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <div className="uc-stat-content">
+            <div className="uc-stat-value">{new Set(logins.results.map(r=>r.username)).size}</div>
+            <div className="uc-stat-label">Usuarios Únicos</div>
+            <div className="uc-stat-sublabel">Con actividad reciente</div>
+          </div>
         </div>
       </div>
 
-      {/* Stat cards */}
-      <div className="uc-stats-row" style={{marginBottom:'1rem'}}>
-        <div className="uc-stat-card">
-          <div className="uc-stat-value" aria-label="Usuarios en línea">{online.count}</div>
-          <div className="uc-stat-label">ONLINE</div>
+      <div className="uc-section">
+        <div className="uc-section-header">
+          <h2>🟢 Conectados Ahora</h2>
+          <span className="uc-count-badge">{online.count} {online.count === 1 ? 'usuario' : 'usuarios'}</span>
         </div>
-        <div className="uc-stat-card">
-          <div className="uc-stat-value" aria-label="Eventos total">{logins.count}</div>
-          <div className="uc-stat-label">EVENTOS</div>
-        </div>
-        <div className="uc-stat-card">
-          <div className="uc-stat-value" style={{fontSize:'0.9rem'}}>{lastRefresh ? lastRefresh.toLocaleTimeString() : '--'}</div>
-          <div className="uc-stat-label">REFRESCO</div>
-        </div>
-      </div>
-
-      <div className="tabla-wrapper" aria-label="Usuarios actualmente conectados">
+        <div className="tabla-wrapper" aria-label="Usuarios actualmente conectados">
         <table className="uc-table vehiculos-table">
           <thead>
             <tr>
@@ -123,22 +163,31 @@ function UsuariosConectadosPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'1rem 0 0.5rem'}}>
-        <h3 style={{margin:0,fontSize:'1rem',color:'var(--muted-700)'}}>Historial (7 días)</h3>
-        <input
-          type="text"
-          className="uc-search-input"
-          placeholder="Buscar usuario / IP / agente"
-          aria-label="Buscar en historial"
-          value={search}
-          onChange={e=>{setSearch(e.target.value); setPage(1);}}
-          style={{minWidth:'240px'}}
-        />
-      </div>
-
-      <div className="tabla-wrapper" aria-label="Historial de accesos">
+      <div className="uc-section" style={{marginTop:'2rem'}}>
+        <div className="uc-section-header">
+          <h2>📋 Historial de Accesos</h2>
+          <span className="uc-count-badge">{filteredLogins.length} registros</span>
+        </div>
+        <div style={{display:'flex',justifyContent:'flex-end',alignItems:'center',marginBottom:'0.75rem'}}>
+          <div className="uc-search-wrapper">
+            <svg className="uc-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              className="uc-search-input"
+              placeholder="Buscar usuario, IP o navegador..."
+              aria-label="Buscar en historial"
+              value={search}
+              onChange={e=>{setSearch(e.target.value); setPage(1);}}
+            />
+          </div>
+        </div>
+        <div className="tabla-wrapper" aria-label="Historial de accesos">
         <table className="uc-table vehiculos-table">
           <thead>
             <tr>
@@ -158,16 +207,19 @@ function UsuariosConectadosPage() {
                 <td className="col-time">{new Date(r.timestamp).toLocaleString()}</td>
                 <td className="col-user">{r.username}</td>
                 <td className="col-action">
-                  <ActionIcon type={r.action} />{' '}
-                  <span className={`uc-badge ${r.action.toLowerCase()}`}>{r.action}</span>
+                  <div className="uc-action-wrapper">
+                    <ActionIcon type={r.action} />
+                    <span className={`uc-badge ${r.action.toLowerCase()}`}>{r.action === 'LOGIN' ? 'Ingreso' : 'Salida'}</span>
+                  </div>
                 </td>
                 <td className="col-ip">{r.ip}</td>
                 <td className="col-agent uc-agent-cell" title={r.user_agent}>{r.user_agent}</td>
               </tr>
             ))}
           </tbody>
-        </table>
-        <div className="uc-pagination" style={{marginTop:8}}>
+          </table>
+        </div>
+        <div className="uc-pagination" style={{marginTop:12}}>
           <button className="uc-page-btn" aria-label="Página anterior" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={pageSafe===1}>Prev</button>
           {Array.from({length:pageCount}).slice(0,10).map((_,i)=>{
             const p = i+1;
