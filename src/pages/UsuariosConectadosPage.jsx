@@ -143,7 +143,7 @@ function UsuariosConectadosPage() {
           </thead>
           <tbody>
             {online.results.length === 0 && (
-              <tr><td colSpan={4} style={{textAlign:'center',color:'#64748b'}}>No hay usuarios conectados.</td></tr>
+              <tr><td colSpan={4} className="uc-empty-state">No hay usuarios conectados en este momento</td></tr>
             )}
             {online.results.map(u => (
               <tr key={u.id}>
@@ -200,7 +200,7 @@ function UsuariosConectadosPage() {
           </thead>
           <tbody>
             {pageItems.length === 0 && (
-              <tr><td colSpan={5} style={{textAlign:'center',color:'#64748b'}}>Sin coincidencias.</td></tr>
+              <tr><td colSpan={5} className="uc-empty-state">No se encontraron registros que coincidan con tu búsqueda</td></tr>
             )}
             {pageItems.map((r, idx) => (
               <tr key={idx}>
