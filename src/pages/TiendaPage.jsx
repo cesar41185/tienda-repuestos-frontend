@@ -606,7 +606,7 @@ function TiendaPage() {
               <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>⚙️</div>
             ) : (
               <img
-                src="/icons/valvula.png"
+                src="/icons/valvula1.png"
                 alt="Válvulas"
                 style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: '10px' }}
                 onError={() => setValvulaIconError(true)}
