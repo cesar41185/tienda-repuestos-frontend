@@ -56,6 +56,8 @@ function TiendaPage() {
   // --- NUEVO: estado de vista (grilla de tipos o lista) ---
   const [vistaTienda, setVistaTienda] = useState(tipo ? 'list' : 'grid'); // 'grid' | 'list'
   const [tipoSeleccionado, setTipoSeleccionado] = useState(initialTipoSeleccionado); // p.ej. 'VALVULA'
+  // Estado para manejo de icono de válvulas (PNG con fallback)
+  const [valvulaIconError, setValvulaIconError] = useState(false);
   
   // --- FUNCIONES (actualizadas a 'producto') ---
   const getQueryParam = (urlStr, key) => {
@@ -600,7 +602,16 @@ function TiendaPage() {
             style={{ cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', background: '#f8f8f8' }}
             title="Ver Válvulas"
           >
-            <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>⚙️</div>
+            {valvulaIconError ? (
+              <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>⚙️</div>
+            ) : (
+              <img
+                src="/icons/valvula.png"
+                alt="Válvulas"
+                style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: '10px' }}
+                onError={() => setValvulaIconError(true)}
+              />
+            )}
             <div style={{ fontWeight: 'bold' }}>Válvulas</div>
           </div>
           <div 
