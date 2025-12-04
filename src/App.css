@@ -1221,6 +1221,23 @@ td.col-ip span {
   color: var(--muted-700);
 }
 
+/* Tile icon for product types (responsive) */
+.tipo-tile-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 640px) {
+  .tipo-tile-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 8px;
+  }
+}
+
 .uc-count-badge {
   background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
   color: white;
