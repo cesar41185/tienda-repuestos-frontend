@@ -1,6 +1,7 @@
 // En src/App.jsx
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import './App.css';
 
 // Importación de Componentes
 import Header from './components/Header';
