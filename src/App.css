@@ -1241,18 +1241,21 @@ td.col-ip span {
 /* Grid and tile container to keep tiles uniform and prevent overlap */
 .tipos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
   align-items: stretch;
+  width: 100%;
+  max-width: 100vw;
 }
 
 .tipo-tile {
-  min-height: 260px; /* make all tiles large and consistent */
+  min-height: 420px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  position: relative;
 }
 
 @media (max-width: 640px) {
@@ -1273,13 +1276,14 @@ td.col-ip span {
 .tipo-tile--fullimg { position: relative; padding: 0; }
 .tipo-tile--fullimg .tipo-tile-icon {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  height: 120%;
-  width: auto;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   z-index: 1;
+  max-width: 100%;
+  max-height: 100%;
 }
 .tipo-tile--fullimg .tipo-tile-content {
   position: relative;
