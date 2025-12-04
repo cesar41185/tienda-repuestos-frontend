@@ -599,33 +599,25 @@ function TiendaPage() {
         <h2>Productos</h2>
         <div className="tipos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
           <div 
-            className="tipo-tile tipo-tile--fullimg"
+            className="tipo-tile tipo-tile--valvula"
             onClick={() => handleSeleccionarTipo('VALVULA')} 
             style={{ cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', padding: '0', textAlign: 'center', background: '#f8f8f8' }}
             title="Ver Válvulas"
           >
-            {valvulaIconError ? (
-              <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>⚙️</div>
-            ) : (
-              <img
-                src={valvula1}
-                alt="Válvulas"
-                className="tipo-tile-icon"
-                onError={() => setValvulaIconError(true)}
-              />
-            )}
             <div className="tipo-tile-content">
               <div style={{ fontWeight: 'bold' }}>Válvulas</div>
             </div>
           </div>
           <div 
-            className="tipo-tile"
+            className="tipo-tile tipo-tile--guia"
             onClick={() => handleSeleccionarTipo('GUIA_VALVULA')} 
-            style={{ cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', background: '#f8f8f8' }}
+            style={{ cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', padding: '0', textAlign: 'center', background: '#f8f8f8' }}
             title="Ver Guías de Válvulas"
           >
-            <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>🔧</div>
-            <div className="tipo-tile-content" style={{ fontWeight: 'bold' }}>Guías de Válvulas</div>
+            <div className="tipo-tile-content">
+              <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>🔧</div>
+              <div style={{ fontWeight: 'bold' }}>Guías de Válvulas</div>
+            </div>
           </div>
           {/* Aquí luego añadiremos más tipos (FILTRO, BUJIA, etc.) */}
         </div>

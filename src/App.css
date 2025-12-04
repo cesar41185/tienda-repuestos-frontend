@@ -1,3 +1,31 @@
+.tipo-tile--valvula {
+  background-image: url('/assets/valvula1-Bovz3kIG.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 420px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.tipo-tile--valvula .tipo-tile-content {
+  width: 100%;
+  background: linear-gradient(to top, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.0) 40%);
+  padding-bottom: 24px;
+  text-align: center;
+}
+
+.tipo-tile--guia {
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tipo-tile--guia .tipo-tile-content {
+  width: 100%;
+  text-align: center;
+}
 /* Estilos para tabs de vehículos */
 .vehiculos-tabs {
   width: 100%;
