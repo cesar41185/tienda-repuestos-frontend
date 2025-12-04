@@ -100,7 +100,7 @@ function TiendaPage() {
     return p.fotos.some(f => f && f.imagen && String(f.imagen).trim() !== '');
   };
 
-  const buscarProductos = async (url = null, overrideOnlyNoPhoto = null) => {
+  const buscarProductos = async (url = null, overrideOnlyNoPhoto = null, overridePageSize = null) => {
     setCargando(true);
     // Cancelar petición anterior si existe
     if (activeFetchRef.current) {
@@ -111,6 +111,8 @@ function TiendaPage() {
     
     // Determinar modo 'solo sin foto' con posible override (para evitar el retraso de setState)
     const onlyNoPhoto = overrideOnlyNoPhoto !== null ? overrideOnlyNoPhoto : showOnlyNoPhoto;
+    // Determinar tamaño de página con posible override
+    const finalPageSize = overridePageSize !== null ? overridePageSize : pageSize;
     
     let finalUrl = url;
     if (!finalUrl) {
@@ -122,7 +124,7 @@ function TiendaPage() {
       const params = new URLSearchParams(filtros);
       const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
       params.append('ordering', ordering);
-      params.append('page_size', String(pageSize)); // Usar tamaño de página preferido
+      params.append('page_size', String(finalPageSize)); // Usar tamaño de página preferido
       if (onlyNoPhoto) params.append('has_photo', 'false');
       finalUrl = `${API_URL}/productos/?${params.toString()}`;
     } else if (onlyNoPhoto && url) {
@@ -135,7 +137,7 @@ function TiendaPage() {
       const ordering = sortConfig.direction === 'descending' ? `-${sortConfig.key}` : sortConfig.key;
       params.append('ordering', ordering);
       params.append('has_photo', 'false');
-      params.append('page_size', String(pageSize)); // Usar tamaño de página preferido
+      params.append('page_size', String(finalPageSize)); // Usar tamaño de página preferido
       params.append('page', pageNum);
       finalUrl = `${API_URL}/productos/?${params.toString()}`;
     }
@@ -194,10 +196,8 @@ function TiendaPage() {
     localStorage.setItem('tienda_pageSize', String(newSize));
     // Volver a página 1 cuando cambia el tamaño
     setPageJump(1);
-    // Forzar búsqueda pasando true para que recargue con el nuevo tamaño
-    setTimeout(() => {
-      buscarProductos();
-    }, 0);
+    // Hacer búsqueda inmediatamente con el nuevo tamaño (sin esperar setState)
+    buscarProductos(null, null, newSize);
   };
 
   // Contar productos sin foto para los filtros actuales (momentáneo)
@@ -441,13 +441,6 @@ function TiendaPage() {
     };
     fetchMarcas();
   }, []);
-
-  // Cuando cambia el tamaño de página, recargar productos con página 1
-  useEffect(() => {
-    if (vistaTienda === 'list' && tipoSeleccionado) {
-      buscarProductos();
-    }
-  }, [pageSize]);
 
   // Si la URL cambia (p.ej. navegación directa), sincronizar vista/filtros
   useEffect(() => {
