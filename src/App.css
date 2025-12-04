@@ -1261,6 +1261,39 @@ td.col-ip span {
   }
 }
 
+/* Two-column fixed layout on large screens, single column on small screens */
+@media (min-width: 1024px) {
+  .tipos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tipo-tile { min-height: 420px; }
+}
+
+/* Full-image tile adjustments: place the image centered and cover the tile */
+.tipo-tile--fullimg { position: relative; padding: 0; }
+.tipo-tile--fullimg .tipo-tile-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 120%;
+  width: auto;
+  object-fit: cover;
+  z-index: 1;
+}
+.tipo-tile--fullimg .tipo-tile-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+  background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.0) 40%);
+}
+
+.tipo-tile-content { width: 100%; }
+
 .uc-count-badge {
   background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
   color: white;
