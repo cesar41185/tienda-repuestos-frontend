@@ -622,6 +622,26 @@ function TiendaPage() {
               <div className="tipo-tile-label">Guías de Válvulas</div>
             </div>
           </div>
+          <div 
+            className="tipo-tile"
+            onClick={() => handleSeleccionarTipo('TAQUETE')} 
+            title="Ver Taquetes"
+          >
+            <div className="tipo-tile-content">
+              <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>⚡</div>
+              <div className="tipo-tile-label">Taquete</div>
+            </div>
+          </div>
+          <div 
+            className="tipo-tile"
+            onClick={() => handleSeleccionarTipo('CUNAS')} 
+            title="Ver Cuñas"
+          >
+            <div className="tipo-tile-content">
+              <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>📐</div>
+              <div className="tipo-tile-label">Cuñas</div>
+            </div>
+          </div>
         </div>
       </>
     );

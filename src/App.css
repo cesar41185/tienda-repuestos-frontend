@@ -38,7 +38,7 @@
 
 .tipo-tile-img {
   max-width: 90%;
-  max-height: 70%;
+  max-height: 200px;
   margin-bottom: 18px;
   object-fit: contain;
   display: block;
