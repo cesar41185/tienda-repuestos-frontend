@@ -192,8 +192,12 @@ function TiendaPage() {
   const handlePageSizeChange = (newSize) => {
     setPageSize(newSize);
     localStorage.setItem('tienda_pageSize', String(newSize));
-    // Volver a página 1 y refrescar
-    buscarProductos();
+    // Volver a página 1 cuando cambia el tamaño
+    setPageJump(1);
+    // Forzar búsqueda pasando true para que recargue con el nuevo tamaño
+    setTimeout(() => {
+      buscarProductos();
+    }, 0);
   };
 
   // Contar productos sin foto para los filtros actuales (momentáneo)
@@ -437,6 +441,13 @@ function TiendaPage() {
     };
     fetchMarcas();
   }, []);
+
+  // Cuando cambia el tamaño de página, recargar productos con página 1
+  useEffect(() => {
+    if (vistaTienda === 'list' && tipoSeleccionado) {
+      buscarProductos();
+    }
+  }, [pageSize]);
 
   // Si la URL cambia (p.ej. navegación directa), sincronizar vista/filtros
   useEffect(() => {
