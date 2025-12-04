@@ -609,7 +609,7 @@ function TiendaPage() {
               <img
                 src={valvula1}
                 alt="Válvulas"
-                style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: '10px' }}
+                style={{ width: 64, height: 64, objectFit: 'contain', marginBottom: '8px' }}
                 onError={() => setValvulaIconError(true)}
               />
             )}
