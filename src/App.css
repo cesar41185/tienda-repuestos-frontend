@@ -1,3 +1,63 @@
+/* Nueva grilla de productos: dos columnas fijas, 100% ancho */
+.tipos-grid-full {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto 2rem auto;
+}
+
+.tipo-tile {
+  min-height: 420px;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.tipo-tile:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1.01);
+}
+
+.tipo-tile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.tipo-tile-img {
+  max-width: 90%;
+  max-height: 70%;
+  margin-bottom: 18px;
+  object-fit: contain;
+  display: block;
+}
+
+.tipo-tile-label {
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .tipos-grid-full {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .tipo-tile {
+    min-height: 300px;
+  }
+}
 .tipo-tile--valvula {
   background-image: url('/assets/valvula1-Bovz3kIG.png');
   background-size: cover;
