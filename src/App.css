@@ -1,17 +1,15 @@
-/* Nueva grilla de productos: dos columnas fijas, 100% ancho */
+/* Nueva grilla de productos: dos columnas fijas, ancho completo con padding */
 .tipos-grid-full {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  padding: 0 16px;
-  box-sizing: border-box;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  width: 100%;
+  margin: 0 auto 2rem auto;
+  padding: 0 20px;
 }
 
 .tipo-tile {
-  min-height: 420px;
+  min-height: 380px;
   background: #f8f8f8;
   border: 1px solid #ddd;
   border-radius: 12px;
@@ -37,53 +35,51 @@
 }
 
 .tipo-tile-img {
-  max-width: 90%;
-  max-height: 200px;
-  margin-bottom: 18px;
+  max-width: 85%;
+  max-height: 180px;
+  margin-bottom: 16px;
   object-fit: contain;
   display: block;
 }
 
 .tipo-tile-label {
   font-weight: bold;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   margin-top: 0.5rem;
   text-align: center;
+  color: #333;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .tipos-grid-full {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .tipo-tile {
-    min-height: 300px;
+    gap: 24px;
+    padding: 0 16px;
   }
 }
+
+@media (max-width: 768px) {
+  .tipos-grid-full {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .tipo-tile {
+    min-height: 280px;
+  }
+}
+
 .tipo-tile--valvula {
-  background-image: url('/assets/valvula1-Bovz3kIG.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 420px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  position: relative;
 }
 
 .tipo-tile--valvula .tipo-tile-content {
   width: 100%;
-  background: linear-gradient(to top, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.0) 40%);
-  padding-bottom: 24px;
   text-align: center;
 }
 
 .tipo-tile--guia {
-  min-height: 420px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
 }
+
 .tipo-tile--guia .tipo-tile-content {
   width: 100%;
   text-align: center;
