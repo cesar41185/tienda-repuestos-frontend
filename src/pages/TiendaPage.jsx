@@ -1,5 +1,6 @@
 // En src/pages/TiendaPage.jsx
 import { useState, useEffect, useRef } from 'react';
+import valvula1 from '../assets/valvula1.png';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Buscador from '../components/Buscador';
@@ -606,7 +607,7 @@ function TiendaPage() {
               <div style={{ fontSize: '2.2rem', marginBottom: '10px' }}>⚙️</div>
             ) : (
               <img
-                src="/icons/valvula1.png"
+                src={valvula1}
                 alt="Válvulas"
                 style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: '10px' }}
                 onError={() => setValvulaIconError(true)}
