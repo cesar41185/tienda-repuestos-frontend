@@ -597,8 +597,9 @@ function TiendaPage() {
     return (
       <>
         <h2>Productos</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+        <div className="tipos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
           <div 
+            className="tipo-tile"
             onClick={() => handleSeleccionarTipo('VALVULA')} 
             style={{ cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', background: '#f8f8f8' }}
             title="Ver Válvulas"
@@ -616,6 +617,7 @@ function TiendaPage() {
             <div style={{ fontWeight: 'bold' }}>Válvulas</div>
           </div>
           <div 
+            className="tipo-tile"
             onClick={() => handleSeleccionarTipo('GUIA_VALVULA')} 
             style={{ cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', background: '#f8f8f8' }}
             title="Ver Guías de Válvulas"

@@ -1238,6 +1238,29 @@ td.col-ip span {
   }
 }
 
+/* Grid and tile container to keep tiles uniform and prevent overlap */
+.tipos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.tipo-tile {
+  min-height: 260px; /* make all tiles large and consistent */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .tipo-tile {
+    min-height: 200px;
+  }
+}
+
 .uc-count-badge {
   background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
   color: white;
